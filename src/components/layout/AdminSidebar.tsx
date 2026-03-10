@@ -5,7 +5,7 @@ import {
   FolderOpen,
   ShoppingBag,
   Users,
-  MessageSquare,
+
   Settings,
   Palette,
   Tag,
