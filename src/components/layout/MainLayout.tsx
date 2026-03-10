@@ -14,7 +14,7 @@ export default function MainLayout() {
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
-          opacity: 0.15,
+          opacity: 0.7,
         }}
       />
       <Header />
