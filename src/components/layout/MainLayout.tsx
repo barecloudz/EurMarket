@@ -6,11 +6,11 @@ import BottomNav from './BottomNav';
 export default function MainLayout() {
   return (
     <div className="min-h-screen flex flex-col relative">
-      {/* Hexagon Background Pattern */}
+      {/* Background */}
       <div
         className="fixed inset-0 pointer-events-none z-0"
         style={{
-          backgroundImage: `url("/images/hexagon-wall-background.jpg")`,
+          backgroundImage: `url("/images/bg.jpeg")`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
