@@ -124,7 +124,7 @@ export default function AdminSidebar() {
       <div className={`p-5 border-b ${isMobile ? 'border-brand-neon/20 bg-brand-charcoal' : 'border-brand-gray'}`}>
         <Link to="/admin" className="flex items-center space-x-2" onClick={() => setMobileOpen(false)}>
           <img
-            src="/images/logo.jpg"
+            src="/images/logo.png"
             alt="Genova's Merch"
             className="h-8 w-auto object-contain"
           />

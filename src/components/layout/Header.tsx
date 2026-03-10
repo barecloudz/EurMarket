@@ -51,7 +51,7 @@ export default function Header() {
           {/* Desktop Left - Logo */}
           <Link to="/" className="hidden md:flex items-center">
             <img
-              src="/images/logo.jpg"
+              src="/images/logo.png"
               alt="Genova's Merch"
               className="h-12 w-auto object-contain"
             />
@@ -60,7 +60,7 @@ export default function Header() {
           {/* Mobile Center - Logo */}
           <Link to="/" className="md:hidden absolute left-1/2 transform -translate-x-1/2">
             <img
-              src="/images/logo.jpg"
+              src="/images/logo.png"
               alt="Genova's Merch"
               className="h-10 w-auto object-contain"
             />

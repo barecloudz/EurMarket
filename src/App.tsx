@@ -83,7 +83,7 @@ function App() {
       <div className="min-h-screen bg-brand-black flex items-center justify-center">
         <div className="text-center">
           <img
-            src="/images/logo.jpg"
+            src="/images/logo.png"
             alt="Genova's Merch"
             className="w-48 h-48 object-contain mx-auto mb-6"
           />
