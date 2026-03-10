@@ -147,7 +147,7 @@ export default function ReturnPolicy() {
                   prior to sending any items back.
                 </p>
                 <Link
-                  to="/custom-quote"
+                  to="/contact"
                   className="inline-flex items-center gap-2 mt-4 text-[var(--color-primary)] hover:opacity-80 transition-opacity"
                 >
                   Contact Us

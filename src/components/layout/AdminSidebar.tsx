@@ -40,7 +40,6 @@ export const storeSubItems = [
 // Customers section
 export const customersSubItems = [
   { href: '/admin/customers', icon: Users, label: 'Customers' },
-  { href: '/admin/quotes', icon: MessageSquare, label: 'Quote Requests' },
   { href: '/admin/reviews', icon: Star, label: 'Reviews' },
 ];
 

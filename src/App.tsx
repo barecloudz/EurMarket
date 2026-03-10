@@ -15,7 +15,7 @@ import ProductDetail from './pages/ProductDetail';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import OrderConfirmation from './pages/OrderConfirmation';
-import CustomQuote from './pages/CustomQuote';
+
 import Wishlist from './pages/Wishlist';
 import ReturnPolicy from './pages/ReturnPolicy';
 import PrivacyPolicy from './pages/PrivacyPolicy';
@@ -32,7 +32,7 @@ import AdminCategories from './pages/admin/Categories';
 import AdminOrders from './pages/admin/Orders';
 import AdminOrderDetail from './pages/admin/OrderDetail';
 import AdminCustomers from './pages/admin/Customers';
-import AdminQuotes from './pages/admin/QuoteRequests';
+
 import AdminSettings from './pages/admin/Settings';
 import AdminThemes from './pages/admin/Themes';
 import AdminPromoCodes from './pages/admin/PromoCodes';
@@ -105,7 +105,7 @@ function App() {
           <Route path="cart" element={<Cart />} />
           <Route path="checkout" element={<Checkout />} />
           <Route path="order-confirmation/:id" element={<OrderConfirmation />} />
-          <Route path="custom-quote" element={<CustomQuote />} />
+
           <Route path="return-policy" element={<ReturnPolicy />} />
           <Route path="privacy-policy" element={<PrivacyPolicy />} />
           <Route path="wishlist" element={<Wishlist />} />
@@ -141,7 +141,7 @@ function App() {
           <Route path="orders/:id" element={<AdminOrderDetail />} />
           <Route path="customers" element={<AdminCustomers />} />
           <Route path="team" element={<AdminTeam />} />
-          <Route path="quotes" element={<AdminQuotes />} />
+
           <Route path="promo-codes" element={<AdminPromoCodes />} />
           <Route path="subscribers" element={<AdminEmailSubscribers />} />
           <Route path="reviews" element={<AdminReviews />} />

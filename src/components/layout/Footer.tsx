@@ -78,9 +78,7 @@ export default function Footer() {
               <Link to="/products" className="text-theme opacity-60 hover:text-[var(--color-primary)] text-sm transition-colors">
                 Products
               </Link>
-              <Link to="/custom-quote" className="text-theme opacity-60 hover:text-[var(--color-primary)] text-sm transition-colors">
-                Custom Orders
-              </Link>
+
               <Link to="/cart" className="text-theme opacity-60 hover:text-[var(--color-primary)] text-sm transition-colors">
                 Cart
               </Link>

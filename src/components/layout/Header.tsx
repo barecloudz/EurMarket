@@ -28,7 +28,6 @@ export default function Header() {
 
   const navLinks = [
     { href: '/products', label: 'Products' },
-    { href: '/custom-quote', label: 'Custom Orders' },
   ];
 
   return (
