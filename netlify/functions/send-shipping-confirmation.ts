@@ -142,7 +142,7 @@ const handler: Handler = async (event) => {
     }
 
     const { data: emailData, error } = await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL || 'Genova's Merch <orders@resend.dev>',
+      from: process.env.RESEND_FROM_EMAIL || "Genovas Merch <orders@resend.dev>",
       to: [data.customerEmail],
       subject: `Your Order #${data.orderNumber} Has Shipped!`,
       html: generateEmailHtml(data),

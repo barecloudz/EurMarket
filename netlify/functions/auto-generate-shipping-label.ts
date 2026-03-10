@@ -192,7 +192,7 @@ const handler: Handler = async (event) => {
     // Send shipping confirmation email via Resend
     const customerEmail = order.guest_email;
     const resendApiKey = process.env.RESEND_API_KEY;
-    const resendFromEmail = process.env.RESEND_FROM_EMAIL || 'Genova's Merch <orders@resend.dev>';
+    const resendFromEmail = process.env.RESEND_FROM_EMAIL || "Genovas Merch <orders@resend.dev>";
 
     if (customerEmail && resendApiKey) {
       try {
