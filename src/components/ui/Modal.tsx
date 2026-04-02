@@ -17,7 +17,6 @@ const sizeStyles = {
 };
 
 export default function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalProps) {
-  // Lock body scroll when modal is open
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -29,21 +28,12 @@ export default function Modal({ isOpen, onClose, title, children, size = 'md' }:
     };
   }, [isOpen]);
 
-  // Handle escape key
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        onClose();
-      }
+      if (e.key === 'Escape') onClose();
     };
-
-    if (isOpen) {
-      window.addEventListener('keydown', handleEscape);
-    }
-
-    return () => {
-      window.removeEventListener('keydown', handleEscape);
-    };
+    if (isOpen) window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
@@ -51,25 +41,24 @@ export default function Modal({ isOpen, onClose, title, children, size = 'md' }:
   return (
     <>
       {/* Overlay */}
-      <div className="fixed inset-0 z-50 bg-black/70" onClick={onClose} />
+      <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm" onClick={onClose} />
 
-      {/* Modal container - scrollable */}
+      {/* Modal container */}
       <div className="fixed inset-0 z-50 overflow-y-auto pointer-events-none">
         <div className="flex min-h-full items-start justify-center p-4 pt-10 pb-10">
-          {/* Modal */}
           <div
             className={`
               pointer-events-auto relative w-full ${sizeStyles[size]}
-              bg-brand-charcoal border border-brand-gray rounded-xl shadow-xl
+              bg-white border border-gray-100 rounded-2xl shadow-xl
             `}
           >
             {/* Header */}
             {title && (
-              <div className="flex items-center justify-between p-4 border-b border-brand-gray">
-                <h2 className="text-lg font-semibold text-white">{title}</h2>
+              <div className="flex items-center justify-between p-5 border-b border-gray-100">
+                <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
                 <button
                   onClick={onClose}
-                  className="text-gray-400 hover:text-white transition-colors"
+                  className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-all"
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -80,14 +69,14 @@ export default function Modal({ isOpen, onClose, title, children, size = 'md' }:
             {!title && (
               <button
                 onClick={onClose}
-                className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors z-10"
+                className="absolute top-4 right-4 p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-all z-10"
               >
                 <X className="h-5 w-5" />
               </button>
             )}
 
             {/* Content */}
-            <div className="p-4">{children}</div>
+            <div className="p-5">{children}</div>
           </div>
         </div>
       </div>

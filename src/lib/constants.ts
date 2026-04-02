@@ -4,9 +4,17 @@ export const ORDER_STATUSES = {
   pending: { label: 'Pending', color: 'bg-yellow-500/20 text-yellow-400' },
   paid: { label: 'Paid', color: 'bg-green-500/20 text-green-400' },
   processing: { label: 'Processing', color: 'bg-blue-500/20 text-blue-400' },
+  partially_shipped: { label: 'Partially Shipped', color: 'bg-orange-500/20 text-orange-400' },
   shipped: { label: 'Shipped', color: 'bg-purple-500/20 text-purple-400' },
   delivered: { label: 'Delivered', color: 'bg-brand-emerald/20 text-brand-neon' },
   cancelled: { label: 'Cancelled', color: 'bg-red-500/20 text-red-400' },
+} as const;
+
+export const FULFILLMENT_STATUSES = {
+  pending: { label: 'Pending', color: 'bg-yellow-500/20 text-yellow-400' },
+  processing: { label: 'Processing', color: 'bg-blue-500/20 text-blue-400' },
+  shipped: { label: 'Shipped', color: 'bg-purple-500/20 text-purple-400' },
+  delivered: { label: 'Delivered', color: 'bg-green-500/20 text-green-400' },
 } as const;
 
 export const QUOTE_STATUSES = {

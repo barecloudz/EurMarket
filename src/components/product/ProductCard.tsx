@@ -19,7 +19,6 @@ export default function ProductCard({ product }: ProductCardProps) {
   const primaryImage = product.images?.find((img) => img.is_primary) || product.images?.[0];
   const inWishlist = isInWishlist(product.id);
 
-  // Calculate discount percentage
   const isOnSale = product.compare_at_price && product.compare_at_price > product.price;
   const discountPercent = isOnSale
     ? Math.round(((product.compare_at_price! - product.price) / product.compare_at_price!) * 100)
@@ -45,10 +44,10 @@ export default function ProductCard({ product }: ProductCardProps) {
   return (
     <Link
       to={`/products/${product.slug}`}
-      className="group bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] overflow-hidden hover:border-[var(--color-primary)]/50 hover:shadow-neon-sm transition-all"
+      className="group bg-white rounded-2xl border border-gray-100 overflow-hidden hover:border-[var(--color-primary)]/40 hover:shadow-lg transition-all duration-200 card-hover"
     >
       {/* Image */}
-      <div className="aspect-square bg-[var(--color-background)] relative overflow-hidden">
+      <div className="aspect-square bg-gray-50 relative overflow-hidden">
         {primaryImage ? (
           <img
             src={primaryImage.image_url}
@@ -57,11 +56,11 @@ export default function ProductCard({ product }: ProductCardProps) {
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
-            <Package className="h-16 w-16 text-gray-600" />
+            <Package className="h-16 w-16 text-gray-300" />
           </div>
         )}
 
-        {/* Stock badge */}
+        {/* Badges */}
         {stockStatus !== 'in_stock' && (
           <div className="absolute top-2 left-2">
             <Badge variant={stockStatus === 'low_stock' ? 'warning' : 'danger'}>
@@ -70,65 +69,63 @@ export default function ProductCard({ product }: ProductCardProps) {
           </div>
         )}
 
-        {/* Featured badge */}
         {product.is_featured && !isOnSale && (
           <div className="absolute top-2 right-2">
             <Badge variant="success">Featured</Badge>
           </div>
         )}
 
-        {/* Sale badge */}
         {isOnSale && (
           <div className="absolute top-2 right-2">
-            <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
+            <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-lg shadow-sm">
               {discountPercent}% OFF
             </span>
           </div>
         )}
 
-        {/* Wishlist button - always bottom left */}
+        {/* Wishlist button */}
         <button
           onClick={handleWishlistToggle}
-          className={`absolute bottom-2 left-2 p-2 rounded-full transition-all ${
+          className={`absolute bottom-2 left-2 p-2 rounded-full transition-all shadow-sm ${
             inWishlist
               ? 'bg-red-500 text-white'
-              : 'bg-white/80 text-gray-600 hover:bg-white hover:text-red-500'
+              : 'bg-white/90 text-gray-400 hover:bg-white hover:text-red-500'
           }`}
         >
           <Heart className={`h-4 w-4 ${inWishlist ? 'fill-current' : ''}`} />
         </button>
 
-        {/* Quick add button */}
+        {/* Quick add — desktop hover */}
         <button
           onClick={handleAddToCart}
           disabled={stockStatus === 'out_of_stock' && !product.continue_selling_when_out_of_stock}
-          className="absolute bottom-2 right-2 p-2 bg-brand-neon text-brand-black rounded-lg opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed hover:bg-brand-emerald"
+          className="absolute bottom-2 right-2 p-2 bg-[var(--color-primary)] text-white rounded-xl opacity-0 group-hover:opacity-100 transition-opacity shadow-sm disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90"
         >
-          <ShoppingCart className="h-5 w-5" />
+          <ShoppingCart className="h-4 w-4" />
         </button>
       </div>
 
       {/* Info */}
-      <div className="p-4">
-        <h3 className="text-theme font-medium mb-1 truncate group-hover:text-[var(--color-primary)] transition-colors">
+      <div className="p-3">
+        <h3 className="text-gray-900 font-medium text-sm mb-1 truncate group-hover:text-[var(--color-primary)] transition-colors">
           {product.name}
         </h3>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-[var(--color-primary)] font-semibold">{formatPrice(product.price)}</span>
+            <span className="text-gray-900 font-bold text-sm">{formatPrice(product.price)}</span>
             {product.compare_at_price && (
-              <span className="text-theme opacity-50 text-sm line-through">
+              <span className="text-gray-400 text-xs line-through">
                 {formatPrice(product.compare_at_price)}
               </span>
             )}
           </div>
-          {/* Mobile Add to Cart */}
+          {/* Mobile add to cart */}
           <button
             onClick={handleAddToCart}
             disabled={stockStatus === 'out_of_stock' && !product.continue_selling_when_out_of_stock}
-            className="md:hidden p-2 bg-brand-neon text-brand-black rounded-lg disabled:opacity-50 disabled:cursor-not-allowed active:bg-brand-emerald"
+            className="md:hidden p-1.5 bg-[var(--color-primary)] text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 transition-transform"
           >
-            <ShoppingCart className="h-4 w-4" />
+            <ShoppingCart className="h-3.5 w-3.5" />
           </button>
         </div>
       </div>

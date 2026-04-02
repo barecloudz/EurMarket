@@ -13,6 +13,7 @@ import { slugify } from '../../lib/utils';
 import { useCategories } from '../../hooks/useCategories';
 import { useProductStore } from '../../store/productStore';
 import { useToast } from '../../components/ui/Toast';
+import { useAuthStore } from '../../store/authStore';
 
 interface Variant {
   id?: string;
@@ -27,6 +28,7 @@ export default function AdminProductEdit() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const isNew = !id;
+  const { user, isSupplier } = useAuthStore();
   const { categories, refetch: refetchCategories } = useCategories({ includeInactive: true });
   const { invalidateCache } = useProductStore();
   const { addToast } = useToast();
@@ -305,7 +307,7 @@ export default function AdminProductEdit() {
         throw new Error('Valid price is required');
       }
 
-      const productData = {
+      const productData: Record<string, unknown> = {
         name: formData.name.trim(),
         slug: formData.slug.trim() || slugify(formData.name),
         description: formData.description || null,
@@ -323,6 +325,11 @@ export default function AdminProductEdit() {
         print_time_hours: formData.print_time_hours ? parseInt(formData.print_time_hours) : null,
         weight_oz: formData.weight_oz ? parseFloat(formData.weight_oz) : null,
       };
+
+      // Suppliers always own the products they create
+      if (isSupplier && user) {
+        productData.supplier_id = user.id;
+      }
 
       console.log('Saving product data:', productData);
 

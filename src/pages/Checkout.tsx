@@ -349,11 +349,14 @@ export default function Checkout() {
           order_id: order.id,
           product_id: item.product.id,
           variant_id: variantExists ? item.variant!.id : null,
+          supplier_id: item.product.supplier_id || null,
           product_name: item.product.name,
           variant_name: item.variant?.name || null,
           quantity: item.quantity,
           unit_price: item.product.price + (item.variant?.price_adjustment || 0),
           total_price: (item.product.price + (item.variant?.price_adjustment || 0)) * item.quantity,
+          fulfillment_status: 'pending',
+          payout_status: 'pending',
         };
       });
 
@@ -1129,13 +1132,13 @@ export default function Checkout() {
                   options={{
                     clientSecret,
                     appearance: {
-                      theme: 'night',
+                      theme: 'stripe',
                       variables: {
-                        colorPrimary: '#9AFF00',
-                        colorBackground: '#1a1a1a',
-                        colorText: '#f5f5f5',
+                        colorPrimary: '#2E7D32',
+                        colorBackground: '#FFFFFF',
+                        colorText: '#111827',
                         colorDanger: '#ef4444',
-                        fontFamily: 'system-ui, sans-serif',
+                        fontFamily: 'Montserrat, system-ui, sans-serif',
                         borderRadius: '12px',
                       },
                     },

@@ -68,12 +68,12 @@ export default function ProductDetail() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <Package className="h-16 w-16 text-gray-600 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-white mb-2">Product Not Found</h1>
-          <p className="text-gray-400 mb-6">The product you're looking for doesn't exist.</p>
+          <Package className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Product Not Found</h1>
+          <p className="text-gray-500 mb-6">The product you're looking for doesn't exist.</p>
           <Link
             to="/products"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--color-primary)] text-black font-medium rounded-xl hover:opacity-90 transition-opacity"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--color-primary)] text-white font-semibold rounded-xl hover:opacity-90 transition-opacity"
           >
             Browse Products
           </Link>
@@ -136,25 +136,25 @@ export default function ProductDetail() {
   return (
     <div className="min-h-screen pb-32 md:pb-8">
       {/* Header */}
-      <div className="sticky top-0 z-30 glass-strong">
+      <div className="sticky top-0 z-30 bg-white border-b border-gray-100 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <button
             onClick={() => navigate(-1)}
-            className="p-2 -ml-2 text-gray-400 hover:text-white transition-colors btn-press"
+            className="p-2 -ml-2 text-gray-400 hover:text-gray-900 transition-colors btn-press"
           >
             <ChevronLeft className="h-6 w-6" />
           </button>
           <div className="flex items-center gap-2">
             <button
               onClick={handleShare}
-              className="p-2 text-gray-400 hover:text-white transition-colors btn-press"
+              className="p-2 text-gray-400 hover:text-gray-900 transition-colors btn-press"
             >
               <Share2 className="h-5 w-5" />
             </button>
             <button
               onClick={handleWishlistToggle}
               className={`p-2 transition-colors btn-press ${
-                inWishlist ? 'text-red-500' : 'text-gray-400 hover:text-white'
+                inWishlist ? 'text-red-500' : 'text-gray-400 hover:text-gray-900'
               }`}
             >
               <Heart className={`h-5 w-5 ${inWishlist ? 'fill-current' : ''}`} />
@@ -300,7 +300,7 @@ export default function ProductDetail() {
             )}
 
             {/* Title */}
-            <h1 className="text-2xl md:text-3xl font-bold text-white">{product.name}</h1>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">{product.name}</h1>
 
             {/* Price */}
             <div className="flex items-center gap-4">
@@ -317,7 +317,7 @@ export default function ProductDetail() {
             {/* Variants */}
             {product.variants && product.variants.length > 0 && (
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-3">
+                <label className="block text-sm font-medium text-gray-600 mb-3">
                   Select Option
                 </label>
                 <div className="flex flex-wrap gap-2">
@@ -335,8 +335,8 @@ export default function ProductDetail() {
                       }}
                       className={`px-4 py-2.5 rounded-xl font-medium transition-all btn-press ${
                         selectedVariant?.id === variant.id
-                          ? 'bg-[var(--color-primary)] text-black'
-                          : 'glass text-white hover:bg-white/10'
+                          ? 'bg-[var(--color-primary)] text-white'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200'
                       }`}
                     >
                       {variant.name}
@@ -355,17 +355,17 @@ export default function ProductDetail() {
             {/* Stock status */}
             <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium ${
               stockStatus === 'in_stock'
-                ? 'bg-green-500/20 text-green-400'
+                ? 'bg-green-50 text-green-700'
                 : stockStatus === 'low_stock'
-                ? 'bg-orange-500/20 text-orange-400'
-                : 'bg-red-500/20 text-red-400'
+                ? 'bg-orange-50 text-orange-700'
+                : 'bg-red-50 text-red-700'
             }`}>
               <span className={`w-2 h-2 rounded-full ${
                 stockStatus === 'in_stock'
-                  ? 'bg-green-400'
+                  ? 'bg-green-600'
                   : stockStatus === 'low_stock'
-                  ? 'bg-orange-400'
-                  : 'bg-red-400'
+                  ? 'bg-orange-500'
+                  : 'bg-red-600'
               }`} />
               {stockStatus === 'in_stock'
                 ? 'In Stock'
@@ -376,7 +376,7 @@ export default function ProductDetail() {
 
             {/* Print time */}
             {product.print_time_hours && (
-              <div className="flex items-center text-gray-400">
+              <div className="flex items-center text-gray-500">
                 <Clock className="h-5 w-5 mr-2" />
                 <span>Estimated print time: {product.print_time_hours} hours</span>
               </div>
@@ -415,23 +415,23 @@ export default function ProductDetail() {
 
             {/* Quantity */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-3">
+              <label className="block text-sm font-medium text-gray-600 mb-3">
                 Quantity
               </label>
-              <div className="inline-flex items-center glass rounded-xl">
+              <div className="inline-flex items-center bg-gray-100 rounded-xl border border-gray-200">
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="p-3 text-gray-400 hover:text-white transition-colors btn-press"
+                  className="p-3 text-gray-500 hover:text-gray-900 transition-colors btn-press"
                 >
                   <Minus className="h-5 w-5" />
                 </button>
-                <span className="text-white text-lg font-semibold w-12 text-center">
+                <span className="text-gray-900 text-lg font-semibold w-12 text-center">
                   {quantity}
                 </span>
                 <button
                   onClick={() => setQuantity(Math.min(maxQuantity, quantity + 1))}
                   disabled={quantity >= maxQuantity}
-                  className="p-3 text-gray-400 hover:text-white transition-colors btn-press disabled:opacity-30 disabled:cursor-not-allowed"
+                  className="p-3 text-gray-500 hover:text-gray-900 transition-colors btn-press disabled:opacity-30 disabled:cursor-not-allowed"
                 >
                   <Plus className="h-5 w-5" />
                 </button>
@@ -463,7 +463,7 @@ export default function ProductDetail() {
                 className={`p-4 rounded-xl transition-all btn-press ${
                   inWishlist
                     ? 'bg-red-500 text-white'
-                    : 'glass text-white hover:bg-red-500/20 hover:text-red-400'
+                    : 'bg-gray-100 text-gray-500 hover:bg-red-50 hover:text-red-500 border border-gray-200'
                 }`}
               >
                 <Heart className={`h-6 w-6 ${inWishlist ? 'fill-current' : ''}`} />

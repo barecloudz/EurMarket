@@ -9,13 +9,13 @@ export default {
       colors: {
         brand: {
           // Dynamic theme colors (from CSS variables)
-          black: 'var(--color-background, #0a0a0a)',
-          charcoal: 'var(--color-surface, #1a1a1a)',
-          gray: 'var(--color-border, #2d2d2d)',
-          'gray-light': '#404040',
-          neon: 'var(--color-primary, #9AFF00)',
-          emerald: 'var(--color-secondary, #7ACC00)',
-          'emerald-dark': '#3D6600',
+          black: 'var(--color-background, #F8F9FA)',
+          charcoal: 'var(--color-surface, #FFFFFF)',
+          gray: 'var(--color-border, #E5E7EB)',
+          'gray-light': '#D1D5DB',
+          neon: 'var(--color-primary, #2E7D32)',
+          emerald: 'var(--color-secondary, #1B5E20)',
+          'emerald-dark': '#1B5E20',
           accent: 'var(--color-accent, #9AFF00)',
         }
       },
@@ -27,9 +27,9 @@ export default {
         'theme-surface': 'var(--color-surface, #1a1a1a)',
       },
       boxShadow: {
-        'neon': '0 0 15px rgba(154, 255, 0, 0.5)',
-        'neon-sm': '0 0 8px rgba(154, 255, 0, 0.4)',
-        'neon-lg': '0 0 25px rgba(154, 255, 0, 0.6)',
+        'neon': '0 0 15px rgba(46, 125, 50, 0.35)',
+        'neon-sm': '0 0 8px rgba(46, 125, 50, 0.25)',
+        'neon-lg': '0 0 25px rgba(46, 125, 50, 0.45)',
       }
     },
   },

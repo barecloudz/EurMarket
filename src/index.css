@@ -4,13 +4,13 @@
 
 /* Theme CSS variables - these are overridden by JS when theme loads */
 :root {
-  --color-primary: #9AFF00;
-  --color-secondary: #7ACC00;
-  --color-accent: #9AFF00;
-  --color-background: #0a0a0a;
-  --color-surface: #1a1a1a;
-  --color-text: #f5f5f5;
-  --color-border: #2d2d2d;
+  --color-primary: #2E7D32;
+  --color-secondary: #1B5E20;
+  --color-accent: #2E7D32;
+  --color-background: #F8F9FA;
+  --color-surface: #FFFFFF;
+  --color-text: #111827;
+  --color-border: #E5E7EB;
 
   font-family: 'Montserrat', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   line-height: 1.5;
@@ -34,14 +34,14 @@ body {
   flex-direction: column;
 }
 
-/* Custom scrollbar for dark theme */
+/* Custom scrollbar for light theme */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-surface);
+  background: var(--color-background);
 }
 
 ::-webkit-scrollbar-thumb {
@@ -50,7 +50,7 @@ body {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #4a4a4a;
+  background: #9CA3AF;
 }
 
 /* Neon glow animation - uses CSS variable */
@@ -175,19 +175,19 @@ body {
   animation: glow-pulse 2s ease-in-out infinite;
 }
 
-/* Glass morphism utility */
+/* Glass morphism utility - light mode */
 .glass {
-  background: rgba(26, 26, 26, 0.7);
+  background: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 .glass-strong {
-  background: rgba(26, 26, 26, 0.85);
+  background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 /* Button press effect */
@@ -206,7 +206,7 @@ body {
 
 .card-hover:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
 }
 
 /* Custom utility classes using CSS variables */
@@ -216,7 +216,7 @@ body {
   }
 
   .text-secondary {
-    color: #9ca3af;
+    color: #6B7280;
   }
 
   .text-accent {
@@ -237,9 +237,9 @@ body {
   }
 }
 
-/* Sci-Fi HUD Panel - Matching reference exactly */
+/* Sci-Fi HUD Panel */
 .desc-card {
-  --hud-green: #39ff14;
+  --hud-green: #2E7D32;
   --hud-bg: rgba(57, 255, 20, 0.06);
 
   position: relative;

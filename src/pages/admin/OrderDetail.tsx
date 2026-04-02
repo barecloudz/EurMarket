@@ -8,8 +8,8 @@ import Input from '../../components/ui/Input';
 import Spinner from '../../components/ui/Spinner';
 import { supabase } from '../../lib/supabase';
 import { formatPrice, formatDateTime } from '../../lib/utils';
-import { ORDER_STATUSES } from '../../lib/constants';
-import type { Order, OrderItem, OrderStatus } from '../../types';
+import { ORDER_STATUSES, FULFILLMENT_STATUSES } from '../../lib/constants';
+import type { Order, OrderItem, OrderStatus, FulfillmentStatus } from '../../types';
 
 export default function AdminOrderDetail() {
   const { id } = useParams<{ id: string }>();
@@ -395,6 +395,38 @@ export default function AdminOrderDetail() {
               </div>
             </div>
           </Card>
+
+          {/* Supplier Fulfillment (only when items have supplier_id) */}
+          {items.some(item => item.supplier_id) && (
+            <Card>
+              <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+                <Truck className="h-5 w-5 text-brand-neon" />
+                Supplier Fulfillment
+              </h2>
+              <div className="space-y-3">
+                {items.filter(item => item.supplier_id).map((item) => {
+                  const fs = FULFILLMENT_STATUSES[item.fulfillment_status as FulfillmentStatus] || FULFILLMENT_STATUSES.pending;
+                  return (
+                    <div key={item.id} className="flex items-start justify-between py-2 border-b border-brand-gray/50 last:border-0 gap-3">
+                      <div className="min-w-0">
+                        <p className="text-white font-medium text-sm truncate">{item.product_name}</p>
+                        {item.variant_name && <p className="text-gray-500 text-xs">{item.variant_name}</p>}
+                        {item.tracking_number && (
+                          <p className="text-gray-400 text-xs mt-1 font-mono">{item.tracking_number}</p>
+                        )}
+                        {item.shipped_at && (
+                          <p className="text-gray-500 text-xs">Shipped {formatDateTime(item.shipped_at)}</p>
+                        )}
+                      </div>
+                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap flex-shrink-0 ${fs.color}`}>
+                        {fs.label}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </Card>
+          )}
 
           {/* Shipping Address */}
           <Card>

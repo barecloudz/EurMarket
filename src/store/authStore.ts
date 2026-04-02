@@ -10,6 +10,7 @@ interface AuthState {
   session: Session | null;
   isLoading: boolean;
   isAdmin: boolean;
+  isSupplier: boolean;
 
   // Actions
   setUser: (user: User | null) => void;
@@ -32,9 +33,10 @@ export const useAuthStore = create<AuthState>()(
       session: null,
       isLoading: true,
       isAdmin: false,
+      isSupplier: false,
 
       setUser: (user) => set({ user }),
-      setProfile: (profile) => set({ profile, isAdmin: profile?.role === 'admin' }),
+      setProfile: (profile) => set({ profile, isAdmin: profile?.role === 'admin', isSupplier: profile?.role === 'supplier' }),
       setSession: (session) => set({ session }),
       setLoading: (isLoading) => set({ isLoading }),
 
@@ -53,7 +55,7 @@ export const useAuthStore = create<AuthState>()(
           return;
         }
 
-        set({ profile: data, isAdmin: data?.role === 'admin' });
+        set({ profile: data, isAdmin: data?.role === 'admin', isSupplier: data?.role === 'supplier' });
       },
 
       updateProfile: async (updates) => {
@@ -72,7 +74,7 @@ export const useAuthStore = create<AuthState>()(
           throw error;
         }
 
-        set({ profile: data, isAdmin: data?.role === 'admin' });
+        set({ profile: data, isAdmin: data?.role === 'admin', isSupplier: data?.role === 'supplier' });
       },
 
       signIn: async (email, password) => {
@@ -129,7 +131,7 @@ export const useAuthStore = create<AuthState>()(
 
       signOut: async () => {
         await supabase.auth.signOut();
-        set({ user: null, profile: null, session: null, isAdmin: false });
+        set({ user: null, profile: null, session: null, isAdmin: false, isSupplier: false });
       },
 
       initialize: async () => {
@@ -155,7 +157,7 @@ export const useAuthStore = create<AuthState>()(
           if (session?.user) {
             await get().fetchProfile();
           } else {
-            set({ profile: null, isAdmin: false });
+            set({ profile: null, isAdmin: false, isSupplier: false });
           }
         });
       },

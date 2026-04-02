@@ -31,7 +31,13 @@ export default function Login() {
       return;
     }
 
-    navigate(from, { replace: true });
+    // Redirect suppliers to their portal
+    const updatedProfile = useAuthStore.getState().profile;
+    if (updatedProfile?.role === 'supplier') {
+      navigate('/supplier/orders', { replace: true });
+    } else {
+      navigate(from, { replace: true });
+    }
   };
 
   return (

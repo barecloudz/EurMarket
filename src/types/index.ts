@@ -13,6 +13,7 @@ export interface Product {
   id: string;
   category_id: string | null;
   category?: Category;
+  supplier_id: string | null;
   name: string;
   slug: string;
   description: string | null;
@@ -109,18 +110,27 @@ export interface Order {
   items?: OrderItem[];
 }
 
-export type OrderStatus = 'pending' | 'paid' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+export type OrderStatus = 'pending' | 'paid' | 'processing' | 'shipped' | 'partially_shipped' | 'delivered' | 'cancelled';
+
+export type FulfillmentStatus = 'pending' | 'processing' | 'shipped' | 'delivered';
+export type PayoutStatus = 'pending' | 'paid';
 
 export interface OrderItem {
   id: string;
   order_id: string;
   product_id: string | null;
   variant_id: string | null;
+  supplier_id: string | null;
   product_name: string;
   variant_name: string | null;
   quantity: number;
   unit_price: number;
   total_price: number;
+  fulfillment_status: FulfillmentStatus;
+  tracking_number: string | null;
+  shipped_at: string | null;
+  payout_status: PayoutStatus;
+  paid_out_at: string | null;
   created_at: string;
 }
 
@@ -143,13 +153,22 @@ export type QuoteStatus = 'pending' | 'quoted' | 'accepted' | 'declined';
 export interface Profile {
   id: string;
   email: string;
-  role: 'customer' | 'admin';
+  role: 'customer' | 'admin' | 'supplier';
   first_name: string | null;
   last_name: string | null;
   phone: string | null;
   marketing_opt_in: boolean;
   created_at: string;
   updated_at: string;
+}
+
+export interface Supplier {
+  id: string;
+  email: string;
+  first_name: string | null;
+  last_name: string | null;
+  phone: string | null;
+  created_at: string;
 }
 
 export interface StoreSettings {

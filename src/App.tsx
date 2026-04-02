@@ -7,6 +7,7 @@ import { useProductStore } from './store/productStore';
 // Layouts
 import MainLayout from './components/layout/MainLayout';
 import AdminLayout from './components/layout/AdminLayout';
+import SupplierLayout from './components/layout/SupplierLayout';
 
 // Public Pages
 import Home from './pages/Home';
@@ -41,6 +42,12 @@ import AdminReviews from './pages/admin/Reviews';
 import AdminTeam from './pages/admin/Team';
 import AdminBanners from './pages/admin/Banners';
 import AdminExampleWorks from './pages/admin/ExampleWorks';
+import AdminSuppliers from './pages/admin/Suppliers';
+
+// Supplier Pages
+import SupplierOrders from './pages/supplier/SupplierOrders';
+import SupplierOrderDetail from './pages/supplier/SupplierOrderDetail';
+import SupplierProducts from './pages/supplier/SupplierProducts';
 
 // Components
 import ProtectedRoute from './components/ProtectedRoute';
@@ -148,7 +155,24 @@ function App() {
           <Route path="themes" element={<AdminThemes />} />
           <Route path="banners" element={<AdminBanners />} />
           <Route path="example-works" element={<AdminExampleWorks />} />
+          <Route path="suppliers" element={<AdminSuppliers />} />
           <Route path="settings" element={<AdminSettings />} />
+        </Route>
+
+        {/* Supplier Routes */}
+        <Route
+          path="/supplier/*"
+          element={
+            <ProtectedRoute requireSupplier>
+              <SupplierLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="orders" element={<SupplierOrders />} />
+          <Route path="orders/:id" element={<SupplierOrderDetail />} />
+          <Route path="products" element={<SupplierProducts />} />
+          <Route path="products/new" element={<AdminProductEdit />} />
+          <Route path="products/:id/edit" element={<AdminProductEdit />} />
         </Route>
       </Routes>
 

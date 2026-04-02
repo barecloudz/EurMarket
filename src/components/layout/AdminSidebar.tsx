@@ -5,7 +5,7 @@ import {
   FolderOpen,
   ShoppingBag,
   Users,
-
+  Truck,
   Settings,
   Palette,
   Tag,
@@ -40,6 +40,7 @@ export const storeSubItems = [
 // Customers section
 export const customersSubItems = [
   { href: '/admin/customers', icon: Users, label: 'Customers' },
+  { href: '/admin/suppliers', icon: Truck, label: 'Suppliers' },
   { href: '/admin/reviews', icon: Star, label: 'Reviews' },
 ];
 

@@ -30,13 +30,13 @@ interface SettingsState {
 }
 
 const defaultTheme: ThemeSettings = {
-  primary_color: '#00ff66',
-  secondary_color: '#00cc52',
-  accent_color: '#00ff66',
-  background_color: '#0a0a0a',
-  surface_color: '#1a1a1a',
-  text_color: '#f5f5f5',
-  border_color: '#2d2d2d',
+  primary_color: '#2E7D32',
+  secondary_color: '#1B5E20',
+  accent_color: '#2E7D32',
+  background_color: '#F8F9FA',
+  surface_color: '#FFFFFF',
+  text_color: '#111827',
+  border_color: '#E5E7EB',
 };
 
 const defaultSettings: SiteSettings = {

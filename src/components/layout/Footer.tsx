@@ -17,7 +17,6 @@ export default function Footer() {
     setError('');
 
     try {
-      // Check if already subscribed
       const { data: existingSub } = await supabase
         .from('email_subscribers')
         .select('id, is_subscribed')
@@ -28,18 +27,13 @@ export default function Footer() {
         if (existingSub.is_subscribed) {
           setError('This email is already subscribed!');
         } else {
-          // Resubscribe
           await supabase
             .from('email_subscribers')
-            .update({
-              is_subscribed: true,
-              unsubscribed_at: null,
-            })
+            .update({ is_subscribed: true, unsubscribed_at: null })
             .eq('id', existingSub.id);
           setIsSubscribed(true);
         }
       } else {
-        // Create new subscriber
         await supabase.from('email_subscribers').insert({
           email: email.toLowerCase(),
           source: 'footer',
@@ -57,64 +51,75 @@ export default function Footer() {
   };
 
   return (
-    <footer className="hidden md:block bg-[var(--color-surface)]/90 backdrop-blur-sm border-t border-[var(--color-border)] mt-auto">
+    <footer className="hidden md:block bg-white border-t border-gray-100 mt-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div>
             <Link to="/" className="flex items-center space-x-2 mb-4">
-              <span className="text-xl font-bold text-[var(--color-primary)]">GENOVA'S</span>
-              <span className="text-sm text-theme opacity-60">MERCH</span>
+              <span className="text-xl font-bold text-gray-900">GENOVA'S</span>
+              <span className="text-sm text-gray-400">MERCH</span>
             </Link>
-            <p className="text-theme opacity-60 text-sm">
+            <p className="text-gray-500 text-sm leading-relaxed">
               Custom 3D printing and laser engraving. Bringing your ideas to life.
             </p>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-theme font-semibold mb-4">Quick Links</h3>
-            <nav className="flex flex-col space-y-2">
-              <Link to="/products" className="text-theme opacity-60 hover:text-[var(--color-primary)] text-sm transition-colors">
-                Products
-              </Link>
-
-              <Link to="/cart" className="text-theme opacity-60 hover:text-[var(--color-primary)] text-sm transition-colors">
-                Cart
-              </Link>
-              <Link to="/return-policy" className="text-theme opacity-60 hover:text-[var(--color-primary)] text-sm transition-colors">
-                Return Policy
-              </Link>
-              <Link to="/privacy-policy" className="text-theme opacity-60 hover:text-[var(--color-primary)] text-sm transition-colors">
-                Privacy Policy
-              </Link>
+            <h3 className="text-gray-900 font-semibold mb-4 text-sm uppercase tracking-wide">
+              Quick Links
+            </h3>
+            <nav className="flex flex-col space-y-2.5">
+              {[
+                { to: '/products', label: 'Products' },
+                { to: '/cart', label: 'Cart' },
+                { to: '/return-policy', label: 'Return Policy' },
+                { to: '/privacy-policy', label: 'Privacy Policy' },
+              ].map((link) => (
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  className="text-gray-500 hover:text-gray-900 text-sm transition-colors"
+                >
+                  {link.label}
+                </Link>
+              ))}
             </nav>
           </div>
 
           {/* Account */}
           <div>
-            <h3 className="text-theme font-semibold mb-4">Account</h3>
-            <nav className="flex flex-col space-y-2">
-              <Link to="/login" className="text-theme opacity-60 hover:text-[var(--color-primary)] text-sm transition-colors">
-                Sign In
-              </Link>
-              <Link to="/register" className="text-theme opacity-60 hover:text-[var(--color-primary)] text-sm transition-colors">
-                Create Account
-              </Link>
-              <Link to="/account" className="text-theme opacity-60 hover:text-[var(--color-primary)] text-sm transition-colors">
-                My Account
-              </Link>
+            <h3 className="text-gray-900 font-semibold mb-4 text-sm uppercase tracking-wide">
+              Account
+            </h3>
+            <nav className="flex flex-col space-y-2.5">
+              {[
+                { to: '/login', label: 'Sign In' },
+                { to: '/register', label: 'Create Account' },
+                { to: '/account', label: 'My Account' },
+              ].map((link) => (
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  className="text-gray-500 hover:text-gray-900 text-sm transition-colors"
+                >
+                  {link.label}
+                </Link>
+              ))}
             </nav>
           </div>
 
           {/* Newsletter */}
           <div>
-            <h3 className="text-theme font-semibold mb-4">Stay Updated</h3>
-            <p className="text-theme opacity-60 text-sm mb-4">
+            <h3 className="text-gray-900 font-semibold mb-4 text-sm uppercase tracking-wide">
+              Stay Updated
+            </h3>
+            <p className="text-gray-500 text-sm mb-4 leading-relaxed">
               Get notified about new products and exclusive offers.
             </p>
             {isSubscribed ? (
-              <div className="flex items-center gap-2 text-green-400 text-sm">
+              <div className="flex items-center gap-2 text-green-600 text-sm font-medium">
                 <Check className="h-5 w-5" />
                 <span>Thanks for subscribing!</span>
               </div>
@@ -122,38 +127,36 @@ export default function Footer() {
               <form onSubmit={handleSubscribe} className="space-y-2">
                 <div className="flex gap-2">
                   <div className="relative flex-1">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-theme opacity-40" />
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                     <input
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="Your email"
-                      className="w-full pl-10 pr-4 py-2 bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg text-theme text-sm placeholder:text-theme/40 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
+                      className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
                       required
                     />
                   </div>
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="px-4 py-2 bg-[var(--color-primary)] text-[var(--color-background)] rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
+                    className="px-4 py-2 bg-[var(--color-primary)] text-black rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
                   >
                     {isLoading ? (
-                      <div className="h-4 w-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                      <div className="h-4 w-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
                     ) : (
                       <Send className="h-4 w-4" />
                     )}
                   </button>
                 </div>
-                {error && (
-                  <p className="text-red-400 text-xs">{error}</p>
-                )}
+                {error && <p className="text-red-500 text-xs">{error}</p>}
               </form>
             )}
           </div>
         </div>
 
-        <div className="border-t border-[var(--color-border)] mt-8 pt-8 text-center">
-          <p className="text-theme opacity-50 text-sm">
+        <div className="border-t border-gray-100 mt-8 pt-8 text-center">
+          <p className="text-gray-400 text-sm">
             &copy; {new Date().getFullYear()} Genova's Merch. All rights reserved.
           </p>
         </div>
