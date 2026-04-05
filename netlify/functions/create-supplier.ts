@@ -57,7 +57,7 @@ const handler: Handler = async (event) => {
       type: 'invite',
       email,
       options: {
-        redirectTo: `${origin}/supplier/products`,
+        redirectTo: `https://shop.genovaspizzamyrtlebeach.com/supplier/products`,
         data: { first_name, last_name },
       },
     });
