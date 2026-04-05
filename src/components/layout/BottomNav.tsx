@@ -59,20 +59,20 @@ export default function BottomNav() {
           );
         })}
 
-        {/* Cart — center raised button */}
+        {/* Cart */}
         <button
           onClick={openCart}
           className="flex flex-col items-center justify-center w-16 h-full gap-1 btn-press"
         >
-          <div className="relative p-3 bg-[var(--color-primary)] rounded-2xl shadow-neon-sm -mt-4 transition-transform hover:scale-105 active:scale-95">
-            <ShoppingCart className="h-5 w-5 text-white" />
+          <div className={`relative p-1.5 rounded-xl transition-all ${itemCount > 0 ? 'text-[var(--color-primary)]' : 'text-gray-400 hover:text-gray-600'}`}>
+            <ShoppingCart className={`h-5 w-5 transition-all ${itemCount > 0 ? 'fill-current scale-110' : ''}`} />
             {itemCount > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center shadow animate-scale-pop">
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center shadow animate-scale-pop">
                 {itemCount > 9 ? '9+' : itemCount}
               </span>
             )}
           </div>
-          <span className="text-[10px] font-semibold text-gray-400 leading-none">Cart</span>
+          <span className={`text-[10px] font-semibold transition-colors leading-none ${itemCount > 0 ? 'text-[var(--color-primary)]' : 'text-gray-400'}`}>Cart</span>
         </button>
 
         {/* Account */}

@@ -63,9 +63,9 @@ export default function LoginModal() {
     setIsLoading(true);
     setError('');
     const { error } = await signIn(signInData.email, signInData.password);
+    setIsLoading(false);
     if (error) {
       setError(error.message);
-      setIsLoading(false);
     } else {
       close();
     }

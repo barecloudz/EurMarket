@@ -45,8 +45,8 @@ export default function SupplierPayouts() {
           .order('paid_out_at', { ascending: false }),
       ]);
 
-      setPendingItems((pendingRes.data ?? []) as PayoutItem[]);
-      setPaidItems((paidRes.data ?? []) as PayoutItem[]);
+      setPendingItems((pendingRes.data ?? []) as unknown as PayoutItem[]);
+      setPaidItems((paidRes.data ?? []) as unknown as PayoutItem[]);
     } catch (err) {
       console.error('Error fetching payouts:', err);
     } finally {

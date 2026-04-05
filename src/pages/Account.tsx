@@ -47,7 +47,7 @@ export default function Account() {
 
   useEffect(() => {
     const fetchOrders = async () => {
-      if (!user) return;
+      if (!user) { setIsLoading(false); return; }
 
       try {
         const { data, error } = await supabase

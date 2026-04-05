@@ -28,7 +28,6 @@ export default function SupplierProducts() {
       const { data, error } = await supabase
         .from('products')
         .select('*, images:product_images(*)')
-        .eq('is_active', true)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
