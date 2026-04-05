@@ -132,8 +132,8 @@ export default function AdminSuppliers() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Suppliers</h1>
-          <p className="text-gray-500 mt-1">{suppliers.length} supplier account{suppliers.length !== 1 ? 's' : ''}</p>
+          <h1 className="text-2xl font-bold text-white">Suppliers</h1>
+          <p className="text-gray-300 mt-1">{suppliers.length} supplier account{suppliers.length !== 1 ? 's' : ''}</p>
         </div>
         <button
           onClick={() => setInviteOpen(true)}
@@ -147,7 +147,7 @@ export default function AdminSuppliers() {
       {suppliers.length === 0 ? (
         <div className="text-center py-16 bg-white rounded-2xl border border-gray-100">
           <Users className="h-12 w-12 mx-auto mb-3 text-gray-300" />
-          <p className="text-gray-500 mb-4">No suppliers yet</p>
+          <p className="text-gray-300 mb-4">No suppliers yet</p>
           <button
             onClick={() => setInviteOpen(true)}
             className="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--color-primary)] text-white font-semibold rounded-xl hover:opacity-90 transition-opacity"

@@ -19,6 +19,7 @@ export interface Product {
   description: string | null;
   price: number;
   cost_price: number | null;
+  wholesale_cost: number | null;
   compare_at_price: number | null;
   sku: string | null;
   stock_quantity: number;

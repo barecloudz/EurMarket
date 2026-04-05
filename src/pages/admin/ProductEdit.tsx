@@ -66,6 +66,7 @@ export default function AdminProductEdit() {
     continue_selling_when_out_of_stock: false,
     print_time_hours: '',
     weight_oz: '',
+    wholesale_cost: '',
   });
 
   useEffect(() => {
@@ -109,6 +110,7 @@ export default function AdminProductEdit() {
           continue_selling_when_out_of_stock: data.continue_selling_when_out_of_stock,
           print_time_hours: data.print_time_hours?.toString() || '',
           weight_oz: data.weight_oz?.toString() || '',
+          wholesale_cost: data.wholesale_cost?.toString() || '',
         });
 
         // Fetch product images
@@ -324,6 +326,7 @@ export default function AdminProductEdit() {
         continue_selling_when_out_of_stock: formData.continue_selling_when_out_of_stock,
         print_time_hours: formData.print_time_hours ? parseInt(formData.print_time_hours) : null,
         weight_oz: formData.weight_oz ? parseFloat(formData.weight_oz) : null,
+        wholesale_cost: formData.wholesale_cost ? parseFloat(formData.wholesale_cost) : null,
       };
 
       // Suppliers always own the products they create
@@ -604,6 +607,18 @@ export default function AdminProductEdit() {
                   min="0"
                   helperText="For profit tracking"
                 />
+                {isSupplier && (
+                  <Input
+                    label="Wholesale Cost (what you charge us per unit)"
+                    type="number"
+                    name="wholesale_cost"
+                    value={formData.wholesale_cost}
+                    onChange={handleInputChange}
+                    step="0.01"
+                    min="0"
+                    placeholder="0.00"
+                  />
+                )}
               </div>
             </Card>
 

@@ -22,6 +22,7 @@ import {
   Lightbulb,
   Store,
   Layout,
+  Wallet,
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -35,6 +36,7 @@ export const storeSubItems = [
   { href: '/admin/products', icon: Package, label: 'Products' },
   { href: '/admin/categories', icon: FolderOpen, label: 'Categories' },
   { href: '/admin/orders', icon: ShoppingBag, label: 'Orders' },
+  { href: '/admin/payouts', icon: Wallet, label: 'Payouts' },
 ];
 
 // Customers section

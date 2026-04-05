@@ -44,6 +44,7 @@ import AdminTeam from './pages/admin/Team';
 import AdminBanners from './pages/admin/Banners';
 import AdminExampleWorks from './pages/admin/ExampleWorks';
 import AdminSuppliers from './pages/admin/Suppliers';
+import AdminPayouts from './pages/admin/Payouts';
 
 // Supplier Pages
 import SupplierDashboard from './pages/supplier/SupplierDashboard';
@@ -152,6 +153,7 @@ function App() {
           <Route path="categories" element={<AdminCategories />} />
           <Route path="orders" element={<AdminOrders />} />
           <Route path="orders/:id" element={<AdminOrderDetail />} />
+          <Route path="payouts" element={<AdminPayouts />} />
           <Route path="customers" element={<AdminCustomers />} />
           <Route path="team" element={<AdminTeam />} />
 
