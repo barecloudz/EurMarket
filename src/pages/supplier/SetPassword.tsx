@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Lock } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
@@ -10,6 +10,28 @@ export default function SetPassword() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [sessionReady, setSessionReady] = useState(false);
+
+  useEffect(() => {
+    // Wait for an active session before allowing password update
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        setSessionReady(true);
+      } else {
+        // No session — listen for one (in case callback is still processing)
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+          if (session) {
+            setSessionReady(true);
+            subscription.unsubscribe();
+          }
+        });
+        // Failsafe: if no session after 5s, send back to home
+        setTimeout(() => {
+          if (!sessionReady) navigate('/', { replace: true });
+        }, 5000);
+      }
+    });
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,22 +47,24 @@ export default function SetPassword() {
     }
 
     setIsLoading(true);
-    const { error: updateError } = await supabase.auth.updateUser({ password });
-    setIsLoading(false);
-
-    if (updateError) {
-      setError(updateError.message);
-      return;
+    try {
+      const { error: updateError } = await supabase.auth.updateUser({ password });
+      if (updateError) {
+        setError(updateError.message);
+        setIsLoading(false);
+        return;
+      }
+      navigate('/supplier/products', { replace: true });
+    } catch (err: any) {
+      setError(err.message || 'Something went wrong. Please try again.');
+      setIsLoading(false);
     }
-
-    navigate('/supplier/products', { replace: true });
   };
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
 
-        {/* Card */}
         <div className="bg-white rounded-3xl shadow-xl overflow-hidden">
 
           {/* Header */}
@@ -100,11 +124,15 @@ export default function SetPassword() {
 
             <button
               type="submit"
-              disabled={isLoading || !password || !confirm}
+              disabled={isLoading || !password || !confirm || !sessionReady}
               className="w-full py-3 bg-[#2E7D32] text-white font-bold rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50"
             >
-              {isLoading ? 'Saving...' : 'Set Password & Continue →'}
+              {isLoading ? 'Saving...' : !sessionReady ? 'Preparing...' : 'Set Password & Continue →'}
             </button>
+
+            {!sessionReady && (
+              <p className="text-center text-xs text-gray-400">Setting up your session...</p>
+            )}
 
           </form>
         </div>
