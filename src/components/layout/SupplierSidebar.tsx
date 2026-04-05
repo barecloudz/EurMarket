@@ -1,11 +1,13 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Package, ShoppingBag, ArrowLeft, Menu, X, LogOut } from 'lucide-react';
+import { Package, ShoppingBag, ArrowLeft, Menu, X, LogOut, LayoutDashboard, Settings } from 'lucide-react';
 import { useState } from 'react';
 import { useAuthStore } from '../../store/authStore';
 
 const navItems = [
+  { href: '/supplier/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/supplier/orders', icon: ShoppingBag, label: 'My Orders' },
   { href: '/supplier/products', icon: Package, label: 'My Products' },
+  { href: '/supplier/account', icon: Settings, label: 'Account Settings' },
 ];
 
 export default function SupplierSidebar() {
@@ -21,13 +23,13 @@ export default function SupplierSidebar() {
     navigate('/');
   };
 
-  const pageTitle = navItems.find(item => isActive(item.href))?.label ?? 'Supplier Portal';
+  const pageTitle = [...navItems].reverse().find(item => isActive(item.href))?.label ?? 'Supplier Portal';
 
   const SidebarContent = ({ isMobile = false }: { isMobile?: boolean }) => (
     <>
       {/* Logo */}
       <div className={`p-5 border-b ${isMobile ? 'border-gray-200 bg-white' : 'border-gray-200'}`}>
-        <Link to="/supplier/orders" className="flex items-center gap-2" onClick={() => setMobileOpen(false)}>
+        <Link to="/supplier/dashboard" className="flex items-center gap-2" onClick={() => setMobileOpen(false)}>
           <img src="/images/logo.png" alt="Genova's Merch" className="h-8 w-auto object-contain" />
           <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded font-medium">Supplier</span>
         </Link>

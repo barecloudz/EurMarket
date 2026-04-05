@@ -46,9 +46,11 @@ import AdminExampleWorks from './pages/admin/ExampleWorks';
 import AdminSuppliers from './pages/admin/Suppliers';
 
 // Supplier Pages
+import SupplierDashboard from './pages/supplier/SupplierDashboard';
 import SupplierOrders from './pages/supplier/SupplierOrders';
 import SupplierOrderDetail from './pages/supplier/SupplierOrderDetail';
 import SupplierProducts from './pages/supplier/SupplierProducts';
+import SupplierAccount from './pages/supplier/SupplierAccount';
 import SetPassword from './pages/supplier/SetPassword';
 
 // Components
@@ -172,11 +174,14 @@ function App() {
             </ProtectedRoute>
           }
         >
+          <Route index element={<SupplierDashboard />} />
+          <Route path="dashboard" element={<SupplierDashboard />} />
           <Route path="orders" element={<SupplierOrders />} />
           <Route path="orders/:id" element={<SupplierOrderDetail />} />
           <Route path="products" element={<SupplierProducts />} />
           <Route path="products/new" element={<AdminProductEdit />} />
           <Route path="products/:id/edit" element={<AdminProductEdit />} />
+          <Route path="account" element={<SupplierAccount />} />
         </Route>
       </Routes>
 
