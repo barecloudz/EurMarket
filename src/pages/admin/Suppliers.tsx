@@ -93,12 +93,18 @@ export default function AdminSuppliers() {
     if (!confirm('Downgrade this supplier to a regular customer? Their products will remain but become unassigned.')) return;
 
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ role: 'customer' })
-        .eq('id', id);
+      const response = await fetch('/.netlify/functions/remove-supplier', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`,
+        },
+        body: JSON.stringify({ supplierId: id }),
+      });
 
-      if (error) throw error;
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Failed to update supplier');
+
       setSuppliers(prev => prev.filter(s => s.id !== id));
       addToast('Supplier access revoked', 'success');
     } catch (err: any) {

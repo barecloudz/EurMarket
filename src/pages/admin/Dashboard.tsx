@@ -157,7 +157,7 @@ export default function AdminDashboard() {
           <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
             Welcome to Genova's Merch
           </h1>
-          <p className="text-gray-400 mb-4">
+          <p className="text-gray-200 mb-4">
             Here's what's happening with your store today.
           </p>
           <div className="flex flex-wrap gap-3">
@@ -197,7 +197,7 @@ export default function AdminDashboard() {
             </span>
           </div>
           <div className="mt-3 sm:mt-4">
-            <p className="text-gray-400 text-xs sm:text-sm">Today's Revenue</p>
+            <p className="text-gray-300 text-xs sm:text-sm">Today's Revenue</p>
             <p className="text-xl sm:text-2xl font-bold text-white">{formatPrice(stats.todayRevenue)}</p>
           </div>
         </Card>
@@ -213,7 +213,7 @@ export default function AdminDashboard() {
             </span>
           </div>
           <div className="mt-3 sm:mt-4">
-            <p className="text-gray-400 text-xs sm:text-sm">This Month</p>
+            <p className="text-gray-300 text-xs sm:text-sm">This Month</p>
             <p className="text-xl sm:text-2xl font-bold text-white">{formatPrice(stats.monthRevenue)}</p>
           </div>
         </Card>
@@ -234,7 +234,7 @@ export default function AdminDashboard() {
             )}
           </div>
           <div className="mt-3 sm:mt-4">
-            <p className="text-gray-400 text-xs sm:text-sm">Total Orders</p>
+            <p className="text-gray-300 text-xs sm:text-sm">Total Orders</p>
             <p className="text-xl sm:text-2xl font-bold text-white">{stats.orderCount}</p>
           </div>
         </Card>
@@ -256,7 +256,7 @@ export default function AdminDashboard() {
             )}
           </div>
           <div className="mt-3 sm:mt-4">
-            <p className="text-gray-400 text-xs sm:text-sm">Low Stock Items</p>
+            <p className="text-gray-300 text-xs sm:text-sm">Low Stock Items</p>
             <p className="text-xl sm:text-2xl font-bold text-white">{stats.lowStockCount}</p>
           </div>
         </Card>
@@ -270,7 +270,7 @@ export default function AdminDashboard() {
               <TrendingUp className="h-5 w-5 text-green-400" />
             </div>
             <div>
-              <p className="text-gray-400 text-xs sm:text-sm">Avg. Order Value</p>
+              <p className="text-gray-300 text-xs sm:text-sm">Avg. Order Value</p>
               <p className="text-lg sm:text-xl font-bold text-white">{formatPrice(stats.avgOrderValue)}</p>
             </div>
           </div>
@@ -282,7 +282,7 @@ export default function AdminDashboard() {
               <Users className="h-5 w-5 text-cyan-400" />
             </div>
             <div>
-              <p className="text-gray-400 text-xs sm:text-sm">Customers</p>
+              <p className="text-gray-300 text-xs sm:text-sm">Customers</p>
               <p className="text-lg sm:text-xl font-bold text-white">{stats.customerCount}</p>
             </div>
           </div>
@@ -294,7 +294,7 @@ export default function AdminDashboard() {
               <DollarSign className="h-5 w-5 text-orange-400" />
             </div>
             <div>
-              <p className="text-gray-400 text-xs sm:text-sm">Week Revenue</p>
+              <p className="text-gray-300 text-xs sm:text-sm">Week Revenue</p>
               <p className="text-lg sm:text-xl font-bold text-white">{formatPrice(stats.weekRevenue)}</p>
             </div>
           </div>
@@ -409,18 +409,18 @@ export default function AdminDashboard() {
         {recentOrders.length === 0 ? (
           <div className="text-center py-8">
             <Package className="h-12 w-12 text-gray-600 mx-auto mb-4" />
-            <p className="text-gray-400">No orders yet</p>
-            <p className="text-gray-500 text-sm mt-1">Orders will appear here once customers start purchasing.</p>
+            <p className="text-gray-200">No orders yet</p>
+            <p className="text-gray-300 text-sm mt-1">Orders will appear here once customers start purchasing.</p>
           </div>
         ) : (
           <div className="overflow-x-auto -mx-4 sm:mx-0">
             <table className="w-full min-w-[500px]">
               <thead>
                 <tr className="border-b border-brand-gray">
-                  <th className="text-left py-3 px-4 text-gray-400 font-medium text-sm">Order</th>
-                  <th className="text-left py-3 px-4 text-gray-400 font-medium text-sm">Status</th>
-                  <th className="text-left py-3 px-4 text-gray-400 font-medium text-sm">Total</th>
-                  <th className="text-left py-3 px-4 text-gray-400 font-medium text-sm hidden sm:table-cell">Date</th>
+                  <th className="text-left py-3 px-4 text-gray-200 font-medium text-sm">Order</th>
+                  <th className="text-left py-3 px-4 text-gray-200 font-medium text-sm">Status</th>
+                  <th className="text-left py-3 px-4 text-gray-200 font-medium text-sm">Total</th>
+                  <th className="text-left py-3 px-4 text-gray-200 font-medium text-sm hidden sm:table-cell">Date</th>
                 </tr>
               </thead>
               <tbody>

@@ -87,7 +87,7 @@ export default function AdminTeam() {
         <Card className="text-center py-12">
           <Users className="h-12 w-12 text-gray-600 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-white mb-2">No team members yet</h3>
-          <p className="text-gray-400 mb-4">Add your first team member to give them admin access.</p>
+          <p className="text-gray-200 mb-4">Add your first team member to give them admin access.</p>
           <Button onClick={() => setShowAddModal(true)}>
             <UserPlus className="h-4 w-4 mr-2" />
             Add Team Member
@@ -177,12 +177,12 @@ export default function AdminTeam() {
                 {promotableUsers.length === 0 ? (
                   <div className="text-center py-8">
                     <Users className="h-10 w-10 text-gray-600 mx-auto mb-3" />
-                    <p className="text-gray-400">
+                    <p className="text-gray-200">
                       {search
                         ? 'No customers found matching your search'
                         : 'No customers available to promote'}
                     </p>
-                    <p className="text-gray-500 text-sm mt-1">
+                    <p className="text-gray-300 text-sm mt-1">
                       They need to create an account first
                     </p>
                   </div>

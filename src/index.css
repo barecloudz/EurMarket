@@ -53,6 +53,14 @@ body {
   background: #9CA3AF;
 }
 
+/* Admin dark theme — overrides store CSS variables so Card/border/bg all go dark */
+.admin-layout {
+  --color-background: #0f1117;
+  --color-surface: #1a1d27;
+  --color-border: #2d3044;
+  --color-text: #f5f5f5;
+}
+
 /* Neon glow animation - uses CSS variable */
 .neon-pulse {
   animation: neon-pulse 2s ease-in-out infinite;

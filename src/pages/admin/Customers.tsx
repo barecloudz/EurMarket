@@ -45,17 +45,17 @@ export default function AdminCustomers() {
         ) : filteredCustomers.length === 0 ? (
           <div className="text-center py-12">
             <Users className="h-12 w-12 text-gray-600 mx-auto mb-4" />
-            <p className="text-gray-400">No customers found</p>
+            <p className="text-gray-200">No customers found</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-brand-gray">
-                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Customer</th>
-                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Email</th>
-                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Marketing</th>
-                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Joined</th>
+                  <th className="text-left py-3 px-4 text-gray-200 font-medium">Customer</th>
+                  <th className="text-left py-3 px-4 text-gray-200 font-medium">Email</th>
+                  <th className="text-left py-3 px-4 text-gray-200 font-medium">Marketing</th>
+                  <th className="text-left py-3 px-4 text-gray-200 font-medium">Joined</th>
                 </tr>
               </thead>
               <tbody>

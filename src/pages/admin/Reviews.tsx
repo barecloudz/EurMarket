@@ -164,7 +164,7 @@ export default function AdminReviews() {
             </div>
             <div>
               <p className="text-2xl font-bold text-white">{stats.total}</p>
-              <p className="text-gray-400 text-sm">Total Reviews</p>
+              <p className="text-gray-300 text-sm">Total Reviews</p>
             </div>
           </div>
         </Card>
@@ -175,7 +175,7 @@ export default function AdminReviews() {
             </div>
             <div>
               <p className="text-2xl font-bold text-white">{stats.averageRating}</p>
-              <p className="text-gray-400 text-sm">Avg Rating</p>
+              <p className="text-gray-300 text-sm">Avg Rating</p>
             </div>
           </div>
         </Card>
@@ -186,7 +186,7 @@ export default function AdminReviews() {
             </div>
             <div>
               <p className="text-2xl font-bold text-white">{stats.pending}</p>
-              <p className="text-gray-400 text-sm">Pending</p>
+              <p className="text-gray-300 text-sm">Pending</p>
             </div>
           </div>
         </Card>
@@ -197,7 +197,7 @@ export default function AdminReviews() {
             </div>
             <div>
               <p className="text-2xl font-bold text-white">{stats.approved}</p>
-              <p className="text-gray-400 text-sm">Approved</p>
+              <p className="text-gray-300 text-sm">Approved</p>
             </div>
           </div>
         </Card>
@@ -232,7 +232,7 @@ export default function AdminReviews() {
           <div className="text-center py-12">
             <Star className="h-16 w-16 text-gray-600 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-white mb-2">No reviews found</h3>
-            <p className="text-gray-400">
+            <p className="text-gray-200">
               {filter === 'pending' ? 'No reviews awaiting approval' : 'No reviews match your search'}
             </p>
           </div>
@@ -246,7 +246,7 @@ export default function AdminReviews() {
                   <div className="flex flex-wrap items-center gap-2 mb-2">
                     <span className="font-medium text-white">{review.reviewer_name}</span>
                     <span className="text-gray-500">•</span>
-                    <span className="text-gray-400 text-sm">{review.reviewer_email}</span>
+                    <span className="text-gray-300 text-sm">{review.reviewer_email}</span>
                     {review.is_verified_purchase && (
                       <Badge variant="success">Verified</Badge>
                     )}
@@ -257,7 +257,7 @@ export default function AdminReviews() {
 
                   <div className="flex items-center gap-3 mb-2">
                     {renderStars(review.rating)}
-                    <span className="text-gray-400 text-sm">
+                    <span className="text-gray-300 text-sm">
                       for{' '}
                       <span className="text-brand-neon">{review.product?.name || 'Unknown Product'}</span>
                     </span>

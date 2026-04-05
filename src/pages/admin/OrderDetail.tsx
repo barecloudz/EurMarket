@@ -316,7 +316,7 @@ export default function AdminOrderDetail() {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-3xl font-bold text-white">Order #{order.order_number}</h1>
-          <p className="text-gray-400">{formatDateTime(order.created_at)}</p>
+          <p className="text-gray-200">{formatDateTime(order.created_at)}</p>
         </div>
         <Badge
           variant={
@@ -355,7 +355,7 @@ export default function AdminOrderDetail() {
                       {item.variant_name && (
                         <p className="text-gray-500 text-sm">{item.variant_name}</p>
                       )}
-                      <p className="text-gray-400 text-sm">Qty: {item.quantity}</p>
+                      <p className="text-gray-300 text-sm">Qty: {item.quantity}</p>
                     </div>
                   </div>
                   <span className="text-brand-neon font-medium">
@@ -582,7 +582,7 @@ export default function AdminOrderDetail() {
                 </div>
               ) : order.tracking_number ? (
                 <div className="space-y-3">
-                  <p className="text-gray-400 text-sm">
+                  <p className="text-gray-300 text-sm">
                     Tracking: <span className="font-mono text-white">{order.tracking_number}</span>
                   </p>
                   <p className="text-gray-500 text-xs">
@@ -613,7 +613,7 @@ export default function AdminOrderDetail() {
                   )}
                   {(order.status === 'paid' || order.status === 'pending' || order.status === 'processing') ? (
                     <>
-                      <p className="text-gray-400 text-sm">
+                      <p className="text-gray-300 text-sm">
                         {order.shipping_label_refunded_at
                           ? 'Generate a new shipping label if needed.'
                           : 'Generate a shipping label for this order.'}
@@ -641,7 +641,7 @@ export default function AdminOrderDetail() {
                 <Truck className="h-5 w-5 text-brand-neon" />
                 Shipping
               </h2>
-              <p className="text-gray-400 text-sm">
+              <p className="text-gray-300 text-sm">
                 This is a local pickup order - no shipping label needed.
               </p>
             </Card>

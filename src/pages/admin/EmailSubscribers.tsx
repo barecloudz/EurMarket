@@ -147,7 +147,7 @@ export default function AdminEmailSubscribers() {
             </div>
             <div>
               <p className="text-2xl font-bold text-white">{stats.total}</p>
-              <p className="text-gray-400 text-sm">Total Subscribers</p>
+              <p className="text-gray-300 text-sm">Total Subscribers</p>
             </div>
           </div>
         </Card>
@@ -158,7 +158,7 @@ export default function AdminEmailSubscribers() {
             </div>
             <div>
               <p className="text-2xl font-bold text-white">{stats.subscribed}</p>
-              <p className="text-gray-400 text-sm">Active</p>
+              <p className="text-gray-300 text-sm">Active</p>
             </div>
           </div>
         </Card>
@@ -169,7 +169,7 @@ export default function AdminEmailSubscribers() {
             </div>
             <div>
               <p className="text-2xl font-bold text-white">{stats.unsubscribed}</p>
-              <p className="text-gray-400 text-sm">Unsubscribed</p>
+              <p className="text-gray-300 text-sm">Unsubscribed</p>
             </div>
           </div>
         </Card>
@@ -204,7 +204,7 @@ export default function AdminEmailSubscribers() {
           <div className="text-center py-12">
             <Mail className="h-16 w-16 text-gray-600 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-white mb-2">No subscribers yet</h3>
-            <p className="text-gray-400">
+            <p className="text-gray-200">
               Subscribers will appear here when customers sign up for marketing emails
             </p>
           </div>

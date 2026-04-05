@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Lock } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { useAuthStore } from '../../store/authStore';
 
 export default function SetPassword() {
   const navigate = useNavigate();
+  const { session } = useAuthStore();
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -48,9 +50,18 @@ export default function SetPassword() {
 
     setIsLoading(true);
     try {
-      const { error: updateError } = await supabase.auth.updateUser({ password });
-      if (updateError) {
-        setError(updateError.message);
+      const token = session?.access_token || (await supabase.auth.getSession()).data.session?.access_token;
+      const response = await fetch('/.netlify/functions/set-supplier-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ password }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        setError(data.error || 'Failed to set password.');
         setIsLoading(false);
         return;
       }

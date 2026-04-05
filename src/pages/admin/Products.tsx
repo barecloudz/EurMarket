@@ -334,7 +334,7 @@ export default function AdminProducts() {
         ) : sortedProducts.length === 0 ? (
           <div className="text-center py-12">
             <Package className="h-12 w-12 text-gray-600 mx-auto mb-4" />
-            <p className="text-gray-400 mb-4">No products found</p>
+            <p className="text-gray-200 mb-4">No products found</p>
             <Button as={Link} to="/admin/products/new">
               Add Your First Product
             </Button>
@@ -352,14 +352,14 @@ export default function AdminProducts() {
                       className="w-4 h-4 rounded border-[var(--color-border)] bg-[var(--color-background)] text-[var(--color-primary)]"
                     />
                   </th>
-                  <th className="text-left py-3 px-2 text-gray-400 font-medium text-sm">Order</th>
-                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Product</th>
-                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Category</th>
-                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Price</th>
-                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Stock</th>
-                  <th className="text-center py-3 px-2 text-gray-400 font-medium">Featured</th>
-                  <th className="text-center py-3 px-2 text-gray-400 font-medium">Visible</th>
-                  <th className="text-right py-3 px-4 text-gray-400 font-medium">Actions</th>
+                  <th className="text-left py-3 px-2 text-gray-200 font-medium text-sm">Order</th>
+                  <th className="text-left py-3 px-4 text-gray-200 font-medium">Product</th>
+                  <th className="text-left py-3 px-4 text-gray-200 font-medium">Category</th>
+                  <th className="text-left py-3 px-4 text-gray-200 font-medium">Price</th>
+                  <th className="text-left py-3 px-4 text-gray-200 font-medium">Stock</th>
+                  <th className="text-center py-3 px-2 text-gray-200 font-medium">Featured</th>
+                  <th className="text-center py-3 px-2 text-gray-200 font-medium">Visible</th>
+                  <th className="text-right py-3 px-4 text-gray-200 font-medium">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -429,7 +429,7 @@ export default function AdminProducts() {
                       </td>
                       <td className="py-3 px-4">
                         <div className="flex flex-col gap-1">
-                          <span className="text-gray-400">{product.stock_quantity}</span>
+                          <span className="text-gray-200">{product.stock_quantity}</span>
                           {stockStatus !== 'in_stock' && (
                             <Badge variant={stockStatus === 'low_stock' ? 'warning' : 'danger'} className="text-xs">
                               {stockStatus === 'low_stock' ? 'Low' : 'Out'}
@@ -513,7 +513,7 @@ export default function AdminProducts() {
         onClose={() => setBulkCategoryModalOpen(false)}
         title="Assign Category"
       >
-        <p className="text-gray-400 mb-4">
+        <p className="text-gray-200 mb-4">
           Assign {selectedProducts.size} product{selectedProducts.size !== 1 ? 's' : ''} to a category:
         </p>
         <select

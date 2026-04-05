@@ -96,7 +96,7 @@ export default function AdminOrders() {
         <Card>
           <div className="text-center py-12">
             <Package className="h-12 w-12 text-gray-600 mx-auto mb-4" />
-            <p className="text-gray-400">No orders found</p>
+            <p className="text-gray-200">No orders found</p>
             {search && (
               <button
                 onClick={() => setSearch('')}

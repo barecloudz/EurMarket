@@ -201,7 +201,7 @@ export default function AdminPromoCodes() {
         <Card className="text-center py-12">
           <Tag className="h-12 w-12 text-gray-600 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-white mb-2">No promo codes yet</h3>
-          <p className="text-gray-400 mb-4">Create your first promo code to offer discounts.</p>
+          <p className="text-gray-200 mb-4">Create your first promo code to offer discounts.</p>
           <Button onClick={() => setShowModal(true)}>
             <Plus className="h-4 w-4 mr-2" />
             Create Promo Code
@@ -242,17 +242,17 @@ export default function AdminPromoCodes() {
                         : `${formatPrice(code.discount_value)} off`}
                     </span>
                     {code.min_order_amount && (
-                      <span className="text-gray-400">
+                      <span className="text-gray-200">
                         Min: {formatPrice(code.min_order_amount)}
                       </span>
                     )}
                     {code.max_uses && (
-                      <span className="text-gray-400">
+                      <span className="text-gray-200">
                         Uses: {code.uses_count}/{code.max_uses}
                       </span>
                     )}
                     {code.expires_at && (
-                      <span className="text-gray-400">
+                      <span className="text-gray-200">
                         Expires: {new Date(code.expires_at).toLocaleDateString()}
                       </span>
                     )}
