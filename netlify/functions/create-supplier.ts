@@ -57,7 +57,7 @@ const handler: Handler = async (event) => {
       type: 'invite',
       email,
       options: {
-        redirectTo: `https://shop.genovaspizzamyrtlebeach.com/supplier/products`,
+        redirectTo: `https://shop.genovaspizzamyrtlebeach.com/auth/callback?next=/supplier/set-password`,
         data: { first_name, last_name },
       },
     });

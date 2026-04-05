@@ -24,6 +24,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Account from './pages/Account';
 import NotFound from './pages/NotFound';
+import AuthCallback from './pages/AuthCallback';
 
 // Admin Pages
 import AdminDashboard from './pages/admin/Dashboard';
@@ -48,6 +49,7 @@ import AdminSuppliers from './pages/admin/Suppliers';
 import SupplierOrders from './pages/supplier/SupplierOrders';
 import SupplierOrderDetail from './pages/supplier/SupplierOrderDetail';
 import SupplierProducts from './pages/supplier/SupplierProducts';
+import SetPassword from './pages/supplier/SetPassword';
 
 // Components
 import ProtectedRoute from './components/ProtectedRoute';
@@ -116,6 +118,8 @@ function App() {
           <Route path="return-policy" element={<ReturnPolicy />} />
           <Route path="privacy-policy" element={<PrivacyPolicy />} />
           <Route path="wishlist" element={<Wishlist />} />
+          <Route path="auth/callback" element={<AuthCallback />} />
+          <Route path="supplier/set-password" element={<SetPassword />} />
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
           <Route
