@@ -64,15 +64,16 @@ const handler: Handler = async (event) => {
 
     if (linkError) throw linkError;
 
-    // Set role to supplier
+    // Set role to supplier (upsert in case profile row doesn't exist yet)
     const { error: profileError } = await adminClient
       .from('profiles')
-      .update({
+      .upsert({
+        id: linkData.user.id,
+        email,
         role: 'supplier',
         first_name: first_name || null,
         last_name: last_name || null,
-      })
-      .eq('id', linkData.user.id);
+      }, { onConflict: 'id' });
 
     if (profileError) throw profileError;
 
