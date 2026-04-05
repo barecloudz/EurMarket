@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { User, Lock } from 'lucide-react';
+import { User, Lock, Wallet } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../store/authStore';
 import { useToast } from '../../components/ui/Toast';
@@ -14,6 +14,10 @@ export default function SupplierAccount() {
   const [lastName, setLastName] = useState('');
   const [isSavingProfile, setIsSavingProfile] = useState(false);
 
+  // Payment info state
+  const [paymentInfo, setPaymentInfo] = useState('');
+  const [isSavingPayment, setIsSavingPayment] = useState(false);
+
   // Password form state
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -25,8 +29,28 @@ export default function SupplierAccount() {
     if (profile) {
       setFirstName(profile.first_name ?? '');
       setLastName(profile.last_name ?? '');
+      setPaymentInfo(profile.payment_info ?? '');
     }
   }, [profile]);
+
+  const handleSavePaymentInfo = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+    setIsSavingPayment(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ payment_info: paymentInfo || null })
+        .eq('id', user.id);
+      if (error) throw error;
+      await fetchProfile();
+      addToast('Payment info saved', 'success');
+    } catch (err: any) {
+      addToast(err.message || 'Failed to save payment info', 'error');
+    } finally {
+      setIsSavingPayment(false);
+    }
+  };
 
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -166,6 +190,38 @@ export default function SupplierAccount() {
               >
                 {isSavingProfile ? <Spinner size="sm" /> : null}
                 Save Profile
+              </button>
+            </div>
+          </form>
+        </div>
+
+        {/* Payment Info section */}
+        <div className="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
+          <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-100">
+            <div className="p-2 rounded-xl bg-[var(--color-primary)]/10">
+              <Wallet className="h-5 w-5 text-[var(--color-primary)]" />
+            </div>
+            <div>
+              <h2 className="font-semibold text-gray-900">Payment Info</h2>
+              <p className="text-sm text-gray-500">Tell us how you'd like to be paid (PayPal, Venmo, bank details, etc.)</p>
+            </div>
+          </div>
+          <form onSubmit={handleSavePaymentInfo} className="p-6 space-y-4">
+            <textarea
+              value={paymentInfo}
+              onChange={(e) => setPaymentInfo(e.target.value)}
+              rows={4}
+              placeholder="e.g. PayPal: you@example.com&#10;Venmo: @yourhandle&#10;Bank: BSB 123-456, Acct 789012"
+              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] resize-none"
+            />
+            <div className="flex justify-end">
+              <button
+                type="submit"
+                disabled={isSavingPayment}
+                className="flex items-center gap-2 px-5 py-2.5 bg-[var(--color-primary)] text-white font-semibold rounded-xl hover:opacity-90 transition-opacity disabled:opacity-60"
+              >
+                {isSavingPayment ? <Spinner size="sm" /> : null}
+                Save Payment Info
               </button>
             </div>
           </form>

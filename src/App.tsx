@@ -52,6 +52,7 @@ import SupplierOrders from './pages/supplier/SupplierOrders';
 import SupplierOrderDetail from './pages/supplier/SupplierOrderDetail';
 import SupplierProducts from './pages/supplier/SupplierProducts';
 import SupplierAccount from './pages/supplier/SupplierAccount';
+import SupplierPayouts from './pages/supplier/SupplierPayouts';
 import SetPassword from './pages/supplier/SetPassword';
 
 // Components
@@ -183,6 +184,7 @@ function App() {
           <Route path="products" element={<SupplierProducts />} />
           <Route path="products/new" element={<AdminProductEdit />} />
           <Route path="products/:id/edit" element={<AdminProductEdit />} />
+          <Route path="payouts" element={<SupplierPayouts />} />
           <Route path="account" element={<SupplierAccount />} />
         </Route>
       </Routes>

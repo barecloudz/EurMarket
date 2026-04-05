@@ -158,6 +158,7 @@ export interface Profile {
   first_name: string | null;
   last_name: string | null;
   phone: string | null;
+  payment_info: string | null;
   marketing_opt_in: boolean;
   created_at: string;
   updated_at: string;

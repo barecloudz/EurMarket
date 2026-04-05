@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Package, ShoppingBag, ArrowLeft, Menu, X, LogOut, LayoutDashboard, Settings } from 'lucide-react';
+import { Package, ShoppingBag, ArrowLeft, Menu, X, LogOut, LayoutDashboard, Wallet, Settings } from 'lucide-react';
 import { useState } from 'react';
 import { useAuthStore } from '../../store/authStore';
 
@@ -7,6 +7,7 @@ const navItems = [
   { href: '/supplier/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/supplier/orders', icon: ShoppingBag, label: 'My Orders' },
   { href: '/supplier/products', icon: Package, label: 'My Products' },
+  { href: '/supplier/payouts', icon: Wallet, label: 'Payouts' },
   { href: '/supplier/account', icon: Settings, label: 'Account Settings' },
 ];
 
