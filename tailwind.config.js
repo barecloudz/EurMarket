@@ -8,11 +8,12 @@ export default {
     extend: {
       colors: {
         brand: {
-          // Dynamic theme colors (from CSS variables)
-          black: 'var(--color-background, #F8F9FA)',
-          charcoal: 'var(--color-surface, #FFFFFF)',
-          gray: 'var(--color-border, #E5E7EB)',
+          // Admin fixed dark colors (never change with theme)
+          black: '#0f1117',
+          charcoal: '#1a1d27',
+          gray: '#2d3044',
           'gray-light': '#D1D5DB',
+          // Store theme colors (from CSS variables)
           neon: 'var(--color-primary, #2E7D32)',
           emerald: 'var(--color-secondary, #1B5E20)',
           'emerald-dark': '#1B5E20',

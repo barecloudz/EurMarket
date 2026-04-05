@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { UserPlus, Users, Copy, Package, Trash2 } from 'lucide-react';
+import { UserPlus, Users, Package, Trash2, Mail } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { formatDate } from '../../lib/utils';
 import { useToast } from '../../components/ui/Toast';
@@ -59,16 +59,9 @@ export default function AdminSuppliers() {
     }
   };
 
-  const generateTempPassword = () => {
-    const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$';
-    return Array.from({ length: 12 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
-  };
-
   const handleInviteSupplier = async () => {
     if (!inviteEmail) return;
     setIsSending(true);
-
-    const password = generateTempPassword();
 
     try {
       const response = await fetch('/.netlify/functions/create-supplier', {
@@ -79,20 +72,18 @@ export default function AdminSuppliers() {
         },
         body: JSON.stringify({
           email: inviteEmail,
-          password,
           first_name: inviteFirstName || null,
           last_name: inviteLastName || null,
         }),
       });
 
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'Failed to create supplier');
+      if (!response.ok) throw new Error(data.error || 'Failed to invite supplier');
 
-      setTempPassword(password);
+      setTempPassword('invited');
       fetchSuppliers();
-      addToast('Supplier account created', 'success');
     } catch (err: any) {
-      addToast(err.message || 'Failed to create supplier', 'error');
+      addToast(err.message || 'Failed to invite supplier', 'error');
     } finally {
       setIsSending(false);
     }
@@ -207,34 +198,20 @@ export default function AdminSuppliers() {
 
       {/* Invite Modal */}
       <Modal isOpen={inviteOpen} onClose={closeInviteModal} title="Add Supplier">
-        {tempPassword ? (
+        {tempPassword === 'invited' ? (
           <div className="space-y-4">
-            <div className="bg-green-50 border border-green-200 rounded-xl p-4">
-              <p className="text-green-800 font-semibold mb-1">Supplier account created!</p>
-              <p className="text-green-700 text-sm">Share these credentials with the supplier:</p>
-            </div>
-            <div>
-              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-1">Email</label>
-              <p className="font-mono text-gray-900 bg-gray-50 px-3 py-2 rounded-lg text-sm">{inviteEmail}</p>
-            </div>
-            <div>
-              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-1">Temporary Password</label>
-              <div className="flex items-center gap-2">
-                <p className="font-mono text-gray-900 bg-gray-50 px-3 py-2 rounded-lg text-sm flex-1">{tempPassword}</p>
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(tempPassword);
-                    addToast('Password copied', 'success');
-                  }}
-                  className="p-2 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-                >
-                  <Copy className="h-4 w-4" />
-                </button>
+            <div className="flex flex-col items-center text-center py-4">
+              <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mb-4">
+                <Mail className="h-8 w-8 text-green-600" />
               </div>
+              <h3 className="text-lg font-bold text-gray-900 mb-1">Invite Sent!</h3>
+              <p className="text-gray-500 text-sm">
+                An email has been sent to <span className="font-semibold text-gray-900">{inviteEmail}</span> with a link to set up their account.
+              </p>
+              <p className="text-gray-400 text-xs mt-3">
+                They'll be taken directly to their product dashboard after setting their password.
+              </p>
             </div>
-            <p className="text-xs text-gray-400">
-              The supplier should change their password after first login. They can access their portal at /supplier/orders.
-            </p>
             <button
               onClick={closeInviteModal}
               className="w-full px-4 py-2.5 bg-[var(--color-primary)] text-white font-semibold rounded-xl hover:opacity-90 transition-opacity"

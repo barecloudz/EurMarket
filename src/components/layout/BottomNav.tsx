@@ -84,24 +84,10 @@ export default function BottomNav() {
             {isActive('/account') && (
               <span className="absolute top-1.5 w-1 h-1 rounded-full bg-[var(--color-primary)]" />
             )}
-            <div
-              className={`p-1.5 rounded-xl transition-all ${
-                isActive('/account')
-                  ? 'text-[var(--color-primary)]'
-                  : 'text-gray-400 hover:text-gray-600'
-              }`}
-            >
-              <User
-                className={`h-5 w-5 transition-all ${
-                  isActive('/account') ? 'fill-current scale-110' : ''
-                }`}
-              />
+            <div className={`p-1.5 rounded-xl transition-all ${isActive('/account') ? 'text-[var(--color-primary)]' : 'text-gray-400 hover:text-gray-600'}`}>
+              <User className={`h-5 w-5 transition-all ${isActive('/account') ? 'fill-current scale-110' : ''}`} />
             </div>
-            <span
-              className={`text-[10px] font-semibold transition-colors leading-none ${
-                isActive('/account') ? 'text-[var(--color-primary)]' : 'text-gray-400'
-              }`}
-            >
+            <span className={`text-[10px] font-semibold transition-colors leading-none ${isActive('/account') ? 'text-[var(--color-primary)]' : 'text-gray-400'}`}>
               Account
             </span>
           </Link>
