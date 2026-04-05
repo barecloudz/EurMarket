@@ -10,20 +10,23 @@ export default function Header() {
   const navigate = useNavigate();
   const location = useLocation();
   const { openCart, getItemCount } = useCartStore();
-  const { user, isAdmin, signOut, profile } = useAuthStore();
+  const { user, isAdmin, isSupplier, signOut, profile } = useAuthStore();
   const { items: wishlistItems } = useWishlistStore();
   const { open: openLoginModal } = useLoginModalStore();
   const itemCount = getItemCount();
   const wishlistCount = wishlistItems.length;
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const mobileDropdownRef = useRef<HTMLDivElement>(null);
+  const desktopDropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => { setDropdownOpen(false); }, [location.pathname]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+      const inMobile = mobileDropdownRef.current?.contains(e.target as Node);
+      const inDesktop = desktopDropdownRef.current?.contains(e.target as Node);
+      if (!inMobile && !inDesktop) {
         setDropdownOpen(false);
       }
     };
@@ -88,7 +91,7 @@ export default function Header() {
 
           {/* Avatar right — dropdown on mobile */}
           {user ? (
-            <div className="relative" ref={dropdownRef}>
+            <div className="relative" ref={mobileDropdownRef}>
               <button
                 onClick={() => setDropdownOpen(!dropdownOpen)}
                 className="relative p-1"
@@ -116,6 +119,16 @@ export default function Header() {
                     <Settings className="h-4 w-4 text-gray-400" />
                     Account Settings
                   </Link>
+                  {isSupplier && !isAdmin && (
+                    <Link
+                      to="/supplier/dashboard"
+                      onClick={() => setDropdownOpen(false)}
+                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--color-primary)] hover:bg-[var(--color-primary)]/5 transition-colors font-medium"
+                    >
+                      <LayoutDashboard className="h-4 w-4" />
+                      Supplier Dashboard
+                    </Link>
+                  )}
                   {isAdmin && (
                     <Link
                       to="/admin"
@@ -202,7 +215,7 @@ export default function Header() {
 
             {/* User dropdown or Sign In */}
             {user ? (
-              <div className="relative" ref={dropdownRef}>
+              <div className="relative" ref={desktopDropdownRef}>
                 <button
                   onClick={() => setDropdownOpen(!dropdownOpen)}
                   className="flex items-center gap-2.5 pl-2 pr-3 py-1.5 bg-white border border-gray-200 hover:border-gray-300 rounded-xl transition-all shadow-sm"
@@ -228,6 +241,16 @@ export default function Header() {
                       <Settings className="h-4 w-4 text-gray-400" />
                       Account Settings
                     </Link>
+                    {isSupplier && !isAdmin && (
+                      <Link
+                        to="/supplier/dashboard"
+                        onClick={() => setDropdownOpen(false)}
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-[var(--color-primary)] hover:bg-[var(--color-primary)]/5 transition-colors"
+                      >
+                        <LayoutDashboard className="h-4 w-4" />
+                        Supplier Dashboard
+                      </Link>
+                    )}
                     {isAdmin && (
                       <Link
                         to="/admin"
