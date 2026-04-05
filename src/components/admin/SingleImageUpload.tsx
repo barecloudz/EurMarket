@@ -1,89 +1,62 @@
 import { useState, useRef } from 'react';
 import { Upload, X, Image as ImageIcon, Loader2 } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
 
 interface SingleImageUploadProps {
   image: string | null;
   onChange: (image: string | null) => void;
-  bucket?: string;
   label?: string;
+}
+
+const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+
+async function uploadToCloudinary(file: File, folder: string): Promise<string> {
+  if (!file.type.startsWith('image/')) throw new Error('Only image files are allowed');
+  if (file.size > 10 * 1024 * 1024) throw new Error('Image must be under 10MB');
+
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('upload_preset', UPLOAD_PRESET);
+  formData.append('folder', `genovamerch/${folder}`);
+
+  const res = await fetch(
+    `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+    { method: 'POST', body: formData }
+  );
+
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error?.message || 'Upload failed');
+  return data.secure_url;
 }
 
 export default function SingleImageUpload({
   image,
   onChange,
-  bucket = 'category-images',
   label = 'Image',
 }: SingleImageUploadProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Derive folder from label for organization in Cloudinary
+  const folder = label.toLowerCase().replace(/\s+/g, '-');
+
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      setError('Only image files are allowed');
-      return;
-    }
-
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      setError('Image must be under 5MB');
-      return;
-    }
 
     setIsUploading(true);
     setError(null);
 
     try {
-      // Generate unique filename
-      const ext = file.name.split('.').pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
-
-      // Upload to Supabase Storage
-      const { error: uploadError } = await supabase.storage
-        .from(bucket)
-        .upload(fileName, file, {
-          cacheControl: '3600',
-          upsert: false,
-        });
-
-      if (uploadError) throw uploadError;
-
-      // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from(bucket)
-        .getPublicUrl(fileName);
-
-      onChange(publicUrl);
-    } catch (err) {
-      console.error('Upload error:', err);
-      setError('Failed to upload image. Check bucket permissions.');
+      const url = await uploadToCloudinary(file, folder);
+      onChange(url);
+    } catch (err: any) {
+      setError(err.message || 'Failed to upload image');
     } finally {
       setIsUploading(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
-  };
-
-  const handleRemove = async () => {
-    if (!image) return;
-
-    // Extract filename from URL to delete from storage
-    try {
-      const fileName = image.split('/').pop();
-      if (fileName) {
-        await supabase.storage.from(bucket).remove([fileName]);
-      }
-    } catch (err) {
-      console.error('Failed to delete from storage:', err);
-    }
-
-    onChange(null);
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -91,10 +64,9 @@ export default function SingleImageUpload({
     e.stopPropagation();
   };
 
-  const handleDrop = async (e: React.DragEvent) => {
+  const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-
     const file = e.dataTransfer.files[0];
     if (file) {
       const input = fileInputRef.current;
@@ -109,18 +81,11 @@ export default function SingleImageUpload({
 
   return (
     <div className="space-y-2">
-      <label className="block text-sm font-medium text-gray-300">
-        {label}
-      </label>
+      <label className="block text-sm font-medium text-gray-300">{label}</label>
 
       {image ? (
-        // Image preview
         <div className="relative group w-full aspect-video rounded-lg overflow-hidden bg-brand-gray">
-          <img
-            src={image}
-            alt="Category"
-            className="w-full h-full object-cover"
-          />
+          <img src={image} alt={label} className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
             <button
               type="button"
@@ -131,7 +96,7 @@ export default function SingleImageUpload({
             </button>
             <button
               type="button"
-              onClick={handleRemove}
+              onClick={() => onChange(null)}
               className="p-2 bg-red-600 rounded-full text-white hover:bg-red-700 transition-colors"
             >
               <X className="h-4 w-4" />
@@ -139,7 +104,6 @@ export default function SingleImageUpload({
           </div>
         </div>
       ) : (
-        // Upload area
         <div
           onDragOver={handleDragOver}
           onDrop={handleDrop}
@@ -149,17 +113,13 @@ export default function SingleImageUpload({
           {isUploading ? (
             <div className="flex flex-col items-center gap-2">
               <Loader2 className="h-8 w-8 text-brand-neon animate-spin" />
-              <p className="text-gray-400 text-sm">Uploading...</p>
+              <p className="text-gray-400 text-sm">Uploading to Cloudinary...</p>
             </div>
           ) : (
             <div className="flex flex-col items-center gap-2">
               <ImageIcon className="h-8 w-8 text-gray-500" />
-              <p className="text-gray-400 text-sm">
-                Click or drag image to upload
-              </p>
-              <p className="text-gray-500 text-xs">
-                Max 5MB, recommended 800x600px
-              </p>
+              <p className="text-gray-400 text-sm">Click or drag image to upload</p>
+              <p className="text-gray-500 text-xs">Max 10MB</p>
             </div>
           )}
         </div>
@@ -173,9 +133,7 @@ export default function SingleImageUpload({
         className="hidden"
       />
 
-      {error && (
-        <p className="text-red-500 text-sm">{error}</p>
-      )}
+      {error && <p className="text-red-500 text-sm">{error}</p>}
     </div>
   );
 }
