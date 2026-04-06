@@ -88,37 +88,39 @@ export default function Account() {
         marketing_opt_in: formData.marketingOptIn,
       });
 
-      // Update email subscriber if marketing preference changed
+      addToast('Settings saved successfully', 'success');
+
+      // Update email subscriber separately — non-blocking, failure won't affect save
       if (user?.email) {
-        const { data: existingSub } = await supabase
+        supabase
           .from('email_subscribers')
           .select('id')
           .eq('email', user.email.toLowerCase())
-          .maybeSingle();
-
-        if (existingSub) {
-          await supabase
-            .from('email_subscribers')
-            .update({
-              is_subscribed: formData.marketingOptIn,
-              first_name: formData.firstName || null,
-              last_name: formData.lastName || null,
-              unsubscribed_at: formData.marketingOptIn ? null : new Date().toISOString(),
-            })
-            .eq('id', existingSub.id);
-        } else if (formData.marketingOptIn) {
-          await supabase.from('email_subscribers').insert({
-            email: user.email.toLowerCase(),
-            first_name: formData.firstName || null,
-            last_name: formData.lastName || null,
-            source: 'register',
-            is_subscribed: true,
-            subscribed_at: new Date().toISOString(),
+          .maybeSingle()
+          .then(({ data: existingSub }) => {
+            if (existingSub) {
+              supabase
+                .from('email_subscribers')
+                .update({
+                  is_subscribed: formData.marketingOptIn,
+                  first_name: formData.firstName || null,
+                  last_name: formData.lastName || null,
+                  unsubscribed_at: formData.marketingOptIn ? null : new Date().toISOString(),
+                })
+                .eq('id', existingSub.id)
+                .then(() => {});
+            } else if (formData.marketingOptIn) {
+              supabase.from('email_subscribers').insert({
+                email: user.email!.toLowerCase(),
+                first_name: formData.firstName || null,
+                last_name: formData.lastName || null,
+                source: 'register',
+                is_subscribed: true,
+                subscribed_at: new Date().toISOString(),
+              }).then(() => {});
+            }
           });
-        }
       }
-
-      addToast('Settings saved successfully', 'success');
     } catch (err) {
       console.error('Error saving settings:', err);
       addToast('Failed to save settings', 'error');

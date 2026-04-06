@@ -62,19 +62,18 @@ export const useAuthStore = create<AuthState>()(
         const { user } = get();
         if (!user) return;
 
-        const { data, error } = await supabase
+        const { error } = await supabase
           .from('profiles')
           .update(updates)
-          .eq('id', user.id)
-          .select()
-          .single();
+          .eq('id', user.id);
 
         if (error) {
           console.error('Error updating profile:', error);
           throw error;
         }
 
-        set({ profile: data, isAdmin: data?.role === 'admin', isSupplier: data?.role === 'supplier' });
+        // Re-fetch the profile to get fresh data
+        await get().fetchProfile();
       },
 
       signIn: async (email, password) => {
