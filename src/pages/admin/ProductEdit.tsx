@@ -885,7 +885,9 @@ export default function AdminProductEdit() {
                     {category.name}{!category.is_active ? ' (Inactive)' : ''}
                   </option>
                 ))}
-                <option value="__add_new__" className="text-brand-neon">+ Add New Category</option>
+                {!isSupplier && (
+                  <option value="__add_new__" className="text-brand-neon">+ Add New Category</option>
+                )}
               </select>
             </Card>
 
