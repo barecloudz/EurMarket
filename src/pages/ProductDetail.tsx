@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Minus, Plus, Clock, Package, Heart, Share2, ShoppingCart, Check, ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Minus, Plus, Package, Heart, Share2, ShoppingCart, Check, ChevronDown, ChevronUp } from 'lucide-react';
 import Button from '../components/ui/Button';
 import { ProductDetailSkeleton } from '../components/ui/Skeleton';
 import RelatedProducts from '../components/product/RelatedProducts';
@@ -374,41 +374,25 @@ export default function ProductDetail() {
                 : 'Out of Stock'}
             </div>
 
-            {/* Print time */}
-            {product.print_time_hours && (
-              <div className="flex items-center text-gray-500">
-                <Clock className="h-5 w-5 mr-2" />
-                <span>Estimated print time: {product.print_time_hours} hours</span>
-              </div>
-            )}
-
             {/* Description */}
             {product.description && (
-              <div className="desc-card-wrapper">
-                <div className="desc-card">
-                  <div className="desc-card-titlebar" aria-hidden="true"></div>
-                  <div className="desc-card-accent" aria-hidden="true"></div>
-                  <div className="desc-card-corner" aria-hidden="true"></div>
-                  <div className="desc-card-edge" aria-hidden="true"></div>
-                  <h2 className="desc-card-title">Product Description</h2>
-                  <div className="desc-card-text">
-                    <p
-                      className={!isDescriptionExpanded ? 'line-clamp-4' : ''}
-                      style={{ whiteSpace: 'pre-line' }}
-                    >
-                      {product.description}
-                    </p>
-                    <button
-                      onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
-                      className="mt-3 text-[var(--color-primary)] hover:underline text-sm font-medium inline-flex items-center gap-1"
-                    >
-                      {isDescriptionExpanded ? (
-                        <>Show less <ChevronUp className="h-4 w-4" /></>
-                      ) : (
-                        <>Read more <ChevronDown className="h-4 w-4" /></>
-                      )}
-                    </button>
-                  </div>
+              <div className="bg-[#FAF9F7] rounded-2xl border border-[var(--color-border)] p-5">
+                <h2 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-3">
+                  Product Description
+                </h2>
+                <div className="text-gray-700 text-sm leading-relaxed">
+                  <p className={!isDescriptionExpanded ? 'line-clamp-4' : ''} style={{ whiteSpace: 'pre-line' }}>
+                    {product.description}
+                  </p>
+                  <button
+                    onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+                    className="mt-3 text-[var(--color-primary)] hover:underline text-sm font-semibold inline-flex items-center gap-1"
+                  >
+                    {isDescriptionExpanded
+                      ? <><ChevronUp className="h-4 w-4" /> Show less</>
+                      : <><ChevronDown className="h-4 w-4" /> Read more</>
+                    }
+                  </button>
                 </div>
               </div>
             )}

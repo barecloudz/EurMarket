@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Package, ShoppingBag, ArrowLeft, Menu, X, LogOut, LayoutDashboard, Wallet, Settings } from 'lucide-react';
+import { Package, ShoppingBag, Menu, X, LogOut, LayoutDashboard, Wallet, Settings } from 'lucide-react';
 import { useState } from 'react';
 import { useAuthStore } from '../../store/authStore';
 
@@ -31,7 +31,7 @@ export default function SupplierSidebar() {
       {/* Logo */}
       <div className={`p-5 border-b ${isMobile ? 'border-gray-200 bg-white' : 'border-gray-200'}`}>
         <Link to="/supplier/dashboard" className="flex items-center gap-2" onClick={() => setMobileOpen(false)}>
-          <img src="/images/logo.png" alt="Genova's Merch" className="h-8 w-auto object-contain" />
+          <img src="/logo.jpg" alt="European Market" className="h-8 w-auto object-contain" />
           <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded font-medium">Supplier</span>
         </Link>
         {profile && (
@@ -62,14 +62,6 @@ export default function SupplierSidebar() {
 
       {/* Bottom */}
       <div className={`p-4 border-t border-gray-200 space-y-1`}>
-        <Link
-          to="/"
-          onClick={() => setMobileOpen(false)}
-          className="flex items-center gap-3 px-4 py-3 text-gray-500 hover:text-gray-900 transition-colors rounded-xl hover:bg-gray-100"
-        >
-          <ArrowLeft className="h-5 w-5" />
-          <span className="font-medium">Back to Store</span>
-        </Link>
         <button
           onClick={handleSignOut}
           className="w-full flex items-center gap-3 px-4 py-3 text-red-500 hover:text-red-700 hover:bg-red-50 transition-colors rounded-xl"

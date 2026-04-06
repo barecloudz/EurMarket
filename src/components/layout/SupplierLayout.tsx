@@ -41,7 +41,7 @@ export default function SupplierLayout() {
               >
                 <X className="h-5 w-5" />
               </button>
-              <img src="/images/logo.png" alt="Genova's Merch" className="h-12 w-auto object-contain mb-4" />
+              <img src="/logo.jpg" alt="European Market" className="h-12 w-auto object-contain mb-4" />
               <h2 className="text-2xl font-black leading-tight">Welcome to your<br />supplier dashboard</h2>
               <p className="text-white/75 text-sm mt-1">Here's what you can do</p>
             </div>

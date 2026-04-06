@@ -100,7 +100,7 @@ export const useWishlistStore = create<WishlistState>()(
       },
     }),
     {
-      name: 'genovamerch-wishlist',
+      name: 'european-market-wishlist',
     }
   )
 );

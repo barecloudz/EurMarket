@@ -151,26 +151,26 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-6">
       {/* Welcome Header */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-brand-charcoal via-brand-emerald-dark/20 to-brand-charcoal border border-brand-gray p-6 sm:p-8">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-brand-neon/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-gray-100 via-white to-gray-100 border border-gray-200 p-6 sm:p-8">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--color-primary)]/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
         <div className="relative">
-          <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
-            Welcome to Genova's Merch
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+            Welcome to European Market
           </h1>
-          <p className="text-gray-200 mb-4">
+          <p className="text-gray-600 mb-4">
             Here's what's happening with your store today.
           </p>
           <div className="flex flex-wrap gap-3">
             <Link
               to="/admin/products/new"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-brand-neon text-brand-black rounded-lg font-semibold text-sm hover:bg-brand-emerald transition-colors"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--color-primary)] text-white rounded-lg font-semibold text-sm hover:opacity-90 transition-colors"
             >
               <Package className="h-4 w-4" />
               Add Product
             </Link>
             <Link
               to="/admin/orders"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-brand-gray text-white rounded-lg font-semibold text-sm hover:bg-brand-gray/80 transition-colors"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gray-200 text-gray-900 rounded-lg font-semibold text-sm hover:bg-gray-300 transition-colors"
             >
               <ShoppingBag className="h-4 w-4" />
               View Orders
@@ -186,19 +186,19 @@ export default function AdminDashboard() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="group p-4 sm:p-6 hover:border-brand-neon/50 transition-all duration-300 hover:shadow-lg hover:shadow-brand-neon/10">
+        <Card className="group p-4 sm:p-6 hover:border-[var(--color-primary)]/30 transition-all duration-300 hover:shadow-lg hover:shadow-[var(--color-primary)]/10">
           <div className="flex items-start justify-between">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-brand-neon/20 to-brand-emerald-dark rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
-              <DollarSign className="h-5 w-5 sm:h-6 sm:w-6 text-brand-neon" />
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-[var(--color-primary)]/20 to-[var(--color-primary)]/10 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+              <DollarSign className="h-5 w-5 sm:h-6 sm:w-6 text-[var(--color-primary)]" />
             </div>
-            <span className="text-brand-neon text-xs flex items-center gap-1 bg-brand-neon/10 px-2 py-1 rounded-full">
+            <span className="text-[var(--color-primary)] text-xs flex items-center gap-1 bg-[var(--color-primary)]/10 px-2 py-1 rounded-full">
               <TrendingUp className="h-3 w-3" />
               Today
             </span>
           </div>
           <div className="mt-3 sm:mt-4">
-            <p className="text-gray-300 text-xs sm:text-sm">Today's Revenue</p>
-            <p className="text-xl sm:text-2xl font-bold text-white">{formatPrice(stats.todayRevenue)}</p>
+            <p className="text-gray-500 text-xs sm:text-sm">Today's Revenue</p>
+            <p className="text-xl sm:text-2xl font-bold text-gray-900">{formatPrice(stats.todayRevenue)}</p>
           </div>
         </Card>
 
@@ -213,8 +213,8 @@ export default function AdminDashboard() {
             </span>
           </div>
           <div className="mt-3 sm:mt-4">
-            <p className="text-gray-300 text-xs sm:text-sm">This Month</p>
-            <p className="text-xl sm:text-2xl font-bold text-white">{formatPrice(stats.monthRevenue)}</p>
+            <p className="text-gray-500 text-xs sm:text-sm">This Month</p>
+            <p className="text-xl sm:text-2xl font-bold text-gray-900">{formatPrice(stats.monthRevenue)}</p>
           </div>
         </Card>
 
@@ -234,8 +234,8 @@ export default function AdminDashboard() {
             )}
           </div>
           <div className="mt-3 sm:mt-4">
-            <p className="text-gray-300 text-xs sm:text-sm">Total Orders</p>
-            <p className="text-xl sm:text-2xl font-bold text-white">{stats.orderCount}</p>
+            <p className="text-gray-500 text-xs sm:text-sm">Total Orders</p>
+            <p className="text-xl sm:text-2xl font-bold text-gray-900">{stats.orderCount}</p>
           </div>
         </Card>
 
@@ -256,8 +256,8 @@ export default function AdminDashboard() {
             )}
           </div>
           <div className="mt-3 sm:mt-4">
-            <p className="text-gray-300 text-xs sm:text-sm">Low Stock Items</p>
-            <p className="text-xl sm:text-2xl font-bold text-white">{stats.lowStockCount}</p>
+            <p className="text-gray-500 text-xs sm:text-sm">Low Stock Items</p>
+            <p className="text-xl sm:text-2xl font-bold text-gray-900">{stats.lowStockCount}</p>
           </div>
         </Card>
       </div>
@@ -270,8 +270,8 @@ export default function AdminDashboard() {
               <TrendingUp className="h-5 w-5 text-green-400" />
             </div>
             <div>
-              <p className="text-gray-300 text-xs sm:text-sm">Avg. Order Value</p>
-              <p className="text-lg sm:text-xl font-bold text-white">{formatPrice(stats.avgOrderValue)}</p>
+              <p className="text-gray-500 text-xs sm:text-sm">Avg. Order Value</p>
+              <p className="text-lg sm:text-xl font-bold text-gray-900">{formatPrice(stats.avgOrderValue)}</p>
             </div>
           </div>
         </Card>
@@ -282,8 +282,8 @@ export default function AdminDashboard() {
               <Users className="h-5 w-5 text-cyan-400" />
             </div>
             <div>
-              <p className="text-gray-300 text-xs sm:text-sm">Customers</p>
-              <p className="text-lg sm:text-xl font-bold text-white">{stats.customerCount}</p>
+              <p className="text-gray-500 text-xs sm:text-sm">Customers</p>
+              <p className="text-lg sm:text-xl font-bold text-gray-900">{stats.customerCount}</p>
             </div>
           </div>
         </Card>
@@ -294,8 +294,8 @@ export default function AdminDashboard() {
               <DollarSign className="h-5 w-5 text-orange-400" />
             </div>
             <div>
-              <p className="text-gray-300 text-xs sm:text-sm">Week Revenue</p>
-              <p className="text-lg sm:text-xl font-bold text-white">{formatPrice(stats.weekRevenue)}</p>
+              <p className="text-gray-500 text-xs sm:text-sm">Week Revenue</p>
+              <p className="text-lg sm:text-xl font-bold text-gray-900">{formatPrice(stats.weekRevenue)}</p>
             </div>
           </div>
         </Card>
@@ -304,10 +304,10 @@ export default function AdminDashboard() {
       {/* Charts */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         {/* Revenue Chart */}
-        <Card className="p-4 sm:p-6 hover:border-brand-neon/30 transition-all">
+        <Card className="p-4 sm:p-6 hover:border-[var(--color-primary)]/30 transition-all">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg sm:text-xl font-semibold text-white">Revenue</h2>
-            <span className="text-xs text-gray-400 bg-brand-gray px-2 py-1 rounded">Last 14 days</span>
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Revenue</h2>
+            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">Last 14 days</span>
           </div>
           <div className="h-64 sm:h-80">
             <ResponsiveContainer width="100%" height="100%">
@@ -318,7 +318,7 @@ export default function AdminDashboard() {
                     <stop offset="95%" stopColor="#00ff66" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#2d2d2d" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                 <XAxis
                   dataKey="date"
                   stroke="#6b7280"
@@ -335,11 +335,11 @@ export default function AdminDashboard() {
                 />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: '#1a1a1a',
-                    border: '1px solid #2d2d2d',
+                    backgroundColor: '#ffffff',
+                    border: '1px solid #e5e7eb',
                     borderRadius: '8px',
                   }}
-                  labelStyle={{ color: '#f5f5f5' }}
+                  labelStyle={{ color: '#111827' }}
                   formatter={(value: number) => [formatPrice(value), 'Revenue']}
                 />
                 <Area
@@ -358,13 +358,13 @@ export default function AdminDashboard() {
         {/* Orders Chart */}
         <Card className="p-4 sm:p-6 hover:border-purple-500/30 transition-all">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg sm:text-xl font-semibold text-white">Orders</h2>
-            <span className="text-xs text-gray-400 bg-brand-gray px-2 py-1 rounded">Last 14 days</span>
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Orders</h2>
+            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">Last 14 days</span>
           </div>
           <div className="h-64 sm:h-80">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={salesData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#2d2d2d" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                 <XAxis
                   dataKey="date"
                   stroke="#6b7280"
@@ -380,11 +380,11 @@ export default function AdminDashboard() {
                 />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: '#1a1a1a',
-                    border: '1px solid #2d2d2d',
+                    backgroundColor: '#ffffff',
+                    border: '1px solid #e5e7eb',
                     borderRadius: '8px',
                   }}
-                  labelStyle={{ color: '#f5f5f5' }}
+                  labelStyle={{ color: '#111827' }}
                   formatter={(value: number) => [value, 'Orders']}
                 />
                 <Bar dataKey="orders" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
@@ -397,10 +397,10 @@ export default function AdminDashboard() {
       {/* Recent Orders */}
       <Card className="p-4 sm:p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg sm:text-xl font-semibold text-white">Recent Orders</h2>
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Recent Orders</h2>
           <Link
             to="/admin/orders"
-            className="text-brand-neon text-sm hover:underline"
+            className="text-[var(--color-primary)] text-sm hover:underline"
           >
             View all
           </Link>
@@ -409,25 +409,25 @@ export default function AdminDashboard() {
         {recentOrders.length === 0 ? (
           <div className="text-center py-8">
             <Package className="h-12 w-12 text-gray-600 mx-auto mb-4" />
-            <p className="text-gray-200">No orders yet</p>
-            <p className="text-gray-300 text-sm mt-1">Orders will appear here once customers start purchasing.</p>
+            <p className="text-gray-600">No orders yet</p>
+            <p className="text-gray-500 text-sm mt-1">Orders will appear here once customers start purchasing.</p>
           </div>
         ) : (
           <div className="overflow-x-auto -mx-4 sm:mx-0">
             <table className="w-full min-w-[500px]">
               <thead>
-                <tr className="border-b border-brand-gray">
-                  <th className="text-left py-3 px-4 text-gray-200 font-medium text-sm">Order</th>
-                  <th className="text-left py-3 px-4 text-gray-200 font-medium text-sm">Status</th>
-                  <th className="text-left py-3 px-4 text-gray-200 font-medium text-sm">Total</th>
-                  <th className="text-left py-3 px-4 text-gray-200 font-medium text-sm hidden sm:table-cell">Date</th>
+                <tr className="border-b border-gray-200">
+                  <th className="text-left py-3 px-4 text-gray-600 font-medium text-sm">Order</th>
+                  <th className="text-left py-3 px-4 text-gray-600 font-medium text-sm">Status</th>
+                  <th className="text-left py-3 px-4 text-gray-600 font-medium text-sm">Total</th>
+                  <th className="text-left py-3 px-4 text-gray-600 font-medium text-sm hidden sm:table-cell">Date</th>
                 </tr>
               </thead>
               <tbody>
                 {recentOrders.map((order) => (
-                  <tr key={order.id} className="border-b border-brand-gray/50 hover:bg-brand-gray/20">
+                  <tr key={order.id} className="border-b border-gray-200/50 hover:bg-gray-100/50">
                     <td className="py-3 px-4">
-                      <Link to={`/admin/orders/${order.id}`} className="text-white hover:text-brand-neon">
+                      <Link to={`/admin/orders/${order.id}`} className="text-gray-900 hover:text-[var(--color-primary)]">
                         #{order.order_number}
                       </Link>
                     </td>
@@ -445,7 +445,7 @@ export default function AdminDashboard() {
                         {ORDER_STATUSES[order.status as OrderStatus]?.label || order.status}
                       </Badge>
                     </td>
-                    <td className="py-3 px-4 text-brand-neon font-medium">{formatPrice(order.total)}</td>
+                    <td className="py-3 px-4 text-[var(--color-primary)] font-medium">{formatPrice(order.total)}</td>
                     <td className="py-3 px-4 text-gray-400 text-sm hidden sm:table-cell">
                       {formatDateTime(order.created_at)}
                     </td>

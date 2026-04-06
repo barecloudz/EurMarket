@@ -307,7 +307,7 @@ export default function AdminOrderDetail() {
     <div>
       <button
         onClick={() => navigate('/admin/orders')}
-        className="inline-flex items-center text-gray-400 hover:text-brand-neon mb-6 transition-colors"
+        className="inline-flex items-center text-gray-500 hover:text-[var(--color-primary)] mb-6 transition-colors"
       >
         <ArrowLeft className="h-4 w-4 mr-2" />
         Back to Orders
@@ -315,8 +315,8 @@ export default function AdminOrderDetail() {
 
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-white">Order #{order.order_number}</h1>
-          <p className="text-gray-200">{formatDateTime(order.created_at)}</p>
+          <h1 className="text-3xl font-bold text-gray-900">Order #{order.order_number}</h1>
+          <p className="text-gray-600">{formatDateTime(order.created_at)}</p>
         </div>
         <Badge
           variant={
@@ -336,36 +336,36 @@ export default function AdminOrderDetail() {
         {/* Order Items */}
         <div className="lg:col-span-2 space-y-6">
           <Card>
-            <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
-              <Package className="h-5 w-5 text-brand-neon" />
+            <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <Package className="h-5 w-5 text-[var(--color-primary)]" />
               Order Items
             </h2>
             <div className="space-y-4">
               {items.map((item) => (
                 <div
                   key={item.id}
-                  className="flex items-center justify-between py-3 border-b border-brand-gray/50 last:border-0"
+                  className="flex items-center justify-between py-3 border-b border-gray-200/50 last:border-0"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-brand-gray rounded-lg flex items-center justify-center">
+                    <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
                       <Package className="h-6 w-6 text-gray-500" />
                     </div>
                     <div>
-                      <p className="text-white font-medium">{item.product_name}</p>
+                      <p className="text-gray-900 font-medium">{item.product_name}</p>
                       {item.variant_name && (
                         <p className="text-gray-500 text-sm">{item.variant_name}</p>
                       )}
-                      <p className="text-gray-300 text-sm">Qty: {item.quantity}</p>
+                      <p className="text-gray-500 text-sm">Qty: {item.quantity}</p>
                     </div>
                   </div>
-                  <span className="text-brand-neon font-medium">
+                  <span className="text-[var(--color-primary)] font-medium">
                     {formatPrice(item.total_price)}
                   </span>
                 </div>
               ))}
             </div>
 
-            <div className="mt-6 pt-4 border-t border-brand-gray space-y-2">
+            <div className="mt-6 pt-4 border-t border-gray-200 space-y-2">
               <div className="flex justify-between text-gray-400">
                 <span>Subtotal</span>
                 <span>{formatPrice(order.subtotal)}</span>
@@ -389,9 +389,9 @@ export default function AdminOrderDetail() {
                   <span>-{formatPrice(order.discount_amount)}</span>
                 </div>
               )}
-              <div className="flex justify-between text-lg font-semibold pt-2 border-t border-brand-gray">
-                <span className="text-white">Total</span>
-                <span className="text-brand-neon">{formatPrice(order.total)}</span>
+              <div className="flex justify-between text-lg font-semibold pt-2 border-t border-gray-200">
+                <span className="text-gray-900">Total</span>
+                <span className="text-[var(--color-primary)]">{formatPrice(order.total)}</span>
               </div>
             </div>
           </Card>
@@ -399,17 +399,17 @@ export default function AdminOrderDetail() {
           {/* Supplier Fulfillment (only when items have supplier_id) */}
           {items.some(item => item.supplier_id) && (
             <Card>
-              <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
-                <Truck className="h-5 w-5 text-brand-neon" />
+              <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <Truck className="h-5 w-5 text-[var(--color-primary)]" />
                 Supplier Fulfillment
               </h2>
               <div className="space-y-3">
                 {items.filter(item => item.supplier_id).map((item) => {
                   const fs = FULFILLMENT_STATUSES[item.fulfillment_status as FulfillmentStatus] || FULFILLMENT_STATUSES.pending;
                   return (
-                    <div key={item.id} className="flex items-start justify-between py-2 border-b border-brand-gray/50 last:border-0 gap-3">
+                    <div key={item.id} className="flex items-start justify-between py-2 border-b border-gray-200/50 last:border-0 gap-3">
                       <div className="min-w-0">
-                        <p className="text-white font-medium text-sm truncate">{item.product_name}</p>
+                        <p className="text-gray-900 font-medium text-sm truncate">{item.product_name}</p>
                         {item.variant_name && <p className="text-gray-500 text-xs">{item.variant_name}</p>}
                         {item.tracking_number && (
                           <p className="text-gray-400 text-xs mt-1 font-mono">{item.tracking_number}</p>
@@ -430,12 +430,12 @@ export default function AdminOrderDetail() {
 
           {/* Shipping Address */}
           <Card>
-            <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
-              <MapPin className="h-5 w-5 text-brand-neon" />
+            <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <MapPin className="h-5 w-5 text-[var(--color-primary)]" />
               Shipping Address
             </h2>
             <address className="text-gray-400 not-italic">
-              {order.guest_name && <p className="text-white font-medium">{order.guest_name}</p>}
+              {order.guest_name && <p className="text-gray-900 font-medium">{order.guest_name}</p>}
               <p>{order.shipping_address.address_line_1}</p>
               {order.shipping_address.address_line_2 && (
                 <p>{order.shipping_address.address_line_2}</p>
@@ -454,16 +454,16 @@ export default function AdminOrderDetail() {
         {/* Sidebar */}
         <div className="space-y-6">
           <Card>
-            <h2 className="text-xl font-semibold text-white mb-4">Update Order</h2>
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Update Order</h2>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
                   Status
                 </label>
                 <select
                   value={status}
                   onChange={(e) => setStatus(e.target.value as OrderStatus)}
-                  className="w-full px-4 py-2 bg-brand-black border border-brand-gray rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-brand-neon"
+                  className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
                 >
                   {Object.entries(ORDER_STATUSES).map(([value, { label }]) => (
                     <option key={value} value={value}>
@@ -481,7 +481,7 @@ export default function AdminOrderDetail() {
               />
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
                   Order Notes
                 </label>
                 <textarea
@@ -489,7 +489,7 @@ export default function AdminOrderDetail() {
                   onChange={(e) => setNotes(e.target.value)}
                   rows={3}
                   placeholder="Internal notes..."
-                  className="w-full px-4 py-2 rounded-lg bg-brand-black border border-brand-gray text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-brand-neon focus:border-transparent resize-none"
+                  className="w-full px-4 py-2 rounded-lg bg-gray-50 border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent resize-none"
                 />
               </div>
 
@@ -502,7 +502,7 @@ export default function AdminOrderDetail() {
 
           {order.stripe_payment_intent_id && (
             <Card>
-              <h2 className="text-xl font-semibold text-white mb-4">Payment</h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Payment</h2>
               <p className="text-gray-400 text-sm break-all">
                 Stripe Payment ID: {order.stripe_payment_intent_id}
               </p>
@@ -512,8 +512,8 @@ export default function AdminOrderDetail() {
           {/* Shipping Label */}
           {order.shipping_address.address_line_1 !== 'Local Pickup' ? (
             <Card>
-              <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
-                <Truck className="h-5 w-5 text-brand-neon" />
+              <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <Truck className="h-5 w-5 text-[var(--color-primary)]" />
                 Shipping Label
               </h2>
 
@@ -538,7 +538,7 @@ export default function AdminOrderDetail() {
                     <div>
                       <p className="text-green-400 font-medium">Label Generated!</p>
                       <p className="text-gray-400 text-sm mt-1">
-                        Tracking: <span className="font-mono text-white">{labelData.trackingNumber}</span>
+                        Tracking: <span className="font-mono text-gray-900">{labelData.trackingNumber}</span>
                       </p>
                     </div>
                   </div>
@@ -582,8 +582,8 @@ export default function AdminOrderDetail() {
                 </div>
               ) : order.tracking_number ? (
                 <div className="space-y-3">
-                  <p className="text-gray-300 text-sm">
-                    Tracking: <span className="font-mono text-white">{order.tracking_number}</span>
+                  <p className="text-gray-600 text-sm">
+                    Tracking: <span className="font-mono text-gray-900">{order.tracking_number}</span>
                   </p>
                   <p className="text-gray-500 text-xs">
                     Label was generated previously. Generate a new one if needed.
@@ -613,7 +613,7 @@ export default function AdminOrderDetail() {
                   )}
                   {(order.status === 'paid' || order.status === 'pending' || order.status === 'processing') ? (
                     <>
-                      <p className="text-gray-300 text-sm">
+                      <p className="text-gray-600 text-sm">
                         {order.shipping_label_refunded_at
                           ? 'Generate a new shipping label if needed.'
                           : 'Generate a shipping label for this order.'}
@@ -637,11 +637,11 @@ export default function AdminOrderDetail() {
             </Card>
           ) : (
             <Card>
-              <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
-                <Truck className="h-5 w-5 text-brand-neon" />
+              <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <Truck className="h-5 w-5 text-[var(--color-primary)]" />
                 Shipping
               </h2>
-              <p className="text-gray-300 text-sm">
+              <p className="text-gray-600 text-sm">
                 This is a local pickup order - no shipping label needed.
               </p>
             </Card>

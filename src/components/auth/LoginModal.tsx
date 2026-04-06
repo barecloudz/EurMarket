@@ -123,7 +123,7 @@ export default function LoginModal() {
               </div>
               <div>
                 <h2 className="text-base font-bold text-gray-900 leading-tight">Welcome back</h2>
-                <p className="text-xs text-gray-400">Genova's Merch</p>
+                <p className="text-xs text-gray-400">European Market</p>
               </div>
             </div>
             <button

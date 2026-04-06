@@ -67,7 +67,7 @@ export default function AdminQuoteRequests() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-white mb-8">Quote Requests</h1>
+      <h1 className="text-3xl font-bold text-gray-900 mb-8">Quote Requests</h1>
 
       {/* Search */}
       <div className="mb-6">
@@ -98,24 +98,24 @@ export default function AdminQuoteRequests() {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-brand-gray">
-                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Customer</th>
-                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Description</th>
-                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Status</th>
-                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Quote</th>
-                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Date</th>
-                  <th className="text-right py-3 px-4 text-gray-400 font-medium">Actions</th>
+                <tr className="border-b border-gray-200">
+                  <th className="text-left py-3 px-4 text-gray-600 font-medium">Customer</th>
+                  <th className="text-left py-3 px-4 text-gray-600 font-medium">Description</th>
+                  <th className="text-left py-3 px-4 text-gray-600 font-medium">Status</th>
+                  <th className="text-left py-3 px-4 text-gray-600 font-medium">Quote</th>
+                  <th className="text-left py-3 px-4 text-gray-600 font-medium">Date</th>
+                  <th className="text-right py-3 px-4 text-gray-600 font-medium">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredQuotes.map((quote) => (
                   <tr
                     key={quote.id}
-                    className="border-b border-brand-gray/50 hover:bg-brand-gray/20"
+                    className="border-b border-gray-200/50 hover:bg-gray-50"
                   >
                     <td className="py-3 px-4">
                       <div>
-                        <p className="text-white font-medium">{quote.name}</p>
+                        <p className="text-gray-900 font-medium">{quote.name}</p>
                         <p className="text-gray-500 text-sm">{quote.email}</p>
                       </div>
                     </td>
@@ -137,7 +137,7 @@ export default function AdminQuoteRequests() {
                         {QUOTE_STATUSES[quote.status].label}
                       </Badge>
                     </td>
-                    <td className="py-3 px-4 text-brand-neon">
+                    <td className="py-3 px-4 text-[var(--color-primary)]">
                       {quote.quoted_price ? formatPrice(quote.quoted_price) : '-'}
                     </td>
                     <td className="py-3 px-4 text-gray-400">{formatDateTime(quote.created_at)}</td>
@@ -145,7 +145,7 @@ export default function AdminQuoteRequests() {
                       <div className="flex justify-end">
                         <button
                           onClick={() => handleOpenQuote(quote)}
-                          className="p-2 text-gray-400 hover:text-brand-neon transition-colors"
+                          className="p-2 text-gray-400 hover:text-[var(--color-primary)] transition-colors"
                         >
                           <Eye className="h-5 w-5" />
                         </button>
@@ -170,26 +170,26 @@ export default function AdminQuoteRequests() {
           <div className="space-y-6">
             {/* Customer Info */}
             <div>
-              <h3 className="text-sm font-medium text-gray-400 mb-2">Customer</h3>
-              <p className="text-white">{selectedQuote.name}</p>
+              <h3 className="text-sm font-medium text-gray-500 mb-2">Customer</h3>
+              <p className="text-gray-900">{selectedQuote.name}</p>
               <p className="text-gray-400">{selectedQuote.email}</p>
               {selectedQuote.phone && <p className="text-gray-400">{selectedQuote.phone}</p>}
             </div>
 
             {/* Description */}
             <div>
-              <h3 className="text-sm font-medium text-gray-400 mb-2">Project Description</h3>
-              <p className="text-gray-300 whitespace-pre-wrap">{selectedQuote.description}</p>
+              <h3 className="text-sm font-medium text-gray-500 mb-2">Project Description</h3>
+              <p className="text-gray-700 whitespace-pre-wrap">{selectedQuote.description}</p>
             </div>
 
             {/* Status & Quote */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">Status</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
                 <select
                   value={editData.status}
                   onChange={(e) => setEditData({ ...editData, status: e.target.value as QuoteStatus })}
-                  className="w-full px-4 py-2 bg-brand-black border border-brand-gray rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-brand-neon"
+                  className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
                 >
                   {Object.entries(QUOTE_STATUSES).map(([value, { label }]) => (
                     <option key={value} value={value}>
@@ -210,13 +210,13 @@ export default function AdminQuoteRequests() {
 
             {/* Admin Notes */}
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-1">Admin Notes</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Admin Notes</label>
               <textarea
                 value={editData.admin_notes}
                 onChange={(e) => setEditData({ ...editData, admin_notes: e.target.value })}
                 rows={3}
                 placeholder="Internal notes..."
-                className="w-full px-4 py-2 rounded-lg bg-brand-black border border-brand-gray text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-brand-neon focus:border-transparent resize-none"
+                className="w-full px-4 py-2 rounded-lg bg-gray-50 border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent resize-none"
               />
             </div>
 

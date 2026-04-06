@@ -49,7 +49,7 @@ export default function AuthCallback() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-3xl shadow-xl w-full max-w-md overflow-hidden text-center">
           <div className="bg-[#2E7D32] px-8 py-8">
-            <img src="/images/logo.png" alt="Genova's Merch" className="h-14 w-auto object-contain mx-auto" />
+            <img src="/logo.jpg" alt="European Market" className="h-14 w-auto object-contain mx-auto" />
           </div>
           <div className="px-8 py-8">
             <h2 className="text-xl font-bold text-gray-900 mb-2">Link expired</h2>
@@ -71,7 +71,7 @@ export default function AuthCallback() {
   return (
     <div className="min-h-screen bg-white flex items-center justify-center">
       <div className="text-center">
-        <img src="/images/logo.png" alt="Genova's Merch" className="h-16 w-auto mx-auto mb-4 object-contain" />
+        <img src="/logo.jpg" alt="European Market" className="h-16 w-auto mx-auto mb-4 object-contain" />
         <div className="w-8 h-8 border-4 border-[#2E7D32] border-t-transparent rounded-full animate-spin mx-auto" />
         <p className="text-gray-500 mt-4 text-sm">Setting up your account...</p>
       </div>

@@ -80,7 +80,7 @@ export default function SetPassword() {
 
           {/* Header */}
           <div className="bg-[#2E7D32] px-8 py-8 text-white text-center">
-            <img src="/images/logo.png" alt="Genova's Merch" className="h-14 w-auto object-contain mx-auto mb-4" />
+            <img src="/logo.jpg" alt="European Market" className="h-14 w-auto object-contain mx-auto mb-4" />
             <h1 className="text-2xl font-black">Create your password</h1>
             <p className="text-white/75 text-sm mt-1">You'll use this to log in each time</p>
           </div>
@@ -149,7 +149,7 @@ export default function SetPassword() {
         </div>
 
         <p className="text-center text-xs text-gray-400 mt-4">
-          Genova's Merch · Official merchandise for Genova's Pizza &amp; Pasta
+          European Market · Official merchandise for European Market Pizza &amp; Pasta
         </p>
       </div>
     </div>

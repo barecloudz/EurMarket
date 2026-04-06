@@ -213,7 +213,7 @@ export default function AdminThemes() {
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold text-white">Themes</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Themes</h1>
         <Button onClick={handleSave} isLoading={isSaving}>
           <Save className="h-5 w-5 mr-2" />
           Save Theme
@@ -224,8 +224,8 @@ export default function AdminThemes() {
         {/* Preset Themes */}
         <div className="xl:col-span-2 space-y-6">
           <Card>
-            <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
-              <Palette className="h-5 w-5 text-brand-neon" />
+            <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <Palette className="h-5 w-5 text-[var(--color-primary)]" />
               Preset Themes
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -235,13 +235,13 @@ export default function AdminThemes() {
                   onClick={() => handlePresetSelect(preset)}
                   className={`relative p-4 rounded-lg border-2 transition-all text-left ${
                     activePreset === preset.name
-                      ? 'border-brand-neon bg-brand-neon/10'
-                      : 'border-brand-gray hover:border-gray-500'
+                      ? 'border-[var(--color-primary)] bg-[var(--color-primary)]/10'
+                      : 'border-gray-200 hover:border-gray-400'
                   }`}
                 >
                   {activePreset === preset.name && (
-                    <div className="absolute top-2 right-2 w-6 h-6 bg-brand-neon rounded-full flex items-center justify-center">
-                      <Check className="h-4 w-4 text-brand-black" />
+                    <div className="absolute top-2 right-2 w-6 h-6 bg-[var(--color-primary)] rounded-full flex items-center justify-center">
+                      <Check className="h-4 w-4 text-white" />
                     </div>
                   )}
 
@@ -261,7 +261,7 @@ export default function AdminThemes() {
                     />
                   </div>
 
-                  <h3 className="font-semibold text-white">{preset.name}</h3>
+                  <h3 className="font-semibold text-gray-900">{preset.name}</h3>
                   <p className="text-gray-400 text-sm mt-1">{preset.description}</p>
                 </button>
               ))}
@@ -270,16 +270,16 @@ export default function AdminThemes() {
 
           {/* Custom Colors */}
           <Card>
-            <h2 className="text-xl font-semibold text-white mb-4">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">
               Custom Colors
               {activePreset === 'Custom' && (
-                <span className="ml-2 text-sm text-brand-neon">(Modified)</span>
+                <span className="ml-2 text-sm text-[var(--color-primary)]">(Modified)</span>
               )}
             </h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
               {colorFields.map((field) => (
                 <div key={field.key}>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     {field.label}
                   </label>
                   <div className="flex items-center gap-2">
@@ -287,13 +287,13 @@ export default function AdminThemes() {
                       type="color"
                       value={theme[field.key as keyof ThemeSettings]}
                       onChange={(e) => handleColorChange(field.key, e.target.value)}
-                      className="w-10 h-10 rounded cursor-pointer border border-brand-gray bg-transparent"
+                      className="w-10 h-10 rounded cursor-pointer border border-gray-200 bg-transparent"
                     />
                     <input
                       type="text"
                       value={theme[field.key as keyof ThemeSettings]}
                       onChange={(e) => handleColorChange(field.key, e.target.value)}
-                      className="flex-1 px-2 py-1 rounded bg-brand-black border border-brand-gray text-white text-xs font-mono focus:outline-none focus:ring-1 focus:ring-brand-neon"
+                      className="flex-1 px-2 py-1 rounded bg-gray-50 border border-gray-200 text-gray-900 text-xs font-mono focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)]"
                     />
                   </div>
                 </div>
@@ -305,7 +305,7 @@ export default function AdminThemes() {
         {/* Live Preview */}
         <div className="space-y-6">
           <Card>
-            <h2 className="text-xl font-semibold text-white mb-4">Live Preview</h2>
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Live Preview</h2>
             <div
               className="rounded-lg p-4 space-y-4"
               style={{ backgroundColor: theme.background_color }}

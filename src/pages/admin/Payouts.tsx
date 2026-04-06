@@ -120,8 +120,8 @@ export default function AdminPayouts() {
   return (
     <div>
       <div className="flex items-center gap-3 mb-8">
-        <Wallet className="h-8 w-8 text-brand-neon" />
-        <h1 className="text-3xl font-bold text-white">Payouts</h1>
+        <Wallet className="h-8 w-8 text-[var(--color-primary)]" />
+        <h1 className="text-3xl font-bold text-gray-900">Payouts</h1>
       </div>
 
       {/* Tabs */}
@@ -130,8 +130,8 @@ export default function AdminPayouts() {
           onClick={() => setActiveTab('pending')}
           className={`px-5 py-2 rounded-lg font-medium transition-all ${
             activeTab === 'pending'
-              ? 'bg-brand-neon text-brand-black'
-              : 'bg-brand-charcoal text-gray-300 hover:text-white'
+              ? 'bg-[var(--color-primary)] text-white'
+              : 'bg-gray-100 text-gray-600 hover:text-gray-900'
           }`}
         >
           Pending Payouts
@@ -140,8 +140,8 @@ export default function AdminPayouts() {
           onClick={() => setActiveTab('paid')}
           className={`px-5 py-2 rounded-lg font-medium transition-all ${
             activeTab === 'paid'
-              ? 'bg-brand-neon text-brand-black'
-              : 'bg-brand-charcoal text-gray-300 hover:text-white'
+              ? 'bg-[var(--color-primary)] text-white'
+              : 'bg-gray-100 text-gray-600 hover:text-gray-900'
           }`}
         >
           Paid History

@@ -20,7 +20,7 @@ export default function AdminCustomers() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-white mb-8">Customers</h1>
+      <h1 className="text-3xl font-bold text-gray-900 mb-8">Customers</h1>
 
       {/* Search */}
       <div className="mb-6">
@@ -45,33 +45,33 @@ export default function AdminCustomers() {
         ) : filteredCustomers.length === 0 ? (
           <div className="text-center py-12">
             <Users className="h-12 w-12 text-gray-600 mx-auto mb-4" />
-            <p className="text-gray-200">No customers found</p>
+            <p className="text-gray-600">No customers found</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-brand-gray">
-                  <th className="text-left py-3 px-4 text-gray-200 font-medium">Customer</th>
-                  <th className="text-left py-3 px-4 text-gray-200 font-medium">Email</th>
-                  <th className="text-left py-3 px-4 text-gray-200 font-medium">Marketing</th>
-                  <th className="text-left py-3 px-4 text-gray-200 font-medium">Joined</th>
+                <tr className="border-b border-gray-200">
+                  <th className="text-left py-3 px-4 text-gray-600 font-medium">Customer</th>
+                  <th className="text-left py-3 px-4 text-gray-600 font-medium">Email</th>
+                  <th className="text-left py-3 px-4 text-gray-600 font-medium">Marketing</th>
+                  <th className="text-left py-3 px-4 text-gray-600 font-medium">Joined</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredCustomers.map((customer) => (
                   <tr
                     key={customer.id}
-                    className="border-b border-brand-gray/50 hover:bg-brand-gray/20"
+                    className="border-b border-gray-200/50 hover:bg-gray-50"
                   >
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-brand-emerald-dark rounded-full flex items-center justify-center">
-                          <span className="text-brand-neon font-medium">
+                        <div className="w-10 h-10 bg-[var(--color-primary)]/10 rounded-full flex items-center justify-center">
+                          <span className="text-[var(--color-primary)] font-medium">
                             {customer.first_name?.[0] || customer.email[0].toUpperCase()}
                           </span>
                         </div>
-                        <span className="text-white font-medium">
+                        <span className="text-gray-900 font-medium">
                           {customer.first_name
                             ? `${customer.first_name} ${customer.last_name || ''}`
                             : 'Unknown'}

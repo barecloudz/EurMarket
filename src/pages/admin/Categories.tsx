@@ -242,7 +242,7 @@ export default function AdminCategories() {
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-white">Categories</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Categories</h1>
           <p className="text-gray-400 mt-1">Organize your products into categories</p>
         </div>
         <Button onClick={openCreateModal}>
@@ -255,7 +255,7 @@ export default function AdminCategories() {
         <Card>
           <div className="text-center py-12">
             <FolderOpen className="h-16 w-16 text-gray-600 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-white mb-2">No categories yet</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No categories yet</h3>
             <p className="text-gray-400 mb-6">
               Create your first category to organize your products
             </p>
@@ -267,7 +267,7 @@ export default function AdminCategories() {
         </Card>
       ) : (
         <Card padding="none">
-          <div className="divide-y divide-brand-gray">
+          <div className="divide-y divide-gray-200">
             {categories.map((category, index) => (
               <div
                 key={category.id}
@@ -280,7 +280,7 @@ export default function AdminCategories() {
                   <button
                     onClick={() => handleReorder(category.id, 'up')}
                     disabled={index === 0}
-                    className="p-1 text-gray-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"
+                    className="p-1 text-gray-400 hover:text-gray-900 disabled:opacity-30 disabled:cursor-not-allowed"
                   >
                     <GripVertical className="h-4 w-4 rotate-90" />
                   </button>
@@ -294,7 +294,7 @@ export default function AdminCategories() {
                 </div>
 
                 {/* Category image */}
-                <div className="w-12 h-12 bg-brand-gray rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
+                <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
                   {category.image_url ? (
                     <img
                       src={category.image_url}
@@ -308,7 +308,7 @@ export default function AdminCategories() {
 
                 {/* Category info */}
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-medium text-white truncate">{category.name}</h3>
+                  <h3 className="font-medium text-gray-900 truncate">{category.name}</h3>
                   <p className="text-sm text-gray-400 truncate">
                     /{category.slug}
                     {category.description && ` • ${category.description}`}
@@ -331,7 +331,7 @@ export default function AdminCategories() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => openEditModal(category)}
-                    className="p-2 text-gray-400 hover:text-white transition-colors"
+                    className="p-2 text-gray-400 hover:text-gray-900 transition-colors"
                   >
                     <Pencil className="h-5 w-5" />
                   </button>
@@ -381,7 +381,7 @@ export default function AdminCategories() {
           />
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               Description (optional)
             </label>
             <textarea
@@ -390,7 +390,7 @@ export default function AdminCategories() {
                 setFormData((prev) => ({ ...prev, description: e.target.value }))
               }
               rows={3}
-              className="w-full px-4 py-2 rounded-lg bg-brand-black border border-brand-gray text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-brand-neon focus:border-transparent resize-none"
+              className="w-full px-4 py-2 rounded-lg bg-gray-50 border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent resize-none"
               placeholder="Brief description of this category"
             />
           </div>
@@ -411,9 +411,9 @@ export default function AdminCategories() {
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, is_active: e.target.checked }))
               }
-              className="w-4 h-4 rounded border-brand-gray bg-brand-black text-brand-neon focus:ring-brand-neon"
+              className="w-4 h-4 rounded border-gray-300 bg-white text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
             />
-            <label htmlFor="is_active" className="text-gray-300">
+            <label htmlFor="is_active" className="text-gray-700">
               Active (visible on storefront)
             </label>
           </div>

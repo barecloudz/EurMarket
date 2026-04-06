@@ -39,7 +39,7 @@ export default function AdminOrders() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-white">Orders</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Orders</h1>
           <p className="text-gray-400 mt-1">{orders.length} total orders</p>
         </div>
       </div>
@@ -50,8 +50,8 @@ export default function AdminOrders() {
           onClick={() => setStatusFilter('all')}
           className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
             statusFilter === 'all'
-              ? 'bg-white text-black'
-              : 'bg-brand-gray text-gray-400 hover:text-white'
+              ? 'bg-gray-900 text-white'
+              : 'bg-gray-100 text-gray-600 hover:text-gray-900'
           }`}
         >
           All ({orders.length})
@@ -96,11 +96,11 @@ export default function AdminOrders() {
         <Card>
           <div className="text-center py-12">
             <Package className="h-12 w-12 text-gray-600 mx-auto mb-4" />
-            <p className="text-gray-200">No orders found</p>
+            <p className="text-gray-600">No orders found</p>
             {search && (
               <button
                 onClick={() => setSearch('')}
-                className="text-brand-neon text-sm mt-2 hover:underline"
+                className="text-[var(--color-primary)] text-sm mt-2 hover:underline"
               >
                 Clear search
               </button>
@@ -117,12 +117,12 @@ export default function AdminOrders() {
               <div
                 key={order.id}
                 onClick={() => navigate(`/admin/orders/${order.id}`)}
-                className="group bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl p-4 sm:p-5 cursor-pointer hover:border-brand-neon/40 hover:bg-brand-gray/30 transition-all"
+                className="group bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 cursor-pointer hover:border-[var(--color-primary)]/40 hover:bg-gray-50 transition-all"
               >
                 {/* Top row: Order number, status, total */}
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-3">
-                    <span className="text-white font-bold text-lg">#{order.order_number}</span>
+                    <span className="text-gray-900 font-bold text-lg">#{order.order_number}</span>
                     <Badge
                       variant={
                         order.status === 'delivered'
@@ -140,14 +140,14 @@ export default function AdminOrders() {
                     </Badge>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-brand-neon font-bold text-lg">{formatPrice(order.total)}</span>
-                    <ChevronRight className="h-5 w-5 text-gray-600 group-hover:text-brand-neon transition-colors" />
+                    <span className="text-[var(--color-primary)] font-bold text-lg">{formatPrice(order.total)}</span>
+                    <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-[var(--color-primary)] transition-colors" />
                   </div>
                 </div>
 
                 {/* Customer info row */}
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
-                  <span className="text-white font-medium">
+                  <span className="text-gray-900 font-medium">
                     {order.guest_name || 'Guest'}
                   </span>
                   {order.guest_email && (

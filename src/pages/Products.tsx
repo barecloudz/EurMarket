@@ -1,145 +1,200 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Search, Filter, AlertCircle, RefreshCw } from 'lucide-react';
-import Input from '../components/ui/Input';
+import { Search, SlidersHorizontal, AlertCircle, RefreshCw, X } from 'lucide-react';
 import ProductCard from '../components/product/ProductCard';
 import Button from '../components/ui/Button';
 import { ProductGridSkeleton } from '../components/ui/Skeleton';
 import { useProductStore } from '../store/productStore';
 import { useCategories } from '../hooks/useCategories';
 
+const SORT_OPTIONS = [
+  { value: 'newest',     label: 'Newest'           },
+  { value: 'price-asc',  label: 'Price: Low → High' },
+  { value: 'price-desc', label: 'Price: High → Low' },
+];
+
 export default function Products() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [search, setSearch] = useState('');
+  const [search, setSearch]             = useState(searchParams.get('search') || '');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState<'newest' | 'price-asc' | 'price-desc'>('newest');
+  const [sortBy, setSortBy]             = useState<'newest' | 'price-asc' | 'price-desc'>('newest');
+  const [filtersOpen, setFiltersOpen]   = useState(false);
 
-  // Use global product store (cached across page navigations)
   const { products, isLoading, error, fetchProducts } = useProductStore();
   const { categories } = useCategories();
 
-  // Read category from URL on mount and when categories load
   useEffect(() => {
-    const categorySlug = searchParams.get('category');
-    if (categorySlug && categories.length > 0) {
-      const category = categories.find((c) => c.slug === categorySlug);
-      if (category) {
-        setSelectedCategory(category.id);
-      }
+    const slug = searchParams.get('category');
+    if (slug && categories.length > 0) {
+      const cat = categories.find((c) => c.slug === slug);
+      if (cat) setSelectedCategory(cat.id);
     }
+    const q = searchParams.get('search');
+    if (q) setSearch(q);
   }, [searchParams, categories]);
 
-  // Update URL when category changes
-  const handleCategoryChange = (categoryId: string | null) => {
-    setSelectedCategory(categoryId);
-    if (categoryId) {
-      const category = categories.find((c) => c.id === categoryId);
-      if (category) {
-        setSearchParams({ category: category.slug });
-      }
-    } else {
-      setSearchParams({});
+  useEffect(() => { fetchProducts(); }, [fetchProducts]);
+
+  const handleCategoryChange = (id: string | null) => {
+    setSelectedCategory(id);
+    const params: Record<string, string> = {};
+    if (id) {
+      const cat = categories.find((c) => c.id === id);
+      if (cat) params.category = cat.slug;
     }
+    if (search) params.search = search;
+    setSearchParams(params);
   };
 
-  // Fetch products on mount (will use cache if available)
-  useEffect(() => {
-    fetchProducts();
-  }, [fetchProducts]);
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const params: Record<string, string> = {};
+    if (search.trim()) params.search = search.trim();
+    if (selectedCategory) {
+      const cat = categories.find((c) => c.id === selectedCategory);
+      if (cat) params.category = cat.slug;
+    }
+    setSearchParams(params);
+  };
 
   const filteredProducts = products
-    .filter((product) => {
-      const matchesSearch = product.name.toLowerCase().includes(search.toLowerCase());
-      const matchesCategory = !selectedCategory || product.category_id === selectedCategory;
-      return matchesSearch && matchesCategory;
+    .filter((p) => {
+      const matchSearch = !search || p.name.toLowerCase().includes(search.toLowerCase());
+      const matchCat    = !selectedCategory || p.category_id === selectedCategory;
+      return matchSearch && matchCat;
     })
     .sort((a, b) => {
-      switch (sortBy) {
-        case 'price-asc':
-          return a.price - b.price;
-        case 'price-desc':
-          return b.price - a.price;
-        case 'newest':
-        default:
-          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-      }
+      if (sortBy === 'price-asc')  return a.price - b.price;
+      if (sortBy === 'price-desc') return b.price - a.price;
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     });
 
+  const activeCategory = categories.find((c) => c.id === selectedCategory);
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-theme mb-2">Products</h1>
-        <p className="text-theme opacity-60">Browse our collection of 3D printed and laser engraved items</p>
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
+      {/* ── Page header ── */}
+      <div className="bg-white border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <h1 className="text-2xl font-black text-gray-900 mb-1">
+            {activeCategory ? activeCategory.name : 'All Products'}
+          </h1>
+          <p className="text-gray-500 text-sm">
+            {activeCategory
+              ? `Authentic ${activeCategory.name.toLowerCase()} from across Europe`
+              : 'Authentic European groceries from 25+ countries'}
+          </p>
+        </div>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-col md:flex-row gap-4 mb-8">
-        {/* Search */}
-        <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-          <Input
-            type="text"
-            placeholder="Search products..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-10"
-          />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* ── Search + Filter bar ── */}
+        <div className="flex gap-3 mb-5">
+          <form onSubmit={handleSearchSubmit} className="flex-1 relative">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <input type="text" value={search} onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search products..."
+              className="w-full pl-10 pr-10 py-2.5 bg-white border border-gray-200 rounded-xl text-gray-900 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent shadow-sm"
+            />
+            {search && (
+              <button type="button" onClick={() => { setSearch(''); setSearchParams({}); }}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </form>
+          <button onClick={() => setFiltersOpen(!filtersOpen)}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-semibold transition-all ${
+              filtersOpen || selectedCategory
+                ? 'bg-[var(--color-primary)] text-white border-[var(--color-primary)]'
+                : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300'
+            }`}>
+            <SlidersHorizontal className="h-4 w-4" />
+            <span className="hidden sm:inline">Filter</span>
+          </button>
         </div>
 
-        {/* Category filter */}
-        <div className="flex gap-4">
-          <select
-            value={selectedCategory || ''}
-            onChange={(e) => handleCategoryChange(e.target.value || null)}
-            className="px-4 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg text-theme focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-          >
-            <option value="">All Categories</option>
-            {categories.map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.name}
-              </option>
+        {/* ── Filter panel ── */}
+        {filtersOpen && (
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 mb-5 animate-fade-in">
+            <div className="flex flex-col sm:flex-row gap-4">
+              {/* Category */}
+              <div className="flex-1">
+                <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Category</p>
+                <div className="flex flex-wrap gap-2">
+                  <button onClick={() => handleCategoryChange(null)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                      !selectedCategory ? 'bg-[var(--color-primary)] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}>
+                    All
+                  </button>
+                  {categories.map((cat) => (
+                    <button key={cat.id} onClick={() => handleCategoryChange(cat.id)}
+                      className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                        selectedCategory === cat.id ? 'bg-[var(--color-primary)] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      }`}>
+                      {cat.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {/* Sort */}
+              <div>
+                <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Sort</p>
+                <div className="flex gap-2">
+                  {SORT_OPTIONS.map((opt) => (
+                    <button key={opt.value} onClick={() => setSortBy(opt.value as typeof sortBy)}
+                      className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap ${
+                        sortBy === opt.value ? 'bg-[var(--color-primary)] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      }`}>
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── Results count ── */}
+        {!isLoading && !error && (
+          <p className="text-sm text-gray-500 mb-4">
+            {filteredProducts.length} {filteredProducts.length === 1 ? 'product' : 'products'}
+            {search ? ` for "${search}"` : ''}
+            {activeCategory ? ` in ${activeCategory.name}` : ''}
+          </p>
+        )}
+
+        {/* ── Product grid ── */}
+        {isLoading ? (
+          <ProductGridSkeleton count={8} />
+        ) : error ? (
+          <div className="text-center py-16">
+            <AlertCircle className="h-12 w-12 text-red-400 mx-auto mb-4" />
+            <p className="text-gray-900 font-semibold mb-1">Failed to load products</p>
+            <p className="text-gray-500 text-sm mb-5">{error.message}</p>
+            <Button onClick={() => fetchProducts(true)} variant="outline">
+              <RefreshCw className="h-4 w-4 mr-2" /> Try Again
+            </Button>
+          </div>
+        ) : filteredProducts.length === 0 ? (
+          <div className="text-center py-16">
+            <p className="text-4xl mb-4">🔍</p>
+            <p className="text-gray-900 font-semibold mb-1">No products found</p>
+            <p className="text-gray-500 text-sm mb-5">Try adjusting your search or filters</p>
+            <button onClick={() => { setSearch(''); setSelectedCategory(null); setSearchParams({}); }}
+              className="text-[var(--color-primary)] font-semibold text-sm hover:underline">
+              Clear all filters
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 pb-24 md:pb-8">
+            {filteredProducts.map((product) => (
+              <ProductCard key={product.id} product={product} />
             ))}
-          </select>
-
-          {/* Sort */}
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-            className="px-4 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg text-theme focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-          >
-            <option value="newest">Newest</option>
-            <option value="price-asc">Price: Low to High</option>
-            <option value="price-desc">Price: High to Low</option>
-          </select>
-        </div>
+          </div>
+        )}
       </div>
-
-      {/* Products Grid */}
-      {isLoading ? (
-        <ProductGridSkeleton count={8} />
-      ) : error ? (
-        <div className="text-center py-12">
-          <AlertCircle className="h-12 w-12 text-red-400 mx-auto mb-4" />
-          <p className="text-theme mb-2">Failed to load products</p>
-          <p className="text-theme opacity-60 text-sm mb-4">{error.message}</p>
-          <Button onClick={() => fetchProducts(true)} variant="outline">
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Try Again
-          </Button>
-        </div>
-      ) : filteredProducts.length === 0 ? (
-        <div className="text-center py-12">
-          <Filter className="h-12 w-12 text-theme opacity-40 mx-auto mb-4" />
-          <p className="text-theme opacity-60">No products found matching your criteria</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredProducts.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
-      )}
     </div>
   );
 }

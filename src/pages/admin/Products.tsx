@@ -239,7 +239,7 @@ export default function AdminProducts() {
   return (
     <div>
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold text-white">Products</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Products</h1>
         <Button as={Link} to="/admin/products/new">
           <Plus className="h-5 w-5 mr-2" />
           Add Product
@@ -261,7 +261,7 @@ export default function AdminProducts() {
         <select
           value={categoryFilter}
           onChange={(e) => setCategoryFilter(e.target.value)}
-          className="px-4 py-2 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)] text-white focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+          className="px-4 py-2 rounded-lg bg-white border border-gray-200 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
         >
           <option value="all">All Categories</option>
           <option value="uncategorized">Uncategorized</option>
@@ -334,7 +334,7 @@ export default function AdminProducts() {
         ) : sortedProducts.length === 0 ? (
           <div className="text-center py-12">
             <Package className="h-12 w-12 text-gray-600 mx-auto mb-4" />
-            <p className="text-gray-200 mb-4">No products found</p>
+            <p className="text-gray-600 mb-4">No products found</p>
             <Button as={Link} to="/admin/products/new">
               Add Your First Product
             </Button>
@@ -352,14 +352,14 @@ export default function AdminProducts() {
                       className="w-4 h-4 rounded border-[var(--color-border)] bg-[var(--color-background)] text-[var(--color-primary)]"
                     />
                   </th>
-                  <th className="text-left py-3 px-2 text-gray-200 font-medium text-sm">Order</th>
-                  <th className="text-left py-3 px-4 text-gray-200 font-medium">Product</th>
-                  <th className="text-left py-3 px-4 text-gray-200 font-medium">Category</th>
-                  <th className="text-left py-3 px-4 text-gray-200 font-medium">Price</th>
-                  <th className="text-left py-3 px-4 text-gray-200 font-medium">Stock</th>
-                  <th className="text-center py-3 px-2 text-gray-200 font-medium">Featured</th>
-                  <th className="text-center py-3 px-2 text-gray-200 font-medium">Visible</th>
-                  <th className="text-right py-3 px-4 text-gray-200 font-medium">Actions</th>
+                  <th className="text-left py-3 px-2 text-gray-600 font-medium text-sm">Order</th>
+                  <th className="text-left py-3 px-4 text-gray-600 font-medium">Product</th>
+                  <th className="text-left py-3 px-4 text-gray-600 font-medium">Category</th>
+                  <th className="text-left py-3 px-4 text-gray-600 font-medium">Price</th>
+                  <th className="text-left py-3 px-4 text-gray-600 font-medium">Stock</th>
+                  <th className="text-center py-3 px-2 text-gray-600 font-medium">Featured</th>
+                  <th className="text-center py-3 px-2 text-gray-600 font-medium">Visible</th>
+                  <th className="text-right py-3 px-4 text-gray-600 font-medium">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -380,14 +380,14 @@ export default function AdminProducts() {
                           <button
                             onClick={() => reorderProduct(product.id, 'up')}
                             disabled={index === 0}
-                            className="p-0.5 text-gray-500 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"
+                            className="p-0.5 text-gray-500 hover:text-gray-900 disabled:opacity-30 disabled:cursor-not-allowed"
                           >
                             <ChevronUp className="h-4 w-4" />
                           </button>
                           <button
                             onClick={() => reorderProduct(product.id, 'down')}
                             disabled={index === sortedProducts.length - 1}
-                            className="p-0.5 text-gray-500 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"
+                            className="p-0.5 text-gray-500 hover:text-gray-900 disabled:opacity-30 disabled:cursor-not-allowed"
                           >
                             <ChevronDown className="h-4 w-4" />
                           </button>
@@ -407,7 +407,7 @@ export default function AdminProducts() {
                             )}
                           </div>
                           <div className="min-w-0">
-                            <p className="text-white font-medium truncate">{product.name}</p>
+                            <p className="text-gray-900 font-medium truncate">{product.name}</p>
                             <p className="text-gray-500 text-sm truncate">{product.sku || 'No SKU'}</p>
                           </div>
                         </div>
@@ -416,7 +416,7 @@ export default function AdminProducts() {
                         <select
                           value={product.category_id || ''}
                           onChange={(e) => changeCategory(product.id, e.target.value || null)}
-                          className="text-sm px-2 py-1 rounded bg-[var(--color-surface)] border border-[var(--color-border)] text-gray-300 focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)] max-w-[140px]"
+                          className="text-sm px-2 py-1 rounded bg-white border border-gray-200 text-gray-700 focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)] max-w-[140px]"
                         >
                           <option value="">Uncategorized</option>
                           {categories.map((cat) => (
@@ -429,7 +429,7 @@ export default function AdminProducts() {
                       </td>
                       <td className="py-3 px-4">
                         <div className="flex flex-col gap-1">
-                          <span className="text-gray-200">{product.stock_quantity}</span>
+                          <span className="text-gray-600">{product.stock_quantity}</span>
                           {stockStatus !== 'in_stock' && (
                             <Badge variant={stockStatus === 'low_stock' ? 'warning' : 'danger'} className="text-xs">
                               {stockStatus === 'low_stock' ? 'Low' : 'Out'}
@@ -494,7 +494,7 @@ export default function AdminProducts() {
         onClose={() => setDeleteId(null)}
         title="Delete Product"
       >
-        <p className="text-gray-400 mb-6">
+        <p className="text-gray-500 mb-6">
           Are you sure you want to delete this product? This action cannot be undone.
         </p>
         <div className="flex justify-end gap-4">
@@ -513,13 +513,13 @@ export default function AdminProducts() {
         onClose={() => setBulkCategoryModalOpen(false)}
         title="Assign Category"
       >
-        <p className="text-gray-200 mb-4">
+        <p className="text-gray-600 mb-4">
           Assign {selectedProducts.size} product{selectedProducts.size !== 1 ? 's' : ''} to a category:
         </p>
         <select
           value={bulkCategory}
           onChange={(e) => setBulkCategory(e.target.value)}
-          className="w-full px-4 py-2 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)] text-white focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] mb-6"
+          className="w-full px-4 py-2 rounded-lg bg-white border border-gray-200 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] mb-6"
         >
           <option value="">Select a category...</option>
           <option value="uncategorized">Uncategorized</option>

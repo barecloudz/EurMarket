@@ -8,30 +8,35 @@ export default {
     extend: {
       colors: {
         brand: {
-          // Admin fixed dark colors (never change with theme)
-          black: '#0f1117',
-          charcoal: '#1a1d27',
-          gray: '#2d3044',
+          crimson:      '#8B0000',
+          'crimson-light': '#A31515',
+          'crimson-dark':  '#5C0000',
+          orange:       '#F97316',
+          gold:         '#FACC15',
+          // Admin fixed dark colors
+          black:        '#0f1117',
+          charcoal:     '#1a1d27',
+          gray:         '#2d3044',
           'gray-light': '#D1D5DB',
-          // Store theme colors (from CSS variables)
-          neon: 'var(--color-primary, #2E7D32)',
-          emerald: 'var(--color-secondary, #1B5E20)',
-          'emerald-dark': '#1B5E20',
-          accent: 'var(--color-accent, #9AFF00)',
-        }
+          // CSS-variable-driven store colors
+          neon:     'var(--color-primary, #8B0000)',
+          emerald:  'var(--color-secondary, #5C0000)',
+          accent:   'var(--color-accent, #F97316)',
+        },
       },
       textColor: {
-        'theme': 'var(--color-text, #f5f5f5)',
+        theme: 'var(--color-text, #1A1A1A)',
       },
       backgroundColor: {
-        'theme-bg': 'var(--color-background, #0a0a0a)',
-        'theme-surface': 'var(--color-surface, #1a1a1a)',
+        'theme-bg':      'var(--color-background, #FAF9F7)',
+        'theme-surface': 'var(--color-surface, #FFFFFF)',
       },
       boxShadow: {
-        'neon': '0 0 15px rgba(46, 125, 50, 0.35)',
-        'neon-sm': '0 0 8px rgba(46, 125, 50, 0.25)',
-        'neon-lg': '0 0 25px rgba(46, 125, 50, 0.45)',
-      }
+        'crimson':    '0 0 15px rgba(139, 0, 0, 0.25)',
+        'crimson-sm': '0 0 8px rgba(139, 0, 0, 0.15)',
+        'crimson-lg': '0 0 30px rgba(139, 0, 0, 0.35)',
+        'warm':       '0 4px 20px rgba(139, 0, 0, 0.08)',
+      },
     },
   },
   plugins: [],

@@ -150,7 +150,7 @@ export default function AdminReviews() {
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-white">Product Reviews</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Product Reviews</h1>
           <p className="text-gray-400 mt-1">Manage customer reviews and ratings</p>
         </div>
       </div>
@@ -159,12 +159,12 @@ export default function AdminReviews() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
         <Card>
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-brand-neon/20 rounded-lg flex items-center justify-center">
-              <MessageSquare className="h-6 w-6 text-brand-neon" />
+            <div className="w-12 h-12 bg-[var(--color-primary)]/20 rounded-lg flex items-center justify-center">
+              <MessageSquare className="h-6 w-6 text-[var(--color-primary)]" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-white">{stats.total}</p>
-              <p className="text-gray-300 text-sm">Total Reviews</p>
+              <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+              <p className="text-gray-500 text-sm">Total Reviews</p>
             </div>
           </div>
         </Card>
@@ -174,8 +174,8 @@ export default function AdminReviews() {
               <Star className="h-6 w-6 text-yellow-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-white">{stats.averageRating}</p>
-              <p className="text-gray-300 text-sm">Avg Rating</p>
+              <p className="text-2xl font-bold text-gray-900">{stats.averageRating}</p>
+              <p className="text-gray-500 text-sm">Avg Rating</p>
             </div>
           </div>
         </Card>
@@ -185,8 +185,8 @@ export default function AdminReviews() {
               <MessageSquare className="h-6 w-6 text-orange-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-white">{stats.pending}</p>
-              <p className="text-gray-300 text-sm">Pending</p>
+              <p className="text-2xl font-bold text-gray-900">{stats.pending}</p>
+              <p className="text-gray-500 text-sm">Pending</p>
             </div>
           </div>
         </Card>
@@ -196,8 +196,8 @@ export default function AdminReviews() {
               <Check className="h-6 w-6 text-green-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-white">{stats.approved}</p>
-              <p className="text-gray-300 text-sm">Approved</p>
+              <p className="text-2xl font-bold text-gray-900">{stats.approved}</p>
+              <p className="text-gray-500 text-sm">Approved</p>
             </div>
           </div>
         </Card>
@@ -218,7 +218,7 @@ export default function AdminReviews() {
         <select
           value={filter}
           onChange={(e) => setFilter(e.target.value as typeof filter)}
-          className="px-4 py-2 bg-brand-black border border-brand-gray rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-brand-neon"
+          className="px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
         >
           <option value="pending">Pending Approval</option>
           <option value="approved">Approved</option>
@@ -231,8 +231,8 @@ export default function AdminReviews() {
         <Card>
           <div className="text-center py-12">
             <Star className="h-16 w-16 text-gray-600 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-white mb-2">No reviews found</h3>
-            <p className="text-gray-200">
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No reviews found</h3>
+            <p className="text-gray-600">
               {filter === 'pending' ? 'No reviews awaiting approval' : 'No reviews match your search'}
             </p>
           </div>
@@ -244,7 +244,7 @@ export default function AdminReviews() {
               <div className="flex flex-col sm:flex-row sm:items-start gap-4">
                 <div className="flex-1">
                   <div className="flex flex-wrap items-center gap-2 mb-2">
-                    <span className="font-medium text-white">{review.reviewer_name}</span>
+                    <span className="font-medium text-gray-900">{review.reviewer_name}</span>
                     <span className="text-gray-500">•</span>
                     <span className="text-gray-300 text-sm">{review.reviewer_email}</span>
                     {review.is_verified_purchase && (
@@ -257,17 +257,17 @@ export default function AdminReviews() {
 
                   <div className="flex items-center gap-3 mb-2">
                     {renderStars(review.rating)}
-                    <span className="text-gray-300 text-sm">
+                    <span className="text-gray-500 text-sm">
                       for{' '}
-                      <span className="text-brand-neon">{review.product?.name || 'Unknown Product'}</span>
+                      <span className="text-[var(--color-primary)]">{review.product?.name || 'Unknown Product'}</span>
                     </span>
                   </div>
 
                   {review.title && (
-                    <h4 className="font-medium text-white mb-1">{review.title}</h4>
+                    <h4 className="font-medium text-gray-900 mb-1">{review.title}</h4>
                   )}
                   {review.content && (
-                    <p className="text-gray-300">{review.content}</p>
+                    <p className="text-gray-700">{review.content}</p>
                   )}
 
                   <p className="text-gray-500 text-sm mt-2">

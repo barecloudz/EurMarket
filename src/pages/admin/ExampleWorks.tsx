@@ -221,7 +221,7 @@ export default function AdminExampleWorks() {
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-white">Example Works</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Example Works</h1>
           <p className="text-gray-400 mt-1">Showcase your work on the Custom Orders page</p>
         </div>
         <Button onClick={openCreateModal}>
@@ -234,7 +234,7 @@ export default function AdminExampleWorks() {
         <Card>
           <div className="text-center py-12">
             <ImageIcon className="h-16 w-16 text-gray-600 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-white mb-2">No example works yet</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No example works yet</h3>
             <p className="text-gray-400 mb-6">
               Add examples of your work to show customers what you can create
             </p>
@@ -288,7 +288,7 @@ export default function AdminExampleWorks() {
 
                 {/* Info */}
                 <div className="p-4">
-                  <h3 className="font-medium text-white truncate">{example.title}</h3>
+                  <h3 className="font-medium text-gray-900 truncate">{example.title}</h3>
                   {example.description && (
                     <p className="text-sm text-gray-400 truncate mt-1">{example.description}</p>
                   )}
@@ -357,9 +357,9 @@ export default function AdminExampleWorks() {
               id="is_active"
               checked={formData.is_active}
               onChange={(e) => setFormData((prev) => ({ ...prev, is_active: e.target.checked }))}
-              className="w-4 h-4 rounded border-brand-gray bg-brand-black text-brand-neon focus:ring-brand-neon"
+              className="w-4 h-4 rounded border-gray-300 bg-white text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
             />
-            <label htmlFor="is_active" className="text-gray-300">
+            <label htmlFor="is_active" className="text-gray-700">
               Active (visible on Custom Orders page)
             </label>
           </div>

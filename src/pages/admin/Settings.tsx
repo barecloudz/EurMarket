@@ -128,11 +128,11 @@ export default function AdminSettings() {
 
   return (
     <div>
-      <h1 className="text-2xl sm:text-3xl font-bold text-white mb-8">Settings</h1>
+      <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-8">Settings</h1>
 
       <div className="max-w-2xl space-y-6">
         <Card>
-          <h2 className="text-xl font-semibold text-white mb-4">Store Information</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Store Information</h2>
           <div className="space-y-4">
             <Input
               label="Store Name"
@@ -150,7 +150,7 @@ export default function AdminSettings() {
         </Card>
 
         <Card>
-          <h2 className="text-xl font-semibold text-white mb-4">Shipping</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Shipping</h2>
           <div className="space-y-4">
             <Input
               label="Default Shipping Cost"
@@ -166,7 +166,7 @@ export default function AdminSettings() {
 
             {shippingServices.length > 0 && (
               <div className="pt-4 border-t border-[var(--color-border)]">
-                <h3 className="text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
+                <h3 className="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
                   <Truck className="h-4 w-4" />
                   Optional Shipping Services
                 </h3>
@@ -187,7 +187,7 @@ export default function AdminSettings() {
                       />
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
-                          <span className="text-white font-medium">{service.name}</span>
+                          <span className="text-gray-900 font-medium">{service.name}</span>
                           {service.is_enabled && (
                             <span className="text-xs px-2 py-0.5 bg-[var(--color-primary)]/20 text-[var(--color-primary)] rounded-full">
                               Active
@@ -207,7 +207,7 @@ export default function AdminSettings() {
         </Card>
 
         <Card>
-          <h2 className="text-xl font-semibold text-white mb-4">Inventory</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Inventory</h2>
           <Input
             label="Low Stock Threshold"
             type="number"

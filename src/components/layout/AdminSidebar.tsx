@@ -124,8 +124,8 @@ export default function AdminSidebar() {
       <div className={`p-5 border-b ${isMobile ? 'border-gray-200 bg-white' : 'border-gray-200'}`}>
         <Link to="/admin" className="flex items-center space-x-2" onClick={() => setMobileOpen(false)}>
           <img
-            src="/images/logo.png"
-            alt="Genova's Merch"
+            src="/logo.jpg"
+            alt="European Market"
             className="h-8 w-auto object-contain"
           />
           <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded font-medium">Admin</span>

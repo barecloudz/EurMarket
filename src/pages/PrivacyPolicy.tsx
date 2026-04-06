@@ -21,7 +21,7 @@ export default function PrivacyPolicy() {
           <h1 className="text-3xl font-bold text-theme mb-4">Privacy Policy</h1>
           <p className="text-theme opacity-50 text-sm mb-4">Effective Date: {effectiveDate}</p>
           <p className="text-theme opacity-70">
-            Genova's Merch values your privacy and is committed to protecting your personal information.
+            European Market values your privacy and is committed to protecting your personal information.
             This Privacy Policy explains how we collect, use, and safeguard your information when you
             interact with our business, website, or services.
           </p>
@@ -151,7 +151,7 @@ export default function PrivacyPolicy() {
                 <h2 className="text-xl font-semibold text-theme mb-3">Custom Designs and Files</h2>
                 <p className="text-theme opacity-70">
                   Any information you provide is used exclusively to fulfill your order.
-                  Genova's Merch will not share your information without your
+                  European Market will not share your information without your
                   permission, except as required to complete your purchase.
                 </p>
               </div>
@@ -215,7 +215,7 @@ export default function PrivacyPolicy() {
                   </li>
                 </ul>
                 <p className="text-theme opacity-70 mt-3 text-sm">
-                  Requests can be made by contacting Genova's Merch directly.
+                  Requests can be made by contacting European Market directly.
                 </p>
               </div>
             </div>
@@ -230,7 +230,7 @@ export default function PrivacyPolicy() {
               <div>
                 <h2 className="text-xl font-semibold text-theme mb-3">Children's Privacy</h2>
                 <p className="text-theme opacity-70">
-                  Genova's Merch does not knowingly collect personal information from individuals under the age of 13.
+                  European Market does not knowingly collect personal information from individuals under the age of 13.
                 </p>
               </div>
             </div>
@@ -261,7 +261,7 @@ export default function PrivacyPolicy() {
                 <h2 className="text-xl font-semibold text-theme mb-3">Contact Information</h2>
                 <p className="text-theme opacity-70">
                   If you have questions or concerns regarding this Privacy Policy or how your information is handled,
-                  please contact Genova's Merch directly.
+                  please contact European Market directly.
                 </p>
                 <Link
                   to="/contact"

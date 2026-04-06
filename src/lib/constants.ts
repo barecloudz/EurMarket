@@ -1,4 +1,4 @@
-export const APP_NAME = "Genova's Merch";
+export const APP_NAME = "European Market";
 
 export const ORDER_STATUSES = {
   pending: { label: 'Pending', color: 'bg-yellow-500/20 text-yellow-400' },

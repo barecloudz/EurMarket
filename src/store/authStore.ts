@@ -177,7 +177,7 @@ export const useAuthStore = create<AuthState>()(
       },
     }),
     {
-      name: 'genovamerch-auth',
+      name: 'european-market-auth',
       partialize: () => ({}), // Don't persist auth state to localStorage
     }
   )
