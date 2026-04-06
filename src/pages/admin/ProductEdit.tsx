@@ -28,7 +28,7 @@ export default function AdminProductEdit() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const isNew = !id;
-  const { user, isSupplier, isAdmin } = useAuthStore();
+  const { user, isSupplier, isAdmin, session } = useAuthStore();
   const { categories, refetch: refetchCategories } = useCategories({ includeInactive: true });
   const { invalidateCache } = useProductStore();
   const { addToast } = useToast();
@@ -218,32 +218,56 @@ export default function AdminProductEdit() {
         ? Math.max(...categories.map((c) => c.display_order))
         : 0;
 
-      const { data, error: insertError } = await supabase
-        .from('categories')
-        .insert({
-          name: newCategory.name,
-          slug: newCategory.slug,
-          description: newCategory.description || null,
-          image_url: newCategory.image_url || null,
-          is_active: newCategory.is_active,
-          display_order: maxOrder + 1,
-        })
-        .select('id')
-        .single();
+      let categoryId: string | null = null;
 
-      if (insertError) throw insertError;
+      if (isSupplier && !isAdmin) {
+        // Suppliers go through Netlify function (RLS blocks direct insert)
+        const response = await fetch('/.netlify/functions/create-category', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session?.access_token}`,
+          },
+          body: JSON.stringify({
+            name: newCategory.name,
+            slug: newCategory.slug,
+            description: newCategory.description || null,
+            image_url: newCategory.image_url || null,
+            is_active: newCategory.is_active,
+            display_order: maxOrder + 1,
+          }),
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'Failed to create category');
+        categoryId = result.id;
+      } else {
+        const { data, error: insertError } = await supabase
+          .from('categories')
+          .insert({
+            name: newCategory.name,
+            slug: newCategory.slug,
+            description: newCategory.description || null,
+            image_url: newCategory.image_url || null,
+            is_active: newCategory.is_active,
+            display_order: maxOrder + 1,
+          })
+          .select('id')
+          .single();
+        if (insertError) throw insertError;
+        categoryId = data?.id ?? null;
+      }
 
       addToast('Category created successfully', 'success');
       setIsCategoryModalOpen(false);
 
       // Refresh categories and select the new one
       await refetchCategories();
-      if (data?.id) {
-        setFormData((prev) => ({ ...prev, category_id: data.id }));
+      if (categoryId) {
+        setFormData((prev) => ({ ...prev, category_id: categoryId! }));
       }
     } catch (err: any) {
       console.error('Error creating category:', err);
-      if (err.code === '23505') {
+      if (err.message?.includes('already exists') || err.code === '23505') {
         addToast('A category with this slug already exists', 'error');
       } else {
         addToast('Failed to create category', 'error');
@@ -840,7 +864,7 @@ export default function AdminProductEdit() {
           {/* Sidebar */}
           <div className="space-y-6">
             <Card>
-              <h2 className="text-xl font-semibold text-white mb-4">Status</h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Status</h2>
               <div className="space-y-4">
                 <label className="flex items-center gap-2">
                   <input
@@ -850,7 +874,7 @@ export default function AdminProductEdit() {
                     onChange={handleInputChange}
                     className="w-4 h-4 rounded border-gray-300 bg-white text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
                   />
-                  <span className="text-gray-300">Product is active</span>
+                  <span className="text-gray-700">Product is active</span>
                 </label>
                 <label className="flex items-center gap-2">
                   <input
@@ -860,13 +884,13 @@ export default function AdminProductEdit() {
                     onChange={handleInputChange}
                     className="w-4 h-4 rounded border-gray-300 bg-white text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
                   />
-                  <span className="text-gray-300">Featured product</span>
+                  <span className="text-gray-700">Featured product</span>
                 </label>
               </div>
             </Card>
 
             <Card>
-              <h2 className="text-xl font-semibold text-white mb-4">Category</h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Category</h2>
               <select
                 name="category_id"
                 value={formData.category_id}
@@ -885,9 +909,7 @@ export default function AdminProductEdit() {
                     {category.name}{!category.is_active ? ' (Inactive)' : ''}
                   </option>
                 ))}
-                {!isSupplier && (
-                  <option value="__add_new__" className="text-brand-neon">+ Add New Category</option>
-                )}
+                <option value="__add_new__" className="text-brand-neon">+ Add New Category</option>
               </select>
             </Card>
 
