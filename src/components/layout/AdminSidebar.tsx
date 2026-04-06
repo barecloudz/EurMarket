@@ -19,7 +19,6 @@ import {
   Star,
   Shield,
   Image,
-  Lightbulb,
   Store,
   Layout,
   Wallet,
@@ -49,7 +48,6 @@ export const customersSubItems = [
 // Storefront section
 export const storefrontSubItems = [
   { href: '/admin/banners', icon: Image, label: 'Banners' },
-  { href: '/admin/example-works', icon: Lightbulb, label: 'Example Works' },
   { href: '/admin/themes', icon: Palette, label: 'Themes' },
 ];
 
@@ -123,19 +121,19 @@ export default function AdminSidebar() {
   const SidebarContent = ({ isMobile = false }: { isMobile?: boolean }) => (
     <>
       {/* Logo */}
-      <div className={`p-5 border-b ${isMobile ? 'border-brand-neon/20 bg-brand-charcoal' : 'border-brand-gray'}`}>
+      <div className={`p-5 border-b ${isMobile ? 'border-gray-200 bg-white' : 'border-gray-200'}`}>
         <Link to="/admin" className="flex items-center space-x-2" onClick={() => setMobileOpen(false)}>
           <img
             src="/images/logo.png"
             alt="Genova's Merch"
             className="h-8 w-auto object-contain"
           />
-          <span className="text-xs text-gray-400 bg-brand-gray px-2 py-0.5 rounded">Admin</span>
+          <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded font-medium">Admin</span>
         </Link>
       </div>
 
       {/* Navigation */}
-      <nav className={`flex-1 p-4 space-y-1 overflow-y-auto ${isMobile ? 'bg-brand-charcoal' : ''}`}>
+      <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
         {/* Dashboard */}
         {topNavItems.map((item) => (
           <Link
@@ -144,11 +142,11 @@ export default function AdminSidebar() {
             onClick={() => setMobileOpen(false)}
             className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all ${
               isActive(item.href)
-                ? 'bg-brand-neon/10 text-brand-neon border border-brand-neon/30'
-                : 'text-gray-100 hover:bg-brand-gray/50 hover:text-white border border-transparent'
+                ? 'bg-[var(--color-primary)]/10 text-[var(--color-primary)] border border-[var(--color-primary)]/20'
+                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 border border-transparent'
             }`}
           >
-            <item.icon className={`h-5 w-5 ${isActive(item.href) ? 'text-brand-neon' : ''}`} />
+            <item.icon className={`h-5 w-5 ${isActive(item.href) ? 'text-[var(--color-primary)]' : ''}`} />
             <span className="font-medium">{item.label}</span>
           </Link>
         ))}
@@ -159,12 +157,12 @@ export default function AdminSidebar() {
             onClick={() => setStoreOpen(!storeOpen)}
             className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all ${
               storeSubItems.some(item => isActive(item.href))
-                ? 'bg-brand-neon/10 text-brand-neon border border-brand-neon/30'
-                : 'text-gray-100 hover:bg-brand-gray/50 hover:text-white border border-transparent'
+                ? 'bg-[var(--color-primary)]/10 text-[var(--color-primary)] border border-[var(--color-primary)]/20'
+                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 border border-transparent'
             }`}
           >
             <div className="flex items-center space-x-3">
-              <Store className={`h-5 w-5 ${storeSubItems.some(item => isActive(item.href)) ? 'text-brand-neon' : ''}`} />
+              <Store className={`h-5 w-5 ${storeSubItems.some(item => isActive(item.href)) ? 'text-[var(--color-primary)]' : ''}`} />
               <span className="font-medium">Store</span>
             </div>
             {storeOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
@@ -178,11 +176,11 @@ export default function AdminSidebar() {
                   onClick={() => setMobileOpen(false)}
                   className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-all ${
                     isActive(item.href)
-                      ? 'bg-brand-neon/10 text-brand-neon'
-                      : 'text-gray-200 hover:bg-brand-gray/50 hover:text-white'
+                      ? 'bg-[var(--color-primary)]/10 text-[var(--color-primary)]'
+                      : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
                   }`}
                 >
-                  <item.icon className={`h-4 w-4 ${isActive(item.href) ? 'text-brand-neon' : ''}`} />
+                  <item.icon className={`h-4 w-4 ${isActive(item.href) ? 'text-[var(--color-primary)]' : ''}`} />
                   <span className="text-sm">{item.label}</span>
                 </Link>
               ))}
@@ -196,12 +194,12 @@ export default function AdminSidebar() {
             onClick={() => setCustomersOpen(!customersOpen)}
             className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all ${
               customersSubItems.some(item => isActive(item.href))
-                ? 'bg-brand-neon/10 text-brand-neon border border-brand-neon/30'
-                : 'text-gray-100 hover:bg-brand-gray/50 hover:text-white border border-transparent'
+                ? 'bg-[var(--color-primary)]/10 text-[var(--color-primary)] border border-[var(--color-primary)]/20'
+                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 border border-transparent'
             }`}
           >
             <div className="flex items-center space-x-3">
-              <Users className={`h-5 w-5 ${customersSubItems.some(item => isActive(item.href)) ? 'text-brand-neon' : ''}`} />
+              <Users className={`h-5 w-5 ${customersSubItems.some(item => isActive(item.href)) ? 'text-[var(--color-primary)]' : ''}`} />
               <span className="font-medium">Customers</span>
             </div>
             {customersOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
@@ -215,11 +213,11 @@ export default function AdminSidebar() {
                   onClick={() => setMobileOpen(false)}
                   className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-all ${
                     isActive(item.href)
-                      ? 'bg-brand-neon/10 text-brand-neon'
-                      : 'text-gray-200 hover:bg-brand-gray/50 hover:text-white'
+                      ? 'bg-[var(--color-primary)]/10 text-[var(--color-primary)]'
+                      : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
                   }`}
                 >
-                  <item.icon className={`h-4 w-4 ${isActive(item.href) ? 'text-brand-neon' : ''}`} />
+                  <item.icon className={`h-4 w-4 ${isActive(item.href) ? 'text-[var(--color-primary)]' : ''}`} />
                   <span className="text-sm">{item.label}</span>
                 </Link>
               ))}
@@ -233,12 +231,12 @@ export default function AdminSidebar() {
             onClick={() => setStorefrontOpen(!storefrontOpen)}
             className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all ${
               storefrontSubItems.some(item => isActive(item.href))
-                ? 'bg-brand-neon/10 text-brand-neon border border-brand-neon/30'
-                : 'text-gray-100 hover:bg-brand-gray/50 hover:text-white border border-transparent'
+                ? 'bg-[var(--color-primary)]/10 text-[var(--color-primary)] border border-[var(--color-primary)]/20'
+                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 border border-transparent'
             }`}
           >
             <div className="flex items-center space-x-3">
-              <Layout className={`h-5 w-5 ${storefrontSubItems.some(item => isActive(item.href)) ? 'text-brand-neon' : ''}`} />
+              <Layout className={`h-5 w-5 ${storefrontSubItems.some(item => isActive(item.href)) ? 'text-[var(--color-primary)]' : ''}`} />
               <span className="font-medium">Storefront</span>
             </div>
             {storefrontOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
@@ -252,11 +250,11 @@ export default function AdminSidebar() {
                   onClick={() => setMobileOpen(false)}
                   className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-all ${
                     isActive(item.href)
-                      ? 'bg-brand-neon/10 text-brand-neon'
-                      : 'text-gray-200 hover:bg-brand-gray/50 hover:text-white'
+                      ? 'bg-[var(--color-primary)]/10 text-[var(--color-primary)]'
+                      : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
                   }`}
                 >
-                  <item.icon className={`h-4 w-4 ${isActive(item.href) ? 'text-brand-neon' : ''}`} />
+                  <item.icon className={`h-4 w-4 ${isActive(item.href) ? 'text-[var(--color-primary)]' : ''}`} />
                   <span className="text-sm">{item.label}</span>
                 </Link>
               ))}
@@ -270,12 +268,12 @@ export default function AdminSidebar() {
             onClick={() => setMarketingOpen(!marketingOpen)}
             className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all ${
               marketingSubItems.some(item => isActive(item.href))
-                ? 'bg-brand-neon/10 text-brand-neon border border-brand-neon/30'
-                : 'text-gray-100 hover:bg-brand-gray/50 hover:text-white border border-transparent'
+                ? 'bg-[var(--color-primary)]/10 text-[var(--color-primary)] border border-[var(--color-primary)]/20'
+                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 border border-transparent'
             }`}
           >
             <div className="flex items-center space-x-3">
-              <Megaphone className={`h-5 w-5 ${marketingSubItems.some(item => isActive(item.href)) ? 'text-brand-neon' : ''}`} />
+              <Megaphone className={`h-5 w-5 ${marketingSubItems.some(item => isActive(item.href)) ? 'text-[var(--color-primary)]' : ''}`} />
               <span className="font-medium">Marketing</span>
             </div>
             {marketingOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
@@ -289,11 +287,11 @@ export default function AdminSidebar() {
                   onClick={() => setMobileOpen(false)}
                   className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-all ${
                     isActive(item.href)
-                      ? 'bg-brand-neon/10 text-brand-neon'
-                      : 'text-gray-200 hover:bg-brand-gray/50 hover:text-white'
+                      ? 'bg-[var(--color-primary)]/10 text-[var(--color-primary)]'
+                      : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
                   }`}
                 >
-                  <item.icon className={`h-4 w-4 ${isActive(item.href) ? 'text-brand-neon' : ''}`} />
+                  <item.icon className={`h-4 w-4 ${isActive(item.href) ? 'text-[var(--color-primary)]' : ''}`} />
                   <span className="text-sm">{item.label}</span>
                 </Link>
               ))}
@@ -309,22 +307,22 @@ export default function AdminSidebar() {
             onClick={() => setMobileOpen(false)}
             className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all ${
               isActive(item.href)
-                ? 'bg-brand-neon/10 text-brand-neon border border-brand-neon/30'
-                : 'text-gray-100 hover:bg-brand-gray/50 hover:text-white border border-transparent'
+                ? 'bg-[var(--color-primary)]/10 text-[var(--color-primary)] border border-[var(--color-primary)]/20'
+                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 border border-transparent'
             }`}
           >
-            <item.icon className={`h-5 w-5 ${isActive(item.href) ? 'text-brand-neon' : ''}`} />
+            <item.icon className={`h-5 w-5 ${isActive(item.href) ? 'text-[var(--color-primary)]' : ''}`} />
             <span className="font-medium">{item.label}</span>
           </Link>
         ))}
       </nav>
 
       {/* Back to store */}
-      <div className={`p-4 border-t ${isMobile ? 'border-brand-neon/20 bg-brand-charcoal' : 'border-brand-gray'}`}>
+      <div className={`p-4 border-t ${isMobile ? 'border-gray-200' : 'border-gray-200'}`}>
         <Link
           to="/"
           onClick={() => setMobileOpen(false)}
-          className="flex items-center space-x-3 px-4 py-3 text-gray-100 hover:text-brand-neon transition-colors rounded-lg hover:bg-brand-gray/50"
+          className="flex items-center space-x-3 px-4 py-3 text-gray-500 hover:text-gray-900 transition-colors rounded-lg hover:bg-gray-100"
         >
           <ArrowLeft className="h-5 w-5" />
           <span className="font-medium">Back to Store</span>
@@ -338,14 +336,14 @@ export default function AdminSidebar() {
   return (
     <>
       {/* Mobile header bar */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-brand-charcoal border-b border-brand-gray h-14 flex items-center px-4">
+      <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 h-14 flex items-center px-4">
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
-          className="p-2 rounded-lg text-brand-neon hover:bg-brand-gray transition-colors"
+          className="p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors"
         >
           {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
-        <h1 className="absolute left-1/2 transform -translate-x-1/2 text-white font-semibold">
+        <h1 className="absolute left-1/2 transform -translate-x-1/2 text-gray-900 font-semibold">
           {pageTitle}
         </h1>
       </div>
@@ -353,14 +351,14 @@ export default function AdminSidebar() {
       {/* Mobile overlay */}
       {mobileOpen && (
         <div
-          className="md:hidden fixed inset-0 bg-black/50 z-40"
+          className="md:hidden fixed inset-0 bg-black/40 z-40"
           onClick={() => setMobileOpen(false)}
         />
       )}
 
       {/* Mobile sidebar */}
       <aside
-        className={`md:hidden fixed top-14 bottom-0 left-0 z-50 w-72 bg-gradient-to-b from-brand-charcoal to-brand-black border-r border-brand-neon/20 flex flex-col transform transition-transform shadow-2xl shadow-brand-neon/10 ${
+        className={`md:hidden fixed top-14 bottom-0 left-0 z-50 w-72 bg-white border-r border-gray-200 flex flex-col transform transition-transform shadow-xl ${
           mobileOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
@@ -368,7 +366,7 @@ export default function AdminSidebar() {
       </aside>
 
       {/* Desktop sidebar */}
-      <aside className="hidden md:flex w-64 bg-brand-charcoal border-r border-brand-gray flex-col">
+      <aside className="hidden md:flex w-64 bg-white border-r border-gray-200 flex-col">
         <SidebarContent isMobile={false} />
       </aside>
     </>

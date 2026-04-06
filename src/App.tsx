@@ -42,7 +42,6 @@ import AdminEmailSubscribers from './pages/admin/EmailSubscribers';
 import AdminReviews from './pages/admin/Reviews';
 import AdminTeam from './pages/admin/Team';
 import AdminBanners from './pages/admin/Banners';
-import AdminExampleWorks from './pages/admin/ExampleWorks';
 import AdminSuppliers from './pages/admin/Suppliers';
 import AdminPayouts from './pages/admin/Payouts';
 
@@ -163,7 +162,6 @@ function App() {
           <Route path="reviews" element={<AdminReviews />} />
           <Route path="themes" element={<AdminThemes />} />
           <Route path="banners" element={<AdminBanners />} />
-          <Route path="example-works" element={<AdminExampleWorks />} />
           <Route path="suppliers" element={<AdminSuppliers />} />
           <Route path="settings" element={<AdminSettings />} />
         </Route>
