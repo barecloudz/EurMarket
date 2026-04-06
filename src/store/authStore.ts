@@ -51,7 +51,23 @@ export const useAuthStore = create<AuthState>()(
           .single();
 
         if (error) {
-          console.error('Error fetching profile:', error);
+          // PGRST116 = no rows found — profile doesn't exist yet (e.g. Google OAuth new user)
+          if (error.code === 'PGRST116') {
+            const meta = user.user_metadata || {};
+            await supabase.from('profiles').upsert({
+              id: user.id,
+              email: user.email,
+              role: 'customer',
+              first_name: meta.full_name?.split(' ')[0] || meta.given_name || null,
+              last_name: meta.full_name?.split(' ').slice(1).join(' ') || meta.family_name || null,
+              marketing_opt_in: false,
+            }, { onConflict: 'id' });
+            // Re-fetch after creating
+            const { data: newData } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+            if (newData) set({ profile: newData, isAdmin: false, isSupplier: false });
+          } else {
+            console.error('Error fetching profile:', error);
+          }
           return;
         }
 
