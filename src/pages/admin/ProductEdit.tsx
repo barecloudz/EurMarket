@@ -28,7 +28,7 @@ export default function AdminProductEdit() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const isNew = !id;
-  const { user, isSupplier } = useAuthStore();
+  const { user, isSupplier, isAdmin } = useAuthStore();
   const { categories, refetch: refetchCategories } = useCategories({ includeInactive: true });
   const { invalidateCache } = useProductStore();
   const { addToast } = useToast();
@@ -473,7 +473,7 @@ export default function AdminProductEdit() {
       console.log('Product saved successfully!');
       // Invalidate cache so product list refreshes
       invalidateCache();
-      navigate('/admin/products');
+      navigate(isSupplier && !isAdmin ? '/supplier/products' : '/admin/products');
     } catch (err: any) {
       console.error('Error saving product:', err);
       setError({
@@ -496,35 +496,35 @@ export default function AdminProductEdit() {
   return (
     <div>
       <button
-        onClick={() => navigate('/admin/products')}
-        className="inline-flex items-center text-gray-400 hover:text-brand-neon mb-6 transition-colors"
+        onClick={() => navigate(isSupplier && !isAdmin ? '/supplier/products' : '/admin/products')}
+        className="inline-flex items-center text-gray-500 hover:text-[var(--color-primary)] mb-6 transition-colors"
       >
         <ArrowLeft className="h-4 w-4 mr-2" />
         Back to Products
       </button>
 
-      <h1 className="text-3xl font-bold text-white mb-8">
+      <h1 className="text-3xl font-bold text-gray-900 mb-8">
         {isNew ? 'Add Product' : 'Edit Product'}
       </h1>
 
       {/* Error Modal */}
       {error && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-brand-charcoal border border-red-500/50 rounded-xl max-w-md w-full p-6 shadow-xl">
+          <div className="bg-white border border-red-500/50 rounded-xl max-w-md w-full p-6 shadow-xl">
             <div className="flex items-start gap-4">
               <div className="flex-shrink-0 w-10 h-10 bg-red-500/20 rounded-full flex items-center justify-center">
                 <AlertCircle className="h-6 w-6 text-red-400" />
               </div>
               <div className="flex-1">
-                <h3 className="text-lg font-semibold text-white mb-2">Error Saving Product</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Error Saving Product</h3>
                 <p className="text-red-400 mb-2">{error.message}</p>
                 {error.details && (
-                  <p className="text-gray-400 text-sm bg-brand-black/50 p-2 rounded font-mono">{error.details}</p>
+                  <p className="text-gray-600 text-sm bg-gray-100 p-2 rounded font-mono">{error.details}</p>
                 )}
               </div>
               <button
                 onClick={() => setError(null)}
-                className="text-gray-400 hover:text-white transition-colors"
+                className="text-gray-400 hover:text-gray-900 transition-colors"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -543,7 +543,7 @@ export default function AdminProductEdit() {
           {/* Main info */}
           <div className="lg:col-span-2 space-y-6">
             <Card>
-              <h2 className="text-xl font-semibold text-white mb-4">Product Information</h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Product Information</h2>
               <div className="space-y-4">
                 <Input
                   label="Product Name"
@@ -560,7 +560,7 @@ export default function AdminProductEdit() {
                   required
                 />
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
                     Description
                   </label>
                   <textarea
@@ -568,14 +568,14 @@ export default function AdminProductEdit() {
                     value={formData.description}
                     onChange={handleInputChange}
                     rows={4}
-                    className="w-full px-4 py-2 rounded-lg bg-brand-black border border-brand-gray text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-brand-neon focus:border-transparent resize-none"
+                    className="w-full px-4 py-2 rounded-lg bg-gray-50 border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent resize-none"
                   />
                 </div>
               </div>
             </Card>
 
             <Card>
-              <h2 className="text-xl font-semibold text-white mb-4">Pricing</h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Pricing</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <Input
                   label="Price"
@@ -623,7 +623,7 @@ export default function AdminProductEdit() {
             </Card>
 
             <Card>
-              <h2 className="text-xl font-semibold text-white mb-4">Inventory</h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Inventory</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <Input
                   label="SKU"
@@ -655,9 +655,9 @@ export default function AdminProductEdit() {
                     name="track_inventory"
                     checked={formData.track_inventory}
                     onChange={handleInputChange}
-                    className="w-4 h-4 rounded border-brand-gray bg-brand-black text-brand-neon focus:ring-brand-neon"
+                    className="w-4 h-4 rounded border-gray-300 bg-white text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
                   />
-                  <span className="text-gray-300">Track inventory</span>
+                  <span className="text-gray-700">Track inventory</span>
                 </label>
                 <label className="flex items-center gap-2">
                   <input
@@ -665,15 +665,15 @@ export default function AdminProductEdit() {
                     name="continue_selling_when_out_of_stock"
                     checked={formData.continue_selling_when_out_of_stock}
                     onChange={handleInputChange}
-                    className="w-4 h-4 rounded border-brand-gray bg-brand-black text-brand-neon focus:ring-brand-neon"
+                    className="w-4 h-4 rounded border-gray-300 bg-white text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
                   />
-                  <span className="text-gray-300">Continue selling when out of stock</span>
+                  <span className="text-gray-700">Continue selling when out of stock</span>
                 </label>
               </div>
             </Card>
 
             <Card>
-              <h2 className="text-xl font-semibold text-white mb-4">Additional Info</h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Additional Info</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Input
                   label="Print Time (hours)"
@@ -699,7 +699,7 @@ export default function AdminProductEdit() {
             <Card>
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h2 className="text-xl font-semibold text-white">Options / Variants</h2>
+                  <h2 className="text-xl font-semibold text-gray-900">Options / Variants</h2>
                   <p className="text-gray-400 text-sm mt-1">Add different colors, sizes, or options</p>
                 </div>
                 <Button type="button" variant="outline" size="sm" onClick={addVariant}>
@@ -709,7 +709,7 @@ export default function AdminProductEdit() {
               </div>
 
               {variants.length === 0 ? (
-                <div className="text-center py-8 border border-dashed border-brand-gray rounded-lg">
+                <div className="text-center py-8 border border-dashed border-gray-300 rounded-lg">
                   <p className="text-gray-400">No variants added yet</p>
                   <p className="text-gray-500 text-sm mt-1">Click "Add Option" to create variants like colors or sizes</p>
                 </div>
@@ -718,7 +718,7 @@ export default function AdminProductEdit() {
                   {variants.map((variant, index) => (
                     <div
                       key={index}
-                      className="p-4 bg-brand-black rounded-lg border border-brand-gray"
+                      className="p-4 bg-gray-50 rounded-lg border border-gray-200"
                     >
                       <div className="flex items-start justify-between mb-3">
                         <span className="text-gray-400 text-sm">Option {index + 1}</span>
@@ -762,17 +762,17 @@ export default function AdminProductEdit() {
                       </div>
 
                       {/* Variant Image */}
-                      <div className="mt-4 pt-4 border-t border-brand-gray">
-                        <label className="block text-sm font-medium text-gray-300 mb-2">
+                      <div className="mt-4 pt-4 border-t border-gray-200">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
                           Variant Image
                         </label>
                         <div className="flex items-center gap-4">
                           {variant.image_url === 'uploading...' ? (
-                            <div className="w-16 h-16 rounded-lg border-2 border-brand-neon/50 bg-brand-gray flex items-center justify-center">
+                            <div className="w-16 h-16 rounded-lg border-2 border-[var(--color-primary)]/50 bg-gray-100 flex items-center justify-center">
                               <div className="w-6 h-6 border-2 border-brand-neon border-t-transparent rounded-full animate-spin" />
                             </div>
                           ) : variant.image_url ? (
-                            <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-brand-gray">
+                            <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-gray-100">
                               <img
                                 src={variant.image_url}
                                 alt={variant.name}
@@ -787,7 +787,7 @@ export default function AdminProductEdit() {
                               </button>
                             </div>
                           ) : (
-                            <div className="w-16 h-16 rounded-lg border-2 border-dashed border-brand-gray flex items-center justify-center">
+                            <div className="w-16 h-16 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center">
                               <ImageIcon className="h-6 w-6 text-gray-500" />
                             </div>
                           )}
@@ -798,7 +798,7 @@ export default function AdminProductEdit() {
                               <select
                                 value={variant.image_url}
                                 onChange={(e) => updateVariant(index, 'image_url', e.target.value)}
-                                className="px-3 py-1.5 bg-brand-charcoal border border-brand-gray rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-brand-neon"
+                                className="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
                               >
                                 <option value="">Select from product images</option>
                                 {images.map((img, imgIndex) => (
@@ -848,7 +848,7 @@ export default function AdminProductEdit() {
                     name="is_active"
                     checked={formData.is_active}
                     onChange={handleInputChange}
-                    className="w-4 h-4 rounded border-brand-gray bg-brand-black text-brand-neon focus:ring-brand-neon"
+                    className="w-4 h-4 rounded border-gray-300 bg-white text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
                   />
                   <span className="text-gray-300">Product is active</span>
                 </label>
@@ -858,7 +858,7 @@ export default function AdminProductEdit() {
                     name="is_featured"
                     checked={formData.is_featured}
                     onChange={handleInputChange}
-                    className="w-4 h-4 rounded border-brand-gray bg-brand-black text-brand-neon focus:ring-brand-neon"
+                    className="w-4 h-4 rounded border-gray-300 bg-white text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
                   />
                   <span className="text-gray-300">Featured product</span>
                 </label>

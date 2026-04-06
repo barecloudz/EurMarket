@@ -20,20 +20,28 @@ export default function SupplierProducts() {
   const [togglingId, setTogglingId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (user) fetchProducts();
+    if (!user) { setIsLoading(false); return; }
+    fetchProducts();
   }, [user]);
 
   const fetchProducts = async () => {
+    setIsLoading(true);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 12000);
     try {
       const { data, error } = await supabase
         .from('products')
         .select('*, images:product_images(*)')
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .abortSignal(controller.signal);
 
+      clearTimeout(timeoutId);
       if (error) throw error;
       setProducts(data || []);
-    } catch (err) {
+    } catch (err: any) {
+      clearTimeout(timeoutId);
       console.error('Error fetching products:', err);
+      addToast(err.name === 'AbortError' ? 'Request timed out — please try again' : 'Failed to load products', 'error');
     } finally {
       setIsLoading(false);
     }
