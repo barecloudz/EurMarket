@@ -30,17 +30,17 @@ interface SettingsState {
 }
 
 const defaultTheme: ThemeSettings = {
-  primary_color: '#2E7D32',
-  secondary_color: '#1B5E20',
-  accent_color: '#2E7D32',
-  background_color: '#F8F9FA',
+  primary_color: '#D97706',
+  secondary_color: '#B45309',
+  accent_color: '#FACC15',
+  background_color: '#FAF9F7',
   surface_color: '#FFFFFF',
-  text_color: '#111827',
-  border_color: '#E5E7EB',
+  text_color: '#1A1A1A',
+  border_color: '#E8E2DB',
 };
 
 const defaultSettings: SiteSettings = {
-  store_name: "GENOVA'S",
+  store_name: "European Market",
   logo_url: null,
   hero_image_url: null,
   contact_email: '',
@@ -83,11 +83,14 @@ export const useSettingsStore = create<SettingsState>((set) => ({
       if (error) throw error;
 
       if (data) {
-        const themeSettings = data.theme_settings || defaultTheme;
+        const dbTheme = data.theme_settings;
+        // If DB still has old green branding, use our new defaults
+        const isOldGreenTheme = dbTheme?.primary_color === '#2E7D32' || dbTheme?.primary_color === '#1B5E20';
+        const themeSettings = (!dbTheme || isOldGreenTheme) ? defaultTheme : dbTheme;
 
         set({
           settings: {
-            store_name: data.store_name || "GENOVA'S",
+            store_name: data.store_name === "GENOVA'S" ? 'European Market' : (data.store_name || 'European Market'),
             logo_url: data.logo_url || null,
             hero_image_url: data.hero_image_url || null,
             contact_email: data.contact_email || '',
