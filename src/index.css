@@ -4,11 +4,11 @@
 
 /* ── Brand tokens ── */
 :root {
-  --color-primary: #8B0000;
-  --color-primary-light: #A31515;
-  --color-secondary: #5C0000;
-  --color-accent: #F97316;
-  --color-accent-gold: #FACC15;
+  --color-primary: #D97706;
+  --color-primary-light: #F59E0B;
+  --color-secondary: #B45309;
+  --color-accent: #FACC15;
+  --color-accent-gold: #FDE68A;
   --color-background: #FAF9F7;
   --color-surface: #FFFFFF;
   --color-text: #1A1A1A;

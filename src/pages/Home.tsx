@@ -3,7 +3,6 @@ import { Search, ArrowRight, Plus, ChevronLeft, ChevronRight, RefreshCw } from '
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useCartStore } from '../store/cartStore';
 import { useProductStore } from '../store/productStore';
-import { useWishlistStore } from '../store/wishlistStore';
 import { supabase } from '../lib/supabase';
 import type { Category, BannerSlide } from '../types';
 
@@ -57,8 +56,7 @@ export default function Home() {
   const [categories, setCategories]             = useState<Category[]>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
   const [banners, setBanners]                   = useState<BannerSlide[]>([]);
-  const { addItem }                             = useCartStore();
-  const { items: wishlistItems, addItem: addToWishlist, removeItem: removeFromWishlist } = useWishlistStore();
+  const { addItem } = useCartStore();
   const navigate                                = useNavigate();
   const { products, isLoading, error, fetchProducts } = useProductStore();
   const categoryContainerRef                    = useRef<HTMLDivElement>(null);
@@ -112,8 +110,6 @@ export default function Home() {
   const scrollCats = (dir: 'left' | 'right') => {
     categoryContainerRef.current?.scrollBy({ left: dir === 'left' ? -250 : 250, behavior: 'smooth' });
   };
-
-  const isInWishlist = (id: string) => wishlistItems.includes(id);
 
   const handleQuickAdd = (e: React.MouseEvent, product: any) => {
     e.preventDefault();

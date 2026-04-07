@@ -97,7 +97,7 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-40 bg-white shadow-sm">
       {/* ── Desktop top info bar ── */}
-      <div className="hidden md:block bg-[var(--color-primary)] text-white text-xs">
+      <div className="hidden md:block bg-[#1C0A0A] text-white text-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-1.5 flex items-center justify-between">
           <div className="flex items-center gap-5">
             <span className="flex items-center gap-1.5 opacity-90">
@@ -217,7 +217,7 @@ export default function Header() {
                 </div>
               ) : (
                 <button onClick={openLoginModal}
-                  className="px-5 py-2.5 bg-[var(--color-primary)] text-white text-sm font-bold rounded-xl hover:bg-[var(--color-primary-light)] active:scale-95 transition-all shadow-sm tracking-wide">
+                  className="px-5 py-2.5 bg-[var(--color-primary)] text-gray-900 text-sm font-bold rounded-xl hover:bg-[var(--color-primary-light)] active:scale-95 transition-all shadow-sm tracking-wide">
                   Sign In
                 </button>
               )}
