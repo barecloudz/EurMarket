@@ -115,7 +115,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           <button onClick={handleAddToCart} disabled={outOfStock}
             className={`w-8 h-8 rounded-full flex items-center justify-center transition-all btn-press shadow-sm flex-shrink-0 ${
               adding
-                ? 'bg-green-500 text-white scale-90'
+                ? 'bg-[var(--color-primary-light)] text-white scale-90'
                 : outOfStock
                 ? 'bg-gray-100 text-gray-300 cursor-not-allowed'
                 : 'bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-light)]'

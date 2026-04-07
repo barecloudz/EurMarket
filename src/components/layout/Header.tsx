@@ -109,8 +109,11 @@ export default function Header() {
               (864) 590-6760
             </span>
           </div>
-          <span className="opacity-80 font-medium tracking-wide">
-            Authentic products from 25 countries
+          <span className="opacity-90 font-medium flex items-center gap-1">
+            {['de','pl','gb','ie','ua','cz','hu','ro','ru','sk','lt','lv'].map((code) => (
+              <img key={code} src={`https://flagcdn.com/20x15/${code}.png`} alt={code} className="w-5 h-auto rounded-sm" />
+            ))}
+            <span className="opacity-60 ml-1.5">· 25+ countries</span>
           </span>
         </div>
       </div>

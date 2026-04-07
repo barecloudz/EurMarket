@@ -79,7 +79,7 @@ export default function SetPassword() {
         <div className="bg-white rounded-3xl shadow-xl overflow-hidden">
 
           {/* Header */}
-          <div className="bg-[#2E7D32] px-8 py-8 text-white text-center">
+          <div className="bg-[var(--color-primary)] px-8 py-8 text-white text-center">
             <img src="/logo.jpg" alt="European Market" className="h-14 w-auto object-contain mx-auto mb-4" />
             <h1 className="text-2xl font-black">Create your password</h1>
             <p className="text-white/75 text-sm mt-1">You'll use this to log in each time</p>
@@ -100,7 +100,7 @@ export default function SetPassword() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Minimum 8 characters"
                   required
-                  className="w-full pl-10 pr-10 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#2E7D32]/20 focus:border-[#2E7D32]"
+                  className="w-full pl-10 pr-10 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)]"
                 />
                 <button
                   type="button"
@@ -124,7 +124,7 @@ export default function SetPassword() {
                   onChange={(e) => setConfirm(e.target.value)}
                   placeholder="Repeat your password"
                   required
-                  className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#2E7D32]/20 focus:border-[#2E7D32]"
+                  className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)]"
                 />
               </div>
             </div>
@@ -136,7 +136,7 @@ export default function SetPassword() {
             <button
               type="submit"
               disabled={isLoading || !password || !confirm || !sessionReady}
-              className="w-full py-3 bg-[#2E7D32] text-white font-bold rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50"
+              className="w-full py-3 bg-[var(--color-primary)] text-white font-bold rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50"
             >
               {isLoading ? 'Saving...' : !sessionReady ? 'Preparing...' : 'Set Password & Continue →'}
             </button>

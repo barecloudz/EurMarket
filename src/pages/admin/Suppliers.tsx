@@ -207,7 +207,7 @@ export default function AdminSuppliers() {
         {tempPassword === 'invited' ? (
           <div className="space-y-4">
             <div className="flex flex-col items-center text-center py-4">
-              <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mb-4">
+              <div className="w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center mb-4">
                 <Mail className="h-8 w-8 text-green-600" />
               </div>
               <h3 className="text-lg font-bold text-gray-900 mb-1">Invite Sent!</h3>

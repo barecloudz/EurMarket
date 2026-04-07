@@ -1134,7 +1134,7 @@ export default function Checkout() {
                     appearance: {
                       theme: 'stripe',
                       variables: {
-                        colorPrimary: '#2E7D32',
+                        colorPrimary: '#D97706',
                         colorBackground: '#FFFFFF',
                         colorText: '#111827',
                         colorDanger: '#ef4444',

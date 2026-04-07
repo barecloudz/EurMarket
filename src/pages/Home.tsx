@@ -30,20 +30,24 @@ const SPECIALTIES = [
 ];
 
 const COUNTRY_FLAGS = [
-  { flag: '🇩🇪', name: 'Germany'    },
-  { flag: '🇵🇱', name: 'Poland'     },
-  { flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿', name: 'England'    },
-  { flag: '🇮🇪', name: 'Ireland'    },
-  { flag: '🇺🇦', name: 'Ukraine'    },
-  { flag: '🇨🇿', name: 'Czech Rep.' },
-  { flag: '🇭🇺', name: 'Hungary'    },
-  { flag: '🇷🇴', name: 'Romania'    },
+  { code: 'de', name: 'Germany'    },
+  { code: 'pl', name: 'Poland'     },
+  { code: 'gb', name: 'England'    },
+  { code: 'ie', name: 'Ireland'    },
+  { code: 'ua', name: 'Ukraine'    },
+  { code: 'cz', name: 'Czech Rep.' },
+  { code: 'hu', name: 'Hungary'    },
+  { code: 'ro', name: 'Romania'    },
+  { code: 'ru', name: 'Russia'     },
+  { code: 'sk', name: 'Slovakia'   },
+  { code: 'lt', name: 'Lithuania'  },
+  { code: 'lv', name: 'Latvia'     },
 ];
 
 const CATEGORY_GRADIENTS = [
   'from-red-600 to-rose-800',
   'from-amber-500 to-orange-600',
-  'from-emerald-600 to-teal-700',
+  'from-amber-600 to-orange-700',
   'from-blue-600 to-indigo-700',
   'from-purple-600 to-pink-700',
   'from-slate-600 to-gray-800',
@@ -343,7 +347,7 @@ export default function Home() {
                       </div>
                       <button onClick={(e) => handleQuickAdd(e, product)} disabled={isAdding}
                         className={`w-7 h-7 rounded-full flex items-center justify-center transition-all btn-press ${
-                          isAdding ? 'bg-green-500 text-white' : 'bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-light)]'
+                          isAdding ? 'bg-[var(--color-primary-light)] text-white scale-90' : 'bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-light)]'
                         }`}>
                         <Plus className="h-3.5 w-3.5" />
                       </button>
@@ -408,8 +412,8 @@ export default function Home() {
             <div className="flex flex-wrap gap-2">
               {COUNTRY_FLAGS.map((c) => (
                 <div key={c.name}
-                  className="flex items-center gap-1.5 bg-gray-50 border border-gray-100 px-3 py-2 rounded-xl hover:border-[var(--color-primary)]/30 hover:bg-red-50 transition-colors">
-                  <span className="text-lg">{c.flag}</span>
+                  className="flex items-center gap-1.5 bg-gray-50 border border-gray-100 px-3 py-2 rounded-xl hover:border-[var(--color-primary)]/30 hover:bg-amber-50 transition-colors">
+                  <img src={`https://flagcdn.com/20x15/${c.code}.png`} alt={c.name} className="w-5 h-auto rounded-sm shadow-sm" />
                   <span className="text-xs font-semibold text-gray-700">{c.name}</span>
                 </div>
               ))}

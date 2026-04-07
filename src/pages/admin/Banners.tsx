@@ -11,13 +11,13 @@ import { useToast } from '../../components/ui/Toast';
 import type { BannerSlide } from '../../types';
 
 const gradientOptions = [
-  { value: 'from-[var(--color-primary)] to-emerald-600', label: 'Brand Green' },
+  { value: 'from-[var(--color-primary)] to-amber-600', label: 'Brand Amber' },
   { value: 'from-purple-600 to-pink-600', label: 'Purple Pink' },
   { value: 'from-cyan-500 to-blue-600', label: 'Cyan Blue' },
   { value: 'from-orange-500 to-red-600', label: 'Orange Red' },
   { value: 'from-rose-500 to-pink-600', label: 'Rose Pink' },
   { value: 'from-indigo-500 to-purple-600', label: 'Indigo Purple' },
-  { value: 'from-emerald-500 to-teal-600', label: 'Emerald Teal' },
+  { value: 'from-amber-500 to-orange-600', label: 'Amber Orange' },
   { value: 'from-amber-500 to-orange-600', label: 'Amber Orange' },
 ];
 
@@ -37,7 +37,7 @@ export default function AdminBanners() {
     cta_text: 'Shop Now',
     cta_link: '/products',
     image_url: '',
-    gradient: 'from-[var(--color-primary)] to-emerald-600',
+    gradient: 'from-[var(--color-primary)] to-amber-600',
     text_color: 'dark' as 'light' | 'dark',
     is_active: true,
   });
@@ -72,7 +72,7 @@ export default function AdminBanners() {
       cta_text: 'Shop Now',
       cta_link: '/products',
       image_url: '',
-      gradient: 'from-[var(--color-primary)] to-emerald-600',
+      gradient: 'from-[var(--color-primary)] to-amber-600',
       text_color: 'dark',
       is_active: true,
     });

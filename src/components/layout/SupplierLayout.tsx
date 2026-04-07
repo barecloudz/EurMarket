@@ -34,7 +34,7 @@ export default function SupplierLayout() {
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden">
 
             {/* Header */}
-            <div className="bg-[#2E7D32] px-8 pt-8 pb-6 text-white relative">
+            <div className="bg-[var(--color-primary)] px-8 pt-8 pb-6 text-white relative">
               <button
                 onClick={dismiss}
                 className="absolute top-4 right-4 p-1.5 rounded-lg hover:bg-white/10 transition-colors"
@@ -49,8 +49,8 @@ export default function SupplierLayout() {
             {/* Features */}
             <div className="px-8 py-6 space-y-5">
               <div className="flex items-start gap-4">
-                <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <Package className="h-5 w-5 text-[#2E7D32]" />
+                <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <Package className="h-5 w-5 text-[var(--color-primary)]" />
                 </div>
                 <div>
                   <p className="font-bold text-gray-900">Add &amp; manage products</p>
@@ -59,8 +59,8 @@ export default function SupplierLayout() {
               </div>
 
               <div className="flex items-start gap-4">
-                <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <ShoppingBag className="h-5 w-5 text-[#2E7D32]" />
+                <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <ShoppingBag className="h-5 w-5 text-[var(--color-primary)]" />
                 </div>
                 <div>
                   <p className="font-bold text-gray-900">View your orders</p>
@@ -69,8 +69,8 @@ export default function SupplierLayout() {
               </div>
 
               <div className="flex items-start gap-4">
-                <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <Truck className="h-5 w-5 text-[#2E7D32]" />
+                <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <Truck className="h-5 w-5 text-[var(--color-primary)]" />
                 </div>
                 <div>
                   <p className="font-bold text-gray-900">Track fulfillment</p>
@@ -83,7 +83,7 @@ export default function SupplierLayout() {
             <div className="px-8 pb-8">
               <button
                 onClick={dismiss}
-                className="w-full py-3 bg-[#2E7D32] text-white font-bold rounded-xl hover:opacity-90 transition-opacity"
+                className="w-full py-3 bg-[var(--color-primary)] text-white font-bold rounded-xl hover:opacity-90 transition-opacity"
               >
                 Get Started
               </button>

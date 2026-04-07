@@ -4,18 +4,18 @@ import { Mail, Send, Check, MapPin, Phone, Clock } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
 const COUNTRIES = [
-  { flag: '🇩🇪', name: 'Germany' },
-  { flag: '🇵🇱', name: 'Poland' },
-  { flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿', name: 'England' },
-  { flag: '🇮🇪', name: 'Ireland' },
-  { flag: '🇺🇦', name: 'Ukraine' },
-  { flag: '🇨🇿', name: 'Czech Rep.' },
-  { flag: '🇭🇺', name: 'Hungary' },
-  { flag: '🇷🇴', name: 'Romania' },
-  { flag: '🇷🇺', name: 'Russia' },
-  { flag: '🇸🇰', name: 'Slovakia' },
-  { flag: '🇱🇹', name: 'Lithuania' },
-  { flag: '🇱🇻', name: 'Latvia' },
+  { code: 'de', name: 'Germany'    },
+  { code: 'pl', name: 'Poland'     },
+  { code: 'gb', name: 'England'    },
+  { code: 'ie', name: 'Ireland'    },
+  { code: 'ua', name: 'Ukraine'    },
+  { code: 'cz', name: 'Czech Rep.' },
+  { code: 'hu', name: 'Hungary'    },
+  { code: 'ro', name: 'Romania'    },
+  { code: 'ru', name: 'Russia'     },
+  { code: 'sk', name: 'Slovakia'   },
+  { code: 'lt', name: 'Lithuania'  },
+  { code: 'lv', name: 'Latvia'     },
 ];
 
 export default function Footer() {
@@ -73,7 +73,8 @@ export default function Footer() {
             {COUNTRIES.map((c) => (
               <span key={c.name}
                 className="flex items-center gap-1.5 bg-white/8 hover:bg-white/12 transition-colors px-3 py-1.5 rounded-full text-xs font-medium text-white/70">
-                <span>{c.flag}</span> {c.name}
+                <img src={`https://flagcdn.com/20x15/${c.code}.png`} alt={c.name} className="w-5 h-auto rounded-sm" />
+                {c.name}
               </span>
             ))}
             <span className="flex items-center gap-1.5 bg-[var(--color-primary)]/30 px-3 py-1.5 rounded-full text-xs font-medium text-[var(--color-accent)]">
