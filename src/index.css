@@ -4,17 +4,17 @@
 
 /* ── Brand tokens ── */
 :root {
-  --color-primary: #D97706;
-  --color-primary-light: #F59E0B;
-  --color-secondary: #B45309;
+  --color-primary: #CC0000;
+  --color-primary-light: #E50000;
+  --color-secondary: #990000;
   --color-accent: #FACC15;
   --color-accent-gold: #FDE68A;
-  --color-background: #FAF9F7;
+  --color-background: #FFF8F0;
   --color-surface: #FFFFFF;
   --color-text: #1A1A1A;
-  --color-border: #E8E2DB;
+  --color-border: #EAE0D8;
 
-  font-family: 'Montserrat', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Lato', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   line-height: 1.5;
   font-weight: 400;
   font-synthesis: none;
@@ -140,6 +140,10 @@ body {
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(0, 0, 0, 0.08);
 }
+
+/* ── Font helpers ── */
+.font-display { font-family: 'Playfair Display', Georgia, serif; }
+.font-script  { font-family: 'Dancing Script', cursive; }
 
 /* ── Tailwind layer utilities ── */
 @layer utilities {

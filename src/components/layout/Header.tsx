@@ -97,23 +97,23 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-40 bg-white shadow-sm">
       {/* ── Desktop top info bar ── */}
-      <div className="hidden md:block bg-[#1C0A0A] text-white text-xs">
+      <div className="hidden md:block bg-[#CC0000] text-white text-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-1.5 flex items-center justify-between">
           <div className="flex items-center gap-5">
-            <span className="flex items-center gap-1.5 opacity-90">
+            <span className="flex items-center gap-1.5">
               <MapPin className="h-3 w-3" />
               155 W Mills Street, Columbus, NC 28722
             </span>
-            <span className="flex items-center gap-1.5 opacity-90">
+            <span className="flex items-center gap-1.5">
               <Phone className="h-3 w-3" />
               (864) 590-6760
             </span>
           </div>
-          <span className="opacity-90 font-medium flex items-center gap-1">
+          <span className="font-medium flex items-center gap-1">
             {['de','pl','gb','ie','ua','cz','hu','ro','ru','sk','lt','lv'].map((code) => (
               <img key={code} src={`https://flagcdn.com/20x15/${code}.png`} alt={code} className="w-5 h-auto rounded-sm" />
             ))}
-            <span className="opacity-60 ml-1.5">· 25+ countries</span>
+            <span className="opacity-75 ml-1.5">· 25+ countries</span>
           </span>
         </div>
       </div>
@@ -134,7 +134,7 @@ export default function Header() {
           {/* Logo center */}
           <Link to="/" className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2">
             <img src="/logo.jpg" alt="European Market" className="h-8 w-8 object-cover rounded-lg shadow-sm" />
-            <span className="font-black text-gray-900 text-sm tracking-tight">European Market</span>
+            <span className="font-display font-black text-[#CC0000] text-sm tracking-tight">European Market</span>
           </Link>
 
           {/* Account right */}
@@ -169,7 +169,7 @@ export default function Header() {
               <img src="/logo.jpg" alt="European Market" className="h-12 w-12 object-cover rounded-xl shadow-sm" />
               <div className="flex flex-col leading-tight">
                 <span className="text-[10px] uppercase tracking-widest text-gray-400 font-semibold">Authentic</span>
-                <span className="text-xl font-black text-gray-900 tracking-tight leading-none">European Market</span>
+                <span className="font-display text-xl font-black text-[#CC0000] tracking-tight leading-none">European Market</span>
               </div>
             </Link>
 
@@ -220,7 +220,7 @@ export default function Header() {
                 </div>
               ) : (
                 <button onClick={openLoginModal}
-                  className="px-5 py-2.5 bg-[var(--color-primary)] text-gray-900 text-sm font-bold rounded-xl hover:bg-[var(--color-primary-light)] active:scale-95 transition-all shadow-sm tracking-wide">
+                  className="px-5 py-2.5 bg-[#CC0000] text-white text-sm font-bold rounded-xl hover:bg-[#AA0000] active:scale-95 transition-all shadow-sm tracking-wide">
                   Sign In
                 </button>
               )}

@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, ArrowRight, Plus, ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react';
+import { Search, ArrowRight, Plus, ChevronLeft, ChevronRight, RefreshCw, MapPin } from 'lucide-react';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useCartStore } from '../store/cartStore';
 import { useProductStore } from '../store/productStore';
@@ -187,39 +187,66 @@ export default function Home() {
           </div>
         </div>
       ) : (
-        /* Default hero when no banners are configured */
-        <div className="bg-gradient-to-br from-[#8B0000] via-[#6B0000] to-[#2D0000] relative overflow-hidden">
-          <div className="absolute inset-0 opacity-10"
-            style={{ backgroundImage: 'radial-gradient(circle at 70% 50%, #F97316 0%, transparent 60%)' }} />
-          <div className="absolute -right-16 -top-16 w-64 h-64 bg-white/5 rounded-full" />
-          <div className="absolute -right-8 bottom-0 w-48 h-48 bg-white/5 rounded-full" />
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20 relative z-10">
-            <div className="max-w-xl">
-              <span className="inline-flex items-center gap-2 bg-white/15 text-white/90 text-xs font-semibold px-3 py-1.5 rounded-full mb-4 uppercase tracking-wider">
-                📍 Columbus, NC
-              </span>
-              <h1 className="text-3xl md:text-5xl font-black text-white mb-3 leading-tight">
-                Authentic European Groceries
+        /* Default hero — brand-matched cream + red */
+        <div className="relative overflow-hidden bg-[#FFF8F0]">
+          {/* Top red stripe */}
+          <div className="h-2 bg-[#CC0000]" />
+
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-16 relative z-10">
+            <div className="text-center">
+              {/* Ornamental divider */}
+              <div className="flex items-center justify-center gap-3 mb-4">
+                <div className="h-px bg-[#CC0000]/40 w-12 md:w-20" />
+                <span className="text-[#CC0000] text-xl select-none">❧</span>
+                <div className="h-px bg-[#CC0000]/40 w-12 md:w-20" />
+              </div>
+
+              <h1 className="font-display text-5xl md:text-7xl font-black text-[#CC0000] mb-1 leading-tight">
+                European Market
               </h1>
-              <p className="text-white/70 text-base md:text-lg mb-2 leading-relaxed">
-                Fresh imports from <span className="text-[#FACC15] font-semibold">25+ countries</span> —
-                Germany, Poland, Ukraine, Ireland & more.
+
+              <p className="font-script text-2xl md:text-3xl text-gray-600 mb-3">
+                Fresh & Homemade
               </p>
-              <p className="text-white/50 text-sm mb-7">
-                Pierogies · Cabbage Rolls · Borscht · Kapusta · Blintzes — made fresh daily.
+
+              <p className="text-gray-500 text-sm mb-1 flex items-center justify-center gap-1.5">
+                <MapPin className="h-3.5 w-3.5 text-[#CC0000]" />
+                155 W Mills Street, Columbus, NC 28722 &nbsp;·&nbsp; (864) 590-6760
               </p>
-              <div className="flex flex-wrap gap-3">
+
+              {/* Ornamental divider */}
+              <div className="flex items-center justify-center gap-3 my-5">
+                <div className="h-px bg-[#CC0000]/20 w-16 md:w-28" />
+                <span className="text-[#CC0000]/40 text-sm select-none">✦</span>
+                <div className="h-px bg-[#CC0000]/20 w-16 md:w-28" />
+              </div>
+
+              {/* Signature dishes */}
+              <div className="flex flex-wrap items-center justify-center gap-2 mb-2 text-sm text-gray-600 font-medium">
+                {['Cabbage Rolls','Pierogies','Poppyseed Rolls','Sweet Cheese Rolls','German Pretzels'].map((dish, i, arr) => (
+                  <span key={dish} className="flex items-center gap-2">
+                    {dish}
+                    {i < arr.length - 1 && <span className="text-[#CC0000]/50">·</span>}
+                  </span>
+                ))}
+              </div>
+              <p className="text-gray-400 text-xs mb-7">Polish & Ukrainian Food · Products from 25+ Countries</p>
+
+              <div className="flex flex-wrap gap-3 justify-center">
                 <Link to="/products"
-                  className="inline-flex items-center gap-2 bg-white text-[var(--color-primary)] font-bold px-6 py-3 rounded-xl hover:bg-gray-50 transition-colors btn-press shadow-lg">
+                  className="inline-flex items-center gap-2 bg-[#CC0000] text-white font-bold px-7 py-3 rounded-xl hover:bg-[#AA0000] transition-colors btn-press shadow-md">
                   Shop Now <ArrowRight className="h-4 w-4" />
                 </Link>
                 <Link to="/products?category=bakery"
-                  className="inline-flex items-center gap-2 bg-white/15 text-white font-semibold px-6 py-3 rounded-xl hover:bg-white/25 transition-colors btn-press border border-white/20">
+                  className="inline-flex items-center gap-2 bg-white text-[#CC0000] font-bold px-7 py-3 rounded-xl border-2 border-[#CC0000] hover:bg-[#CC0000]/5 transition-colors btn-press">
                   Fresh Bakery
                 </Link>
               </div>
             </div>
           </div>
+
+          {/* Bottom red stripe */}
+          <div className="h-2 bg-[#CC0000]" />
         </div>
       )}
 
@@ -367,14 +394,14 @@ export default function Home() {
       {/* ── Fresh Bakery Spotlight ── */}
       <div className="px-4 pb-6">
         <div className="max-w-7xl mx-auto">
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#8B0000] to-[#4A0000] p-6 md:p-8 shadow-lg">
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#CC0000] to-[#880000] p-6 md:p-8 shadow-lg">
             <div className="absolute -right-8 -top-8 w-40 h-40 bg-white/5 rounded-full" />
             <div className="absolute right-4 -bottom-12 w-56 h-56 bg-white/5 rounded-full" />
             <div className="relative z-10">
               <span className="inline-block bg-[var(--color-accent)]/20 text-[var(--color-accent)] text-xs font-bold px-3 py-1 rounded-full mb-3 uppercase tracking-widest">
                 Fresh Daily
               </span>
-              <h2 className="text-2xl md:text-3xl font-black text-white mb-2">Our Homemade Bakery</h2>
+              <h2 className="font-display text-2xl md:text-3xl font-black text-white mb-2">Our Homemade Bakery</h2>
               <p className="text-white/70 text-sm md:text-base mb-5 max-w-lg">
                 Authentic recipes passed down through generations. Made fresh in our Columbus kitchen every day.
               </p>

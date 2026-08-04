@@ -30,13 +30,13 @@ interface SettingsState {
 }
 
 const defaultTheme: ThemeSettings = {
-  primary_color: '#D97706',
-  secondary_color: '#B45309',
+  primary_color: '#CC0000',
+  secondary_color: '#990000',
   accent_color: '#FACC15',
-  background_color: '#FAF9F7',
+  background_color: '#FFF8F0',
   surface_color: '#FFFFFF',
   text_color: '#1A1A1A',
-  border_color: '#E8E2DB',
+  border_color: '#EAE0D8',
 };
 
 const defaultSettings: SiteSettings = {
@@ -85,8 +85,8 @@ export const useSettingsStore = create<SettingsState>((set) => ({
       if (data) {
         const dbTheme = data.theme_settings;
         // If DB still has old green branding, use our new defaults
-        const isOldGreenTheme = dbTheme?.primary_color === '#2E7D32' || dbTheme?.primary_color === '#1B5E20';
-        const themeSettings = (!dbTheme || isOldGreenTheme) ? defaultTheme : dbTheme;
+        const isOldTheme = dbTheme?.primary_color === '#2E7D32' || dbTheme?.primary_color === '#1B5E20' || dbTheme?.primary_color === '#D97706';
+        const themeSettings = (!dbTheme || isOldTheme) ? defaultTheme : dbTheme;
 
         set({
           settings: {
