@@ -1,11 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Elements } from '@stripe/react-stripe-js';
 import { ChevronLeft, Tag, Check, X, Loader2 } from 'lucide-react';
 import { useCartStore } from '../store/cartStore';
 import { useAuthStore } from '../store/authStore';
 import { supabase } from '../lib/supabase';
-import { stripePromise } from '../lib/stripe';
 import { formatPrice } from '../lib/utils';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
@@ -37,7 +35,6 @@ export default function Checkout() {
   const { user, isAdmin } = useAuthStore();
   const { addToast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [orderId, setOrderId] = useState<string | null>(null);
   const [step, setStep] = useState<'details' | 'payment'>('details');
   const [promoCode, setPromoCode] = useState('');
@@ -293,7 +290,7 @@ export default function Checkout() {
   // Validate state code
   const isValidState = !formData.state || VALID_STATES.has(formData.state.toUpperCase());
 
-  const createOrderAndPaymentIntent = async () => {
+  const createOrder = async () => {
     setIsLoading(true);
 
     try {
@@ -367,29 +364,6 @@ export default function Checkout() {
       if (itemsError) throw itemsError;
 
       setOrderId(order.id);
-
-      // Create payment intent
-      const response = await fetch('/.netlify/functions/create-payment-intent', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          amount: Math.round(total * 100), // Convert to cents
-          orderId: order.id,
-          customerEmail: formData.email,
-        }),
-      });
-
-      const responseData = await response.json();
-
-      if (!response.ok) {
-        throw new Error(responseData.error || 'Failed to create payment intent');
-      }
-
-      if (!responseData.clientSecret) {
-        throw new Error('No client secret returned');
-      }
-
-      setClientSecret(responseData.clientSecret);
       setStep('payment');
     } catch (err: any) {
       console.error('Error creating order:', err);
@@ -1085,7 +1059,7 @@ export default function Checkout() {
 
             {/* Continue Button */}
             <Button
-              onClick={createOrderAndPaymentIntent}
+              onClick={createOrder}
               className="w-full"
               size="lg"
               isLoading={isLoading}
@@ -1126,31 +1100,16 @@ export default function Checkout() {
                 </button>
               </div>
 
-              {clientSecret && (
-                <Elements
-                  stripe={stripePromise}
-                  options={{
-                    clientSecret,
-                    appearance: {
-                      theme: 'stripe',
-                      variables: {
-                        colorPrimary: '#D97706',
-                        colorBackground: '#FFFFFF',
-                        colorText: '#111827',
-                        colorDanger: '#ef4444',
-                        fontFamily: 'Montserrat, system-ui, sans-serif',
-                        borderRadius: '12px',
-                      },
-                    },
-                  }}
-                >
-                  <PaymentForm
-                    onSuccess={handlePaymentSuccess}
-                    onError={handlePaymentError}
-                    isProcessing={isLoading}
-                    setIsProcessing={setIsLoading}
-                  />
-                </Elements>
+              {orderId && (
+                <PaymentForm
+                  orderId={orderId}
+                  amountCents={Math.round(total * 100)}
+                  customerEmail={formData.email}
+                  onSuccess={handlePaymentSuccess}
+                  onError={handlePaymentError}
+                  isProcessing={isLoading}
+                  setIsProcessing={setIsLoading}
+                />
               )}
             </div>
 

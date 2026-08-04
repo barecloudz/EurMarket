@@ -1,13 +1,18 @@
-import { useState, useEffect } from 'react';
-import {
-  PaymentElement,
-  useStripe,
-  useElements,
-} from '@stripe/react-stripe-js';
+import { useState, useEffect, useRef } from 'react';
 import { AlertCircle } from 'lucide-react';
 import Button from '../ui/Button';
+import { squareAppId, squareLocationId } from '../../lib/square';
+
+declare global {
+  interface Window {
+    Square?: any;
+  }
+}
 
 interface PaymentFormProps {
+  orderId: string;
+  amountCents: number;
+  customerEmail: string;
   onSuccess: () => void;
   onError: (message: string) => void;
   isProcessing: boolean;
@@ -15,64 +20,112 @@ interface PaymentFormProps {
 }
 
 export default function PaymentForm({
+  orderId,
+  amountCents,
+  customerEmail,
   onSuccess,
   onError,
   isProcessing,
   setIsProcessing,
 }: PaymentFormProps) {
-  const stripe = useStripe();
-  const elements = useElements();
   const [isReady, setIsReady] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const cardRef = useRef<any>(null);
 
-  // Timeout: if Stripe Elements hasn't loaded after 15 seconds, show error
+  useEffect(() => {
+    let cancelled = false;
+
+    const initSquare = async () => {
+      if (!window.Square) {
+        setLoadError('Payment system failed to load. Please refresh and try again.');
+        return;
+      }
+
+      try {
+        const payments = window.Square.payments(squareAppId, squareLocationId);
+        const card = await payments.card();
+        if (cancelled) return;
+
+        cardRef.current = card;
+        await card.attach('#card-container');
+
+        if (cancelled) return;
+        setIsReady(true);
+      } catch (err: any) {
+        if (cancelled) return;
+        console.error('[PaymentForm] Square init error:', err);
+        setLoadError('Failed to initialize payment form. Please refresh and try again.');
+      }
+    };
+
+    // Small delay to ensure the SDK script has executed
+    const timeoutId = setTimeout(initSquare, 150);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timeoutId);
+      if (cardRef.current) {
+        cardRef.current.destroy().catch(() => {});
+        cardRef.current = null;
+      }
+    };
+  }, []);
+
+  // Timeout if card form doesn't load within 15 seconds
   useEffect(() => {
     if (isReady) return;
-
     const timeout = setTimeout(() => {
       if (!isReady) {
         setLoadError(
-          'Payment form is taking too long to load. Please check your internet connection and refresh the page.'
+          'Payment form is taking too long to load. Please check your connection and refresh.'
         );
       }
     }, 15000);
-
     return () => clearTimeout(timeout);
   }, [isReady]);
 
-  // Detect if stripe itself failed to initialize
-  useEffect(() => {
-    if (!stripe && elements) {
-      setLoadError('Payment system failed to initialize. Please refresh the page and try again.');
-    }
-  }, [stripe, elements]);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!stripe || !elements) {
-      return;
-    }
+    if (!cardRef.current || isProcessing) return;
 
     setIsProcessing(true);
 
-    const { error } = await stripe.confirmPayment({
-      elements,
-      confirmParams: {
-        return_url: `${window.location.origin}/order-confirmation`,
-      },
-      redirect: 'if_required',
-    });
+    try {
+      // Tokenize the card
+      const result = await cardRef.current.tokenize();
 
-    if (error) {
-      if (error.type === 'card_error' || error.type === 'validation_error') {
-        onError(error.message || 'Payment failed');
-      } else {
-        onError('An unexpected error occurred');
+      if (result.status !== 'OK') {
+        const message = result.errors?.[0]?.message || 'Card verification failed. Please check your details.';
+        onError(message);
+        setIsProcessing(false);
+        return;
       }
-      setIsProcessing(false);
-    } else {
+
+      // Send token to backend to create the payment
+      const response = await fetch('/.netlify/functions/square-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sourceId: result.token,
+          amountCents,
+          orderId,
+          customerEmail,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        onError(data.error || 'Payment failed. Please try again.');
+        setIsProcessing(false);
+        return;
+      }
+
       onSuccess();
+    } catch (err: any) {
+      console.error('[PaymentForm] Payment error:', err);
+      onError(err.message || 'An unexpected error occurred. Please try again.');
+      setIsProcessing(false);
     }
   };
 
@@ -102,24 +155,17 @@ export default function PaymentForm({
           <span className="text-gray-400 text-sm">Loading payment form...</span>
         </div>
       )}
-      <div className={!isReady ? 'opacity-0 h-0 overflow-hidden' : ''}>
-        <PaymentElement
-          onReady={() => setIsReady(true)}
-          onLoadError={(event) => {
-            console.error('[PaymentForm] Element load error:', event.error);
-            setLoadError(event.error?.message || 'Failed to load payment form. Please refresh and try again.');
-          }}
-          options={{
-            layout: 'tabs',
-          }}
-        />
-      </div>
+      {/* Square injects the card UI into this div */}
+      <div
+        id="card-container"
+        className={!isReady ? 'opacity-0 h-0 overflow-hidden' : 'mb-4'}
+      />
       <Button
         type="submit"
         className="w-full mt-6"
         size="lg"
         isLoading={isProcessing}
-        disabled={!stripe || !elements || !isReady || isProcessing}
+        disabled={!isReady || isProcessing}
       >
         {isProcessing ? 'Processing...' : 'Pay Now'}
       </Button>
