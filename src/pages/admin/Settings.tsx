@@ -1,12 +1,22 @@
 import { useState, useEffect } from 'react';
-import { Save, Truck } from 'lucide-react';
+import { Save, Truck, RefreshCw, CheckCircle, AlertCircle } from 'lucide-react';
 import Card from '../../components/ui/Card';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
 import Spinner from '../../components/ui/Spinner';
 import { supabase } from '../../lib/supabase';
 import { useToast } from '../../components/ui/Toast';
+import { formatDateTime } from '../../lib/utils';
 import type { StoreSettings } from '../../types';
+
+const SYNC_FREQUENCY_OPTIONS = [
+  { value: 'off', label: 'Off' },
+  { value: 'hourly', label: 'Every hour' },
+  { value: 'every_6h', label: 'Every 6 hours' },
+  { value: 'every_12h', label: 'Every 12 hours' },
+  { value: 'daily', label: 'Daily' },
+  { value: 'weekly', label: 'Weekly' },
+];
 
 interface ShippingService {
   id: string;
@@ -26,8 +36,15 @@ export default function AdminSettings() {
     contact_email: '',
     default_shipping_cost: 5,
     low_stock_threshold: 5,
+    square_sync_frequency: 'off',
+    square_last_synced_at: null,
   });
   const [shippingServices, setShippingServices] = useState<ShippingService[]>([]);
+
+  // Square sync state
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncResult, setSyncResult] = useState<{ synced: number; skipped: number; total: number } | null>(null);
+  const [syncError, setSyncError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchSettings();
@@ -93,6 +110,45 @@ export default function AdminSettings() {
     }
   };
 
+  const handleSquareSync = async () => {
+    setIsSyncing(true);
+    setSyncResult(null);
+    setSyncError(null);
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        setSyncError('Not authenticated');
+        return;
+      }
+
+      const response = await fetch('/.netlify/functions/square-sync-catalog', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        setSyncError(data.error || 'Sync failed');
+        return;
+      }
+
+      setSyncResult({ synced: data.synced, skipped: data.skipped, total: data.total });
+
+      // Update last synced timestamp in local state
+      const now = new Date().toISOString();
+      setSettings(prev => ({ ...prev, square_last_synced_at: now }));
+      await supabase.from('store_settings').update({ square_last_synced_at: now }).eq('id', 1);
+
+      addToast(`Synced ${data.synced} products from Square`, 'success');
+    } catch (err: any) {
+      setSyncError(err.message || 'Sync failed');
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
   const handleSave = async () => {
     setIsSaving(true);
 
@@ -104,6 +160,7 @@ export default function AdminSettings() {
           contact_email: settings.contact_email,
           default_shipping_cost: settings.default_shipping_cost,
           low_stock_threshold: settings.low_stock_threshold,
+          square_sync_frequency: settings.square_sync_frequency,
         })
         .eq('id', 1);
 
@@ -218,6 +275,71 @@ export default function AdminSettings() {
             min="0"
             helperText="Alert when product stock falls below this number"
           />
+        </Card>
+
+        <Card>
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900">Square Catalog Sync</h2>
+              <p className="text-sm text-gray-500 mt-0.5">
+                Pull products and inventory directly from your Square catalog.
+              </p>
+            </div>
+            <Button
+              onClick={handleSquareSync}
+              isLoading={isSyncing}
+              disabled={isSyncing}
+              variant="outline"
+              size="sm"
+            >
+              <RefreshCw className={`h-4 w-4 mr-2 ${isSyncing ? 'animate-spin' : ''}`} />
+              Sync Now
+            </Button>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Auto-sync frequency
+              </label>
+              <select
+                value={settings.square_sync_frequency || 'off'}
+                onChange={(e) => setSettings({ ...settings, square_sync_frequency: e.target.value })}
+                className="w-full px-3 py-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+              >
+                {SYNC_FREQUENCY_OPTIONS.map(opt => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+              <p className="text-xs text-gray-500 mt-1">
+                Save settings below to apply the new frequency.
+              </p>
+            </div>
+
+            {settings.square_last_synced_at && (
+              <p className="text-sm text-gray-500">
+                Last synced: {formatDateTime(settings.square_last_synced_at)}
+              </p>
+            )}
+
+            {syncResult && (
+              <div className="flex items-start gap-2 p-3 bg-green-50 border border-green-200 rounded-xl">
+                <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                <p className="text-sm text-green-700">
+                  Synced <strong>{syncResult.synced}</strong> products
+                  {syncResult.skipped > 0 && `, skipped ${syncResult.skipped}`}
+                  {' '}from {syncResult.total} total Square catalog items.
+                </p>
+              </div>
+            )}
+
+            {syncError && (
+              <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-xl">
+                <AlertCircle className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
+                <p className="text-sm text-red-600">{syncError}</p>
+              </div>
+            )}
+          </div>
         </Card>
 
         <Button onClick={handleSave} size="lg" isLoading={isSaving}>

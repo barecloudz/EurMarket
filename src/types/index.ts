@@ -181,6 +181,8 @@ export interface StoreSettings {
   contact_email: string | null;
   default_shipping_cost: number;
   low_stock_threshold: number;
+  square_sync_frequency: string | null;
+  square_last_synced_at: string | null;
   updated_at: string;
 }
 
