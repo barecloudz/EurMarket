@@ -187,60 +187,90 @@ export default function Home() {
           </div>
         </div>
       ) : (
-        /* Default hero — brand-matched cream + red */
+        /* Default hero — farmers market / delicatessen aesthetic */
         <div className="relative overflow-hidden bg-[#FFF8F0]">
-          {/* Top red stripe */}
-          <div className="h-2 bg-[#CC0000]" />
+          {/* Top red banner */}
+          <div className="bg-[#CC0000] text-white text-center py-2.5 px-4">
+            <p className="font-display font-black text-lg md:text-xl tracking-tight leading-none">
+              European Market <span className="font-normal text-white/70 text-sm mx-2">·</span> Columbus, NC
+            </p>
+          </div>
 
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-16 relative z-10">
-            <div className="text-center">
-              {/* Ornamental divider */}
-              <div className="flex items-center justify-center gap-3 mb-4">
-                <div className="h-px bg-[#CC0000]/40 w-12 md:w-20" />
-                <span className="text-[#CC0000] text-xl select-none">❧</span>
-                <div className="h-px bg-[#CC0000]/40 w-12 md:w-20" />
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-6 md:pt-12 md:pb-10">
+            {/* Script intro line */}
+            <p className="font-script text-xl md:text-2xl text-gray-500 text-center mb-1">
+              Authentic European Goodies — Fresh & Homemade
+            </p>
+
+            {/* Ornamental divider */}
+            <div className="flex items-center justify-center gap-3 mb-6">
+              <div className="h-px bg-[#CC0000]/30 flex-1 max-w-[80px]" />
+              <span className="text-[#CC0000]/60 text-base select-none">✦</span>
+              <div className="h-px bg-[#CC0000]/30 flex-1 max-w-[80px]" />
+            </div>
+
+            {/* Two-column layout: left = market identity, right = store info card */}
+            <div className="flex flex-col md:flex-row gap-6 md:gap-10 items-start">
+
+              {/* Left — identity + dishes */}
+              <div className="flex-1">
+                <h1 className="font-display text-4xl md:text-5xl font-black text-[#CC0000] leading-tight mb-3">
+                  Your Local European<br />Farmers Market
+                </h1>
+                <p className="text-gray-600 text-sm md:text-base mb-4 leading-relaxed">
+                  We bring the taste of 25+ countries straight to your table — from Poland, Germany, Ukraine, Ireland & beyond. Shop our store or find us at local markets and vendor events throughout the region.
+                </p>
+
+                {/* Signature dishes */}
+                <div className="flex flex-wrap gap-2 mb-5">
+                  {['Cabbage Rolls','Pierogies','Poppyseed Rolls','Sweet Cheese Rolls','German Pretzels','Borscht','Blintzes'].map((dish) => (
+                    <span key={dish} className="text-xs bg-white border border-[#CC0000]/20 text-[#CC0000] font-semibold px-2.5 py-1 rounded-full">
+                      {dish}
+                    </span>
+                  ))}
+                </div>
+
+                <div className="flex flex-wrap gap-3">
+                  <Link to="/products"
+                    className="inline-flex items-center gap-2 bg-[#CC0000] text-white font-bold px-6 py-2.5 rounded-xl hover:bg-[#AA0000] transition-colors btn-press shadow-md text-sm">
+                    Shop Online <ArrowRight className="h-4 w-4" />
+                  </Link>
+                  <Link to="/products?category=bakery"
+                    className="inline-flex items-center gap-2 bg-white text-[#CC0000] font-bold px-6 py-2.5 rounded-xl border-2 border-[#CC0000] hover:bg-[#CC0000]/5 transition-colors btn-press text-sm">
+                    Fresh Bakery
+                  </Link>
+                </div>
               </div>
 
-              <h1 className="font-display text-5xl md:text-7xl font-black text-[#CC0000] mb-1 leading-tight">
-                European Market
-              </h1>
-
-              <p className="font-script text-2xl md:text-3xl text-gray-600 mb-3">
-                Fresh & Homemade
-              </p>
-
-              <p className="text-gray-500 text-sm mb-1 flex items-center justify-center gap-1.5">
-                <MapPin className="h-3.5 w-3.5 text-[#CC0000]" />
-                155 W Mills Street, Columbus, NC 28722 &nbsp;·&nbsp; (864) 590-6760
-              </p>
-
-              {/* Ornamental divider */}
-              <div className="flex items-center justify-center gap-3 my-5">
-                <div className="h-px bg-[#CC0000]/20 w-16 md:w-28" />
-                <span className="text-[#CC0000]/40 text-sm select-none">✦</span>
-                <div className="h-px bg-[#CC0000]/20 w-16 md:w-28" />
-              </div>
-
-              {/* Signature dishes */}
-              <div className="flex flex-wrap items-center justify-center gap-2 mb-2 text-sm text-gray-600 font-medium">
-                {['Cabbage Rolls','Pierogies','Poppyseed Rolls','Sweet Cheese Rolls','German Pretzels'].map((dish, i, arr) => (
-                  <span key={dish} className="flex items-center gap-2">
-                    {dish}
-                    {i < arr.length - 1 && <span className="text-[#CC0000]/50">·</span>}
-                  </span>
-                ))}
-              </div>
-              <p className="text-gray-400 text-xs mb-7">Polish & Ukrainian Food · Products from 25+ Countries</p>
-
-              <div className="flex flex-wrap gap-3 justify-center">
-                <Link to="/products"
-                  className="inline-flex items-center gap-2 bg-[#CC0000] text-white font-bold px-7 py-3 rounded-xl hover:bg-[#AA0000] transition-colors btn-press shadow-md">
-                  Shop Now <ArrowRight className="h-4 w-4" />
-                </Link>
-                <Link to="/products?category=bakery"
-                  className="inline-flex items-center gap-2 bg-white text-[#CC0000] font-bold px-7 py-3 rounded-xl border-2 border-[#CC0000] hover:bg-[#CC0000]/5 transition-colors btn-press">
-                  Fresh Bakery
-                </Link>
+              {/* Right — store info card */}
+              <div className="w-full md:w-64 bg-white border-2 border-[#CC0000]/20 rounded-2xl p-5 shadow-sm flex-shrink-0">
+                <div className="text-center mb-3">
+                  <div className="inline-block bg-[#CC0000] text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full mb-2">
+                    Visit Us
+                  </div>
+                  <p className="font-display font-bold text-gray-900 text-sm leading-tight">
+                    155 W Mills Street<br />Columbus, NC 28722
+                  </p>
+                </div>
+                <div className="border-t border-gray-100 pt-3 mb-3">
+                  <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">Store Hours</p>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600 font-medium">Mon – Thu</span>
+                    <span className="font-bold text-gray-900">11AM – 6PM</span>
+                  </div>
+                  <div className="flex justify-between text-sm mt-1">
+                    <span className="text-gray-600 font-medium">Fri – Sun</span>
+                    <span className="font-semibold text-gray-400">Closed</span>
+                  </div>
+                </div>
+                <a href="tel:8645906760"
+                  className="flex items-center justify-center gap-2 w-full bg-[#FFF8F0] hover:bg-[#CC0000]/5 text-[#CC0000] font-bold text-sm py-2 rounded-xl transition-colors border border-[#CC0000]/20">
+                  (864) 590-6760
+                </a>
+                <div className="border-t border-gray-100 mt-3 pt-3">
+                  <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">Also Find Us At</p>
+                  <p className="text-xs text-gray-600 leading-relaxed">Local farmers markets &amp; vendor events throughout NC — follow our Facebook for dates!</p>
+                </div>
               </div>
             </div>
           </div>
