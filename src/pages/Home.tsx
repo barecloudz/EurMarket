@@ -231,13 +231,13 @@ export default function Home() {
                 </div>
 
                 <div className="flex flex-wrap gap-3">
-                  <Link to="/products"
+                  <Link to="/preorder"
                     className="inline-flex items-center gap-2 bg-[#CC0000] text-white font-bold px-6 py-2.5 rounded-xl hover:bg-[#AA0000] transition-colors btn-press shadow-md text-sm">
-                    Shop Online <ArrowRight className="h-4 w-4" />
+                    Pre-Order Now <ArrowRight className="h-4 w-4" />
                   </Link>
-                  <Link to="/products?category=bakery"
+                  <Link to="/products"
                     className="inline-flex items-center gap-2 bg-white text-[#CC0000] font-bold px-6 py-2.5 rounded-xl border-2 border-[#CC0000] hover:bg-[#CC0000]/5 transition-colors btn-press text-sm">
-                    Fresh Bakery
+                    Shop Online
                   </Link>
                 </div>
               </div>

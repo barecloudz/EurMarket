@@ -174,7 +174,7 @@ export default function Header() {
             </Link>
 
             {/* Nav — centered */}
-            <nav className="flex items-center gap-7 flex-1 justify-center">
+            <nav className="flex items-center gap-6 flex-1 justify-center">
               {[
                 { to: '/products', label: 'Shop' },
                 { to: '/products?category=bakery', label: 'Fresh Bakery' },
@@ -190,6 +190,10 @@ export default function Header() {
                   )}
                 </Link>
               ))}
+              <Link to="/preorder"
+                className="bg-[#CC0000] text-white text-sm font-bold uppercase tracking-wide px-4 py-1.5 rounded-lg hover:bg-[#AA0000] transition-colors">
+                Pre-Order
+              </Link>
             </nav>
 
             {/* Right actions */}

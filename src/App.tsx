@@ -23,6 +23,7 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Account from './pages/Account';
+import PreOrder from './pages/PreOrder';
 import NotFound from './pages/NotFound';
 import AuthCallback from './pages/AuthCallback';
 
@@ -120,6 +121,7 @@ function App() {
 
           <Route path="return-policy" element={<ReturnPolicy />} />
           <Route path="privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="preorder" element={<PreOrder />} />
           <Route path="wishlist" element={<Wishlist />} />
           <Route path="auth/callback" element={<AuthCallback />} />
           <Route path="supplier/set-password" element={<SetPassword />} />
