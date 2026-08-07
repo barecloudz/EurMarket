@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, ArrowRight, Plus, ChevronLeft, ChevronRight, RefreshCw, MapPin } from 'lucide-react';
+import { Search, ArrowRight, Plus, ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useCartStore } from '../store/cartStore';
 import { useProductStore } from '../store/productStore';
