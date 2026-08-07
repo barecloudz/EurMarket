@@ -45,13 +45,29 @@ const COUNTRY_FLAGS = [
 ];
 
 const CATEGORY_GRADIENTS = [
-  'from-red-600 to-rose-800',
-  'from-amber-500 to-orange-600',
+  'from-red-700 to-rose-900',
   'from-amber-600 to-orange-700',
-  'from-blue-600 to-indigo-700',
-  'from-purple-600 to-pink-700',
+  'from-amber-700 to-yellow-900',
+  'from-blue-600 to-indigo-800',
+  'from-purple-600 to-pink-800',
   'from-slate-600 to-gray-800',
 ];
+
+const CATEGORY_EMOJIS: Record<string, string> = {
+  'meats': '🥩',
+  'meats-deli': '🥩',
+  'dairy': '🧀',
+  'dairy-cheese': '🧀',
+  'bakery': '🍞',
+  'fresh-bakery': '🍞',
+  'beverages': '🍺',
+  'sweets': '🍬',
+  'sweets-candy': '🍬',
+  'pantry': '🫙',
+  'pantry-jars': '🫙',
+  'frozen': '❄️',
+  'snacks': '🥨',
+};
 
 export default function Home() {
   const [searchQuery, setSearchQuery]           = useState('');
@@ -190,41 +206,36 @@ export default function Home() {
         /* Default hero — farmers market / delicatessen aesthetic */
         <div className="relative overflow-hidden bg-[#FFF8F0]">
           {/* Top red banner */}
-          <div className="bg-[#CC0000] text-white text-center py-2.5 px-4">
-            <p className="font-display font-black text-lg md:text-xl tracking-tight leading-none">
-              European Market <span className="font-normal text-white/70 text-sm mx-2">·</span> Columbus, NC
+          <div className="bg-[#CC0000] text-white text-center py-3 px-4">
+            <p className="font-script text-xl md:text-2xl">
+              Authentic European Goodies — Fresh &amp; Homemade
             </p>
           </div>
 
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-6 md:pt-12 md:pb-10">
-            {/* Script intro line */}
-            <p className="font-script text-xl md:text-2xl text-gray-500 text-center mb-1">
-              Authentic European Goodies — Fresh & Homemade
-            </p>
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-8 md:pt-14 md:pb-12">
+            <div className="flex flex-col md:flex-row gap-8 md:gap-12 items-center">
 
-            {/* Ornamental divider */}
-            <div className="flex items-center justify-center gap-3 mb-6">
-              <div className="h-px bg-[#CC0000]/30 flex-1 max-w-[80px]" />
-              <span className="text-[#CC0000]/60 text-base select-none">✦</span>
-              <div className="h-px bg-[#CC0000]/30 flex-1 max-w-[80px]" />
-            </div>
-
-            {/* Two-column layout: left = market identity, right = store info card */}
-            <div className="flex flex-col md:flex-row gap-6 md:gap-10 items-start">
-
-              {/* Left — identity + dishes */}
+              {/* Left — identity */}
               <div className="flex-1">
-                <h1 className="font-display text-4xl md:text-5xl font-black text-[#CC0000] leading-tight mb-3">
-                  Your Local European<br />Farmers Market
+                {/* Ornamental */}
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="h-px bg-[#CC0000]/30 w-8" />
+                  <span className="text-[#CC0000]/50 text-sm select-none">✦</span>
+                  <span className="text-xs font-bold uppercase tracking-widest text-[#CC0000]/60">Columbus, NC</span>
+                </div>
+
+                <h1 className="font-display text-5xl md:text-6xl lg:text-7xl font-black text-[#CC0000] leading-[1.05] mb-4">
+                  Your Local<br />European<br />Farmers Market
                 </h1>
-                <p className="text-gray-600 text-sm md:text-base mb-4 leading-relaxed">
-                  We bring the taste of 25+ countries straight to your table — from Poland, Germany, Ukraine, Ireland & beyond. Shop our store or find us at local markets and vendor events throughout the region.
+
+                <p className="text-gray-600 text-base md:text-lg mb-6 leading-relaxed max-w-lg">
+                  We bring the taste of 25+ countries to your table — from Poland, Germany, Ukraine, Ireland &amp; beyond. Shop in-store or find us at local markets across NC &amp; SC.
                 </p>
 
                 {/* Signature dishes */}
-                <div className="flex flex-wrap gap-2 mb-5">
-                  {['Cabbage Rolls','Pierogies','Poppyseed Rolls','Sweet Cheese Rolls','German Pretzels','Borscht','Blintzes'].map((dish) => (
-                    <span key={dish} className="text-xs bg-white border border-[#CC0000]/20 text-[#CC0000] font-semibold px-2.5 py-1 rounded-full">
+                <div className="flex flex-wrap gap-2 mb-7">
+                  {['🥟 Pierogies','🍩 Paczki','🥬 Cabbage Rolls','🍞 Poppyseed Rolls','🧀 Sweet Cheese Rolls','🥨 German Pretzels'].map((dish) => (
+                    <span key={dish} className="text-sm bg-white border-2 border-[#CC0000]/15 text-gray-700 font-medium px-3 py-1.5 rounded-full shadow-sm">
                       {dish}
                     </span>
                   ))}
@@ -232,44 +243,52 @@ export default function Home() {
 
                 <div className="flex flex-wrap gap-3">
                   <Link to="/preorder"
-                    className="inline-flex items-center gap-2 bg-[#CC0000] text-white font-bold px-6 py-2.5 rounded-xl hover:bg-[#AA0000] transition-colors btn-press shadow-md text-sm">
+                    className="inline-flex items-center gap-2 bg-[#CC0000] text-white font-bold px-7 py-3 rounded-xl hover:bg-[#AA0000] transition-colors btn-press shadow-md">
                     Pre-Order Now <ArrowRight className="h-4 w-4" />
                   </Link>
                   <Link to="/products"
-                    className="inline-flex items-center gap-2 bg-white text-[#CC0000] font-bold px-6 py-2.5 rounded-xl border-2 border-[#CC0000] hover:bg-[#CC0000]/5 transition-colors btn-press text-sm">
+                    className="inline-flex items-center gap-2 bg-white text-[#CC0000] font-bold px-7 py-3 rounded-xl border-2 border-[#CC0000] hover:bg-[#CC0000]/5 transition-colors btn-press">
                     Shop Online
                   </Link>
                 </div>
               </div>
 
               {/* Right — store info card */}
-              <div className="w-full md:w-64 bg-white border-2 border-[#CC0000]/20 rounded-2xl p-5 shadow-sm flex-shrink-0">
-                <div className="text-center mb-3">
-                  <div className="inline-block bg-[#CC0000] text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full mb-2">
-                    Visit Us
-                  </div>
-                  <p className="font-display font-bold text-gray-900 text-sm leading-tight">
-                    155 W Mills Street<br />Columbus, NC 28722
-                  </p>
+              <div className="w-full md:w-72 bg-white border-2 border-[#CC0000]/20 rounded-3xl shadow-lg overflow-hidden flex-shrink-0">
+                {/* Card header */}
+                <div className="bg-[#CC0000] px-5 py-4 text-white text-center">
+                  <p className="font-display font-black text-xl tracking-tight">European Market</p>
+                  <p className="text-white/80 text-sm">Columbus, NC</p>
                 </div>
-                <div className="border-t border-gray-100 pt-3 mb-3">
-                  <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">Store Hours</p>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600 font-medium">Mon – Thu</span>
-                    <span className="font-bold text-gray-900">11AM – 6PM</span>
+                <div className="p-5">
+                  <div className="mb-4">
+                    <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">Address</p>
+                    <a href="https://maps.google.com/?q=155+W+Mills+St+Columbus+NC" target="_blank" rel="noopener noreferrer"
+                      className="text-gray-800 font-semibold text-sm hover:text-[#CC0000] transition-colors leading-snug block">
+                      155 W Mills Street<br />Columbus, NC 28722
+                    </a>
                   </div>
-                  <div className="flex justify-between text-sm mt-1">
-                    <span className="text-gray-600 font-medium">Fri – Sun</span>
-                    <span className="font-semibold text-gray-400">Closed</span>
+                  <div className="border-t border-gray-100 pt-4 mb-4">
+                    <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">Store Hours</p>
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">Mon – Thu</span>
+                        <span className="font-bold text-gray-900">11AM – 6PM</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">Fri – Sun</span>
+                        <span className="font-medium text-gray-400">Closed</span>
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <a href="tel:8645906760"
-                  className="flex items-center justify-center gap-2 w-full bg-[#FFF8F0] hover:bg-[#CC0000]/5 text-[#CC0000] font-bold text-sm py-2 rounded-xl transition-colors border border-[#CC0000]/20">
-                  (864) 590-6760
-                </a>
-                <div className="border-t border-gray-100 mt-3 pt-3">
-                  <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">Also Find Us At</p>
-                  <p className="text-xs text-gray-600 leading-relaxed">Local farmers markets &amp; vendor events throughout NC — follow our Facebook for dates!</p>
+                  <a href="tel:8645906760"
+                    className="flex items-center justify-center gap-2 w-full bg-[#CC0000] hover:bg-[#AA0000] text-white font-bold text-sm py-2.5 rounded-xl transition-colors mb-3">
+                    📞 (864) 590-6760
+                  </a>
+                  <div className="bg-[#FFF8F0] rounded-xl p-3 border border-[#CC0000]/10">
+                    <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Also Find Us At</p>
+                    <p className="text-xs text-gray-600 leading-relaxed">Local farmers markets &amp; vendor events across NC — follow our Facebook for upcoming dates!</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -311,23 +330,37 @@ export default function Home() {
               ) : categories.length > 0 ? (
                 categories.map((cat, idx) => (
                   <Link key={cat.id} to={`/products?category=${cat.slug}`}
-                    className={`relative overflow-hidden rounded-2xl w-32 h-32 flex-shrink-0 p-3 flex flex-col justify-end group card-hover btn-press shadow-sm ${
+                    className={`relative overflow-hidden rounded-2xl w-36 h-36 flex-shrink-0 flex flex-col justify-end group card-hover btn-press shadow-sm ${
                       !cat.image_url ? `bg-gradient-to-br ${CATEGORY_GRADIENTS[idx % CATEGORY_GRADIENTS.length]}` : ''
                     }`}>
-                    {cat.image_url && (
+                    {cat.image_url ? (
                       <img src={cat.image_url} alt={cat.name} className="absolute inset-0 w-full h-full object-cover" />
+                    ) : (
+                      <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -mt-3 text-4xl select-none">
+                        {CATEGORY_EMOJIS[cat.slug] || '🛒'}
+                      </span>
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-                    <span className="relative z-10 text-white font-bold text-xs drop-shadow">{cat.name}</span>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
+                    <span className="relative z-10 text-white font-bold text-xs drop-shadow px-3 pb-3 leading-tight">{cat.name}</span>
                   </Link>
                 ))
               ) : (
-                /* Placeholder categories while DB is being populated */
-                ['Meats & Deli', 'Dairy & Cheese', 'Fresh Bakery', 'Beverages', 'Sweets', 'Pantry'].map((name, idx) => (
-                  <Link key={name} to={`/products?search=${encodeURIComponent(name)}`}
-                    className={`relative overflow-hidden rounded-2xl w-32 h-32 flex-shrink-0 p-3 flex flex-col justify-end group card-hover btn-press shadow-sm bg-gradient-to-br ${CATEGORY_GRADIENTS[idx % CATEGORY_GRADIENTS.length]}`}>
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-                    <span className="relative z-10 text-white font-bold text-xs drop-shadow">{name}</span>
+                /* Placeholder categories */
+                [
+                  { name: 'Meats & Deli',   emoji: '🥩', slug: 'meats' },
+                  { name: 'Dairy & Cheese', emoji: '🧀', slug: 'dairy' },
+                  { name: 'Fresh Bakery',   emoji: '🍞', slug: 'bakery' },
+                  { name: 'Beverages',      emoji: '🍺', slug: 'beverages' },
+                  { name: 'Sweets & Candy', emoji: '🍬', slug: 'sweets' },
+                  { name: 'Pantry & Jars',  emoji: '🫙', slug: 'pantry' },
+                  { name: 'Frozen Foods',   emoji: '❄️', slug: 'frozen' },
+                  { name: 'Snacks',         emoji: '🥨', slug: 'snacks' },
+                ].map((cat, idx) => (
+                  <Link key={cat.name} to={`/products?category=${cat.slug}`}
+                    className={`relative overflow-hidden rounded-2xl w-36 h-36 flex-shrink-0 flex flex-col justify-end group card-hover btn-press shadow-sm bg-gradient-to-br ${CATEGORY_GRADIENTS[idx % CATEGORY_GRADIENTS.length]}`}>
+                    <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -mt-3 text-4xl select-none">{cat.emoji}</span>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/5 to-transparent" />
+                    <span className="relative z-10 text-white font-bold text-xs drop-shadow px-3 pb-3 leading-tight">{cat.name}</span>
                   </Link>
                 ))
               )}
@@ -452,6 +485,39 @@ export default function Home() {
         </div>
       </div>
 
+      {/* ── Pre-Order CTA ── */}
+      <div className="px-4 pb-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="relative overflow-hidden rounded-3xl bg-[#FFF8F0] border-2 border-[#CC0000]/20 p-6 md:p-10">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+              <div>
+                <span className="inline-block text-[10px] font-bold uppercase tracking-widest text-[#CC0000] bg-[#CC0000]/10 px-3 py-1 rounded-full mb-3">
+                  Order for Pickup
+                </span>
+                <h2 className="font-display text-3xl md:text-4xl font-black text-gray-900 mb-2 leading-tight">
+                  Can't make it to the store?
+                </h2>
+                <p className="text-gray-600 text-base max-w-lg mb-1">
+                  Pre-order our homemade specialties for pickup in <strong>11 cities across NC &amp; SC</strong> — including Asheville, Hendersonville, Greenville &amp; more.
+                </p>
+                <p className="text-gray-500 text-sm">We'll text you to confirm your order and share pickup details.</p>
+              </div>
+              <div className="flex-shrink-0 text-center">
+                <div className="flex flex-wrap justify-center gap-2 mb-4 max-w-xs">
+                  {['🥟 Pierogies', '🍩 Paczki', '🥬 Cabbage Rolls', '🍞 Poppyseed Rolls', '🧀 Cheese Rolls'].map(item => (
+                    <span key={item} className="text-sm bg-white border border-[#CC0000]/20 text-gray-700 px-3 py-1 rounded-full">{item}</span>
+                  ))}
+                </div>
+                <Link to="/preorder"
+                  className="inline-flex items-center gap-2 bg-[#CC0000] text-white font-bold px-8 py-3.5 rounded-2xl hover:bg-[#AA0000] transition-colors btn-press shadow-lg text-base">
+                  Place a Pre-Order <ArrowRight className="h-5 w-5" />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* ── 25 Countries ── */}
       <div className="px-4 pb-10 md:pb-8">
         <div className="max-w-7xl mx-auto">
@@ -469,7 +535,7 @@ export default function Home() {
             <div className="flex flex-wrap gap-2">
               {COUNTRY_FLAGS.map((c) => (
                 <div key={c.name}
-                  className="flex items-center gap-1.5 bg-gray-50 border border-gray-100 px-3 py-2 rounded-xl hover:border-[var(--color-primary)]/30 hover:bg-amber-50 transition-colors">
+                  className="flex items-center gap-1.5 bg-gray-50 border border-gray-100 px-3 py-2 rounded-xl hover:border-[var(--color-primary)]/30 transition-colors">
                   <img src={`https://flagcdn.com/20x15/${c.code}.png`} alt={c.name} className="w-5 h-auto rounded-sm shadow-sm" />
                   <span className="text-xs font-semibold text-gray-700">{c.name}</span>
                 </div>

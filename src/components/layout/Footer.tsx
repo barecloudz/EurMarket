@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, Send, Check, MapPin, Phone, Clock } from 'lucide-react';
+import { Mail, Send, Check, MapPin, Phone, Clock, Facebook } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
 const COUNTRIES = [
@@ -62,76 +62,96 @@ export default function Footer() {
   };
 
   return (
-    <footer className="hidden md:block bg-[#1C0A0A] text-white mt-auto">
+    <footer className="bg-[#FFF8F0] border-t-4 border-[#CC0000] mt-auto">
+
+      {/* ── Pre-order CTA strip ── */}
+      <div className="bg-[#CC0000] text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div>
+            <p className="font-display font-bold text-lg leading-tight">Ready to order homemade goodies?</p>
+            <p className="text-white/80 text-sm">Pierogies · Paczki · Cabbage Rolls · Poppyseed Rolls &amp; more</p>
+          </div>
+          <Link to="/preorder"
+            className="flex-shrink-0 bg-white text-[#CC0000] font-bold px-6 py-2.5 rounded-xl hover:bg-gray-50 transition-colors text-sm shadow-sm">
+            Place a Pre-Order →
+          </Link>
+        </div>
+      </div>
+
       {/* ── Countries strip ── */}
-      <div className="border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
-          <p className="text-xs uppercase tracking-widest text-white/40 font-semibold mb-3">
+      <div className="border-b border-[#CC0000]/15">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <p className="text-xs uppercase tracking-widest text-gray-400 font-semibold mb-3">
             Products from 25+ countries
           </p>
           <div className="flex flex-wrap gap-2">
             {COUNTRIES.map((c) => (
               <span key={c.name}
-                className="flex items-center gap-1.5 bg-white/8 hover:bg-white/12 transition-colors px-3 py-1.5 rounded-full text-xs font-medium text-white/70">
-                <img src={`https://flagcdn.com/20x15/${c.code}.png`} alt={c.name} className="w-5 h-auto rounded-sm" />
+                className="flex items-center gap-1.5 bg-white border border-[#CC0000]/15 px-2.5 py-1 rounded-full text-xs font-medium text-gray-600">
+                <img src={`https://flagcdn.com/20x15/${c.code}.png`} alt={c.name} className="w-4 h-auto rounded-sm" />
                 {c.name}
               </span>
             ))}
-            <span className="flex items-center gap-1.5 bg-[var(--color-primary)]/30 px-3 py-1.5 rounded-full text-xs font-medium text-[var(--color-accent)]">
-              + 13 more countries
+            <span className="flex items-center gap-1.5 bg-[#CC0000]/10 border border-[#CC0000]/20 px-2.5 py-1 rounded-full text-xs font-medium text-[#CC0000]">
+              + 13 more
             </span>
           </div>
         </div>
       </div>
 
       {/* ── Main footer ── */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
 
           {/* Brand + Store info */}
-          <div className="md:col-span-1">
+          <div className="sm:col-span-2 md:col-span-1">
             <Link to="/" className="flex items-center gap-3 mb-4">
-              <img src="/logo.jpg" alt="European Market" className="h-10 w-10 object-cover rounded-lg" />
+              <img src="/logo.jpg" alt="European Market" className="h-10 w-10 object-cover rounded-lg shadow-sm" />
               <div className="flex flex-col leading-tight">
-                <span className="text-[9px] uppercase tracking-widest text-white/40 font-semibold">Authentic</span>
-                <span className="text-base font-black text-white tracking-tight">European Market</span>
+                <span className="text-[9px] uppercase tracking-widest text-gray-400 font-semibold">Authentic</span>
+                <span className="font-display text-base font-black text-[#CC0000] tracking-tight">European Market</span>
               </div>
             </Link>
-            <p className="text-white/50 text-sm leading-relaxed mb-5">
-              Authentic European groceries, fresh homemade foods, and specialty imports from 25+ countries.
+            <p className="text-gray-500 text-sm leading-relaxed mb-4">
+              Fresh homemade European specialties &amp; imported groceries from 25+ countries.
             </p>
             <div className="space-y-2.5 text-sm">
               <a href="https://maps.google.com/?q=155+W+Mills+St+Columbus+NC" target="_blank" rel="noopener noreferrer"
-                className="flex items-start gap-2.5 text-white/60 hover:text-white transition-colors">
-                <MapPin className="h-4 w-4 mt-0.5 flex-shrink-0 text-[var(--color-accent)]" />
+                className="flex items-start gap-2.5 text-gray-600 hover:text-[#CC0000] transition-colors">
+                <MapPin className="h-4 w-4 mt-0.5 flex-shrink-0 text-[#CC0000]" />
                 <span>155 W Mills Street<br />Columbus, NC 28722</span>
               </a>
               <a href="tel:+18645906760"
-                className="flex items-center gap-2.5 text-white/60 hover:text-white transition-colors">
-                <Phone className="h-4 w-4 flex-shrink-0 text-[var(--color-accent)]" />
+                className="flex items-center gap-2.5 text-gray-600 hover:text-[#CC0000] transition-colors">
+                <Phone className="h-4 w-4 flex-shrink-0 text-[#CC0000]" />
                 (864) 590-6760
               </a>
-              <div className="flex items-start gap-2.5 text-white/60">
-                <Clock className="h-4 w-4 mt-0.5 flex-shrink-0 text-[var(--color-accent)]" />
-                <span>Mon – Sat: 9 AM – 7 PM<br />Sunday: 10 AM – 5 PM</span>
+              <div className="flex items-start gap-2.5 text-gray-600">
+                <Clock className="h-4 w-4 mt-0.5 flex-shrink-0 text-[#CC0000]" />
+                <span>Mon – Thu: 11AM – 6PM<br /><span className="text-gray-400">Fri – Sun: Closed</span></span>
               </div>
+              <a href="https://www.facebook.com/profile.php?id=100085334597598" target="_blank" rel="noopener noreferrer"
+                className="flex items-center gap-2.5 text-gray-600 hover:text-[#CC0000] transition-colors">
+                <Facebook className="h-4 w-4 flex-shrink-0 text-[#CC0000]" />
+                Follow us on Facebook
+              </a>
             </div>
           </div>
 
           {/* Shop */}
           <div>
-            <h3 className="text-white font-bold mb-4 text-sm uppercase tracking-widest">Shop</h3>
+            <h3 className="text-gray-900 font-bold mb-4 text-sm uppercase tracking-widest">Shop</h3>
             <nav className="flex flex-col space-y-2.5">
               {[
-                { to: '/products', label: 'All Products' },
-                { to: '/products?category=meats', label: 'Meats & Deli' },
-                { to: '/products?category=dairy', label: 'Dairy & Cheese' },
-                { to: '/products?category=bakery', label: 'Fresh Bakery' },
+                { to: '/preorder',               label: 'Place a Pre-Order' },
+                { to: '/products',               label: 'All Products' },
+                { to: '/products?category=meats',     label: 'Meats & Deli' },
+                { to: '/products?category=dairy',     label: 'Dairy & Cheese' },
+                { to: '/products?category=bakery',    label: 'Fresh Bakery' },
                 { to: '/products?category=beverages', label: 'Beverages' },
-                { to: '/products?category=sweets', label: 'Sweets & Candy' },
               ].map((link) => (
                 <Link key={link.to} to={link.to}
-                  className="text-white/50 hover:text-white text-sm transition-colors">
+                  className={`text-sm transition-colors ${link.to === '/preorder' ? 'text-[#CC0000] font-bold' : 'text-gray-500 hover:text-[#CC0000]'}`}>
                   {link.label}
                 </Link>
               ))}
@@ -140,7 +160,7 @@ export default function Footer() {
 
           {/* Account + Info */}
           <div>
-            <h3 className="text-white font-bold mb-4 text-sm uppercase tracking-widest">Account</h3>
+            <h3 className="text-gray-900 font-bold mb-4 text-sm uppercase tracking-widest">Account</h3>
             <nav className="flex flex-col space-y-2.5 mb-6">
               {[
                 { to: '/login',    label: 'Sign In' },
@@ -149,19 +169,19 @@ export default function Footer() {
                 { to: '/wishlist', label: 'My Wishlist' },
               ].map((link) => (
                 <Link key={link.to} to={link.to}
-                  className="text-white/50 hover:text-white text-sm transition-colors">
+                  className="text-gray-500 hover:text-[#CC0000] text-sm transition-colors">
                   {link.label}
                 </Link>
               ))}
             </nav>
-            <h3 className="text-white font-bold mb-4 text-sm uppercase tracking-widest">Info</h3>
+            <h3 className="text-gray-900 font-bold mb-4 text-sm uppercase tracking-widest">Info</h3>
             <nav className="flex flex-col space-y-2.5">
               {[
                 { to: '/return-policy',  label: 'Return Policy' },
                 { to: '/privacy-policy', label: 'Privacy Policy' },
               ].map((link) => (
                 <Link key={link.to} to={link.to}
-                  className="text-white/50 hover:text-white text-sm transition-colors">
+                  className="text-gray-500 hover:text-[#CC0000] text-sm transition-colors">
                   {link.label}
                 </Link>
               ))}
@@ -170,12 +190,12 @@ export default function Footer() {
 
           {/* Newsletter */}
           <div>
-            <h3 className="text-white font-bold mb-2 text-sm uppercase tracking-widest">Stay Updated</h3>
-            <p className="text-white/50 text-sm mb-4 leading-relaxed">
-              New arrivals, weekly specials, and seasonal imports — right to your inbox.
+            <h3 className="text-gray-900 font-bold mb-2 text-sm uppercase tracking-widest">Stay Updated</h3>
+            <p className="text-gray-500 text-sm mb-4 leading-relaxed">
+              Market dates, seasonal specials &amp; new arrivals — right to your inbox.
             </p>
             {isSubscribed ? (
-              <div className="flex items-center gap-2 text-green-400 text-sm font-medium">
+              <div className="flex items-center gap-2 text-green-600 text-sm font-medium">
                 <Check className="h-5 w-5" />
                 <span>Thanks for subscribing!</span>
               </div>
@@ -183,29 +203,29 @@ export default function Footer() {
               <form onSubmit={handleSubscribe} className="space-y-2">
                 <div className="flex gap-2">
                   <div className="relative flex-1">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" />
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                     <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
                       placeholder="Your email" required
-                      className="w-full pl-10 pr-4 py-2.5 bg-white/8 border border-white/15 rounded-xl text-white text-sm placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] focus:border-transparent transition-all"
+                      className="w-full pl-10 pr-4 py-2.5 bg-white border border-[#CC0000]/25 rounded-xl text-gray-900 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#CC0000] focus:border-transparent transition-all"
                     />
                   </div>
                   <button type="submit" disabled={isLoading}
-                    className="px-4 py-2.5 bg-[var(--color-primary)] text-white rounded-xl hover:bg-[var(--color-primary-light)] transition-colors disabled:opacity-50">
+                    className="px-4 py-2.5 bg-[#CC0000] text-white rounded-xl hover:bg-[#AA0000] transition-colors disabled:opacity-50">
                     {isLoading
                       ? <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                       : <Send className="h-4 w-4" />
                     }
                   </button>
                 </div>
-                {error && <p className="text-red-400 text-xs">{error}</p>}
+                {error && <p className="text-red-500 text-xs">{error}</p>}
               </form>
             )}
 
-            {/* Specialty callout */}
-            <div className="mt-6 p-3 rounded-xl border border-[var(--color-primary)]/40 bg-[var(--color-primary)]/10">
-              <p className="text-xs text-white/70 leading-relaxed">
-                <span className="text-[var(--color-accent)] font-semibold">Fresh daily:</span>{' '}
-                Pierogies · Cabbage Rolls · Borscht · Kapusta · Blintzes
+            <div className="mt-5 p-4 rounded-xl border-2 border-[#CC0000]/20 bg-white">
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Made Fresh Daily</p>
+              <p className="text-sm text-gray-700 leading-relaxed">
+                Pierogies · Paczki · Cabbage Rolls<br />
+                Poppyseed Rolls · Borscht · Blintzes
               </p>
             </div>
           </div>
@@ -213,13 +233,13 @@ export default function Footer() {
       </div>
 
       {/* ── Copyright ── */}
-      <div className="border-t border-white/8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col md:flex-row items-center justify-between gap-2">
-          <p className="text-white/30 text-xs">
-            &copy; {new Date().getFullYear()} European Market. All rights reserved.
+      <div className="border-t border-[#CC0000]/15 bg-[#CC0000]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+          <p className="text-white/70 text-xs">
+            &copy; {new Date().getFullYear()} European Market — Columbus, NC. All rights reserved.
           </p>
-          <p className="text-white/20 text-xs">
-            155 W Mills Street, Columbus, NC 28722 · (864) 590-6760
+          <p className="text-white/50 text-xs">
+            155 W Mills Street · (864) 590-6760 · Mon–Thu 11AM–6PM
           </p>
         </div>
       </div>
