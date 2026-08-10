@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react';
 import { X, Eye, EyeOff, User, Mail } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useLoginModalStore } from '../../store/loginModalStore';
+import { supabase } from '../../lib/supabase';
 
-type Tab = 'signin' | 'register';
+type Tab = 'signin' | 'register' | 'forgot';
 
 export default function LoginModal() {
   const { isOpen, close } = useLoginModalStore();
@@ -15,6 +16,8 @@ export default function LoginModal() {
   const [showVerification, setShowVerification] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotSent, setForgotSent] = useState(false);
   const [signInData, setSignInData] = useState({ email: '', password: '' });
   const [registerData, setRegisterData] = useState({
     firstName: '',
@@ -30,6 +33,8 @@ export default function LoginModal() {
         setError('');
         setShowVerification(false);
         setShowPassword(false);
+        setForgotEmail('');
+        setForgotSent(false);
         setSignInData({ email: '', password: '' });
         setRegisterData({ firstName: '', lastName: '', email: '', password: '' });
         setTab('signin');
@@ -92,6 +97,21 @@ export default function LoginModal() {
     setTab(newTab);
     setError('');
     setShowPassword(false);
+    setForgotSent(false);
+  };
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError('');
+    const redirectTo = `${window.location.origin}/reset-password`;
+    const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail, { redirectTo });
+    setIsLoading(false);
+    if (error) {
+      setError(error.message);
+    } else {
+      setForgotSent(true);
+    }
   };
 
   if (!isOpen) return null;
@@ -157,30 +177,32 @@ export default function LoginModal() {
           ) : (
             <>
               {/* Tab switcher */}
-              <div className="px-6 pb-4">
-                <div className="flex gap-1 p-1 bg-gray-100 rounded-xl">
-                  <button
-                    onClick={() => switchTab('signin')}
-                    className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${
-                      tab === 'signin'
-                        ? 'bg-white text-gray-900 shadow-sm'
-                        : 'text-gray-500 hover:text-gray-700'
-                    }`}
-                  >
-                    Sign In
-                  </button>
-                  <button
-                    onClick={() => switchTab('register')}
-                    className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${
-                      tab === 'register'
-                        ? 'bg-white text-gray-900 shadow-sm'
-                        : 'text-gray-500 hover:text-gray-700'
-                    }`}
-                  >
-                    Register
-                  </button>
+              {tab !== 'forgot' && (
+                <div className="px-6 pb-4">
+                  <div className="flex gap-1 p-1 bg-gray-100 rounded-xl">
+                    <button
+                      onClick={() => switchTab('signin')}
+                      className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${
+                        tab === 'signin'
+                          ? 'bg-white text-gray-900 shadow-sm'
+                          : 'text-gray-500 hover:text-gray-700'
+                      }`}
+                    >
+                      Sign In
+                    </button>
+                    <button
+                      onClick={() => switchTab('register')}
+                      className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${
+                        tab === 'register'
+                          ? 'bg-white text-gray-900 shadow-sm'
+                          : 'text-gray-500 hover:text-gray-700'
+                      }`}
+                    >
+                      Register
+                    </button>
+                  </div>
                 </div>
-              </div>
+              )}
 
               <div className="px-6 pb-8">
                 {error && (
@@ -248,13 +270,22 @@ export default function LoginModal() {
                         'Sign In'
                       )}
                     </button>
-                    <button
-                      type="button"
-                      onClick={close}
-                      className="w-full py-2 text-sm text-gray-400 hover:text-gray-600 transition-colors"
-                    >
-                      Continue as guest
-                    </button>
+                    <div className="flex items-center justify-between">
+                      <button
+                        type="button"
+                        onClick={() => switchTab('forgot')}
+                        className="text-sm text-[var(--color-primary)] hover:opacity-80 transition-colors"
+                      >
+                        Forgot password?
+                      </button>
+                      <button
+                        type="button"
+                        onClick={close}
+                        className="py-2 text-sm text-gray-400 hover:text-gray-600 transition-colors"
+                      >
+                        Continue as guest
+                      </button>
+                    </div>
                   </form>
                 ) : (
                   <form onSubmit={handleRegister} className="space-y-4">
@@ -356,6 +387,64 @@ export default function LoginModal() {
                       Continue as guest
                     </button>
                   </form>
+                ) : (
+                  /* Forgot password tab */
+                  <div>
+                    <button
+                      onClick={() => switchTab('signin')}
+                      className="flex items-center gap-1 text-sm text-gray-400 hover:text-gray-600 transition-colors mb-5"
+                    >
+                      ← Back to sign in
+                    </button>
+                    <h3 className="text-base font-bold text-gray-900 mb-1">Reset your password</h3>
+                    <p className="text-sm text-gray-500 mb-5">Enter your email and we'll send you a reset link.</p>
+
+                    {forgotSent ? (
+                      <div className="text-center py-2">
+                        <div className="w-12 h-12 rounded-full bg-green-50 border-2 border-green-200 flex items-center justify-center mx-auto mb-3">
+                          <Mail className="h-5 w-5 text-green-500" />
+                        </div>
+                        <p className="font-semibold text-gray-900 mb-1">Check your email</p>
+                        <p className="text-sm text-gray-500">
+                          We sent a reset link to <span className="font-medium text-gray-700">{forgotEmail}</span>.
+                        </p>
+                      </div>
+                    ) : (
+                      <form onSubmit={handleForgotPassword} className="space-y-4">
+                        {error && (
+                          <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm">
+                            {error}
+                          </div>
+                        )}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
+                          <input
+                            type="email"
+                            value={forgotEmail}
+                            onChange={(e) => setForgotEmail(e.target.value)}
+                            placeholder="your@email.com"
+                            required
+                            autoFocus
+                            className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent transition-all"
+                          />
+                        </div>
+                        <button
+                          type="submit"
+                          disabled={isLoading}
+                          className="w-full py-3.5 bg-[var(--color-primary)] text-white font-bold rounded-2xl hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50"
+                        >
+                          {isLoading ? (
+                            <span className="flex items-center justify-center gap-2">
+                              <span className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                              Sending...
+                            </span>
+                          ) : (
+                            'Send Reset Link'
+                          )}
+                        </button>
+                      </form>
+                    )}
+                  </div>
                 )}
               </div>
             </>

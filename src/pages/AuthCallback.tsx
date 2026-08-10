@@ -11,6 +11,7 @@ export default function AuthCallback() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const next = params.get('next') || '/';
+    const code = params.get('code');
 
     // Check for error in the hash (e.g. otp_expired)
     const hash = window.location.hash;
@@ -21,9 +22,17 @@ export default function AuthCallback() {
       return;
     }
 
+    // Subscribe FIRST so we don't miss the event fired by exchangeCodeForSession
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        subscription.unsubscribe();
+        navigate('/reset-password', { replace: true });
+        return;
+      }
+
       if (event === 'SIGNED_IN' || event === 'USER_UPDATED') {
         if (session) {
+          subscription.unsubscribe();
           setUser(session.user);
           setSession(session);
           await fetchProfile();
@@ -32,14 +41,25 @@ export default function AuthCallback() {
       }
     });
 
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (session) {
-        setUser(session.user);
-        setSession(session);
-        await fetchProfile();
-        navigate(next, { replace: true });
-      }
-    });
+    if (code) {
+      // PKCE flow — exchange the code. onAuthStateChange above will fire
+      // with either PASSWORD_RECOVERY or SIGNED_IN once done.
+      supabase.auth.exchangeCodeForSession(code).catch(() => {
+        setError('This link is invalid or has already been used.');
+        subscription.unsubscribe();
+      });
+    } else {
+      // No code — check for an existing session (e.g. from a hash-based flow)
+      supabase.auth.getSession().then(async ({ data: { session } }) => {
+        if (session) {
+          subscription.unsubscribe();
+          setUser(session.user);
+          setSession(session);
+          await fetchProfile();
+          navigate(next, { replace: true });
+        }
+      });
+    }
 
     return () => subscription.unsubscribe();
   }, []);

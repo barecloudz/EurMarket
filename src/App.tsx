@@ -26,6 +26,7 @@ import Account from './pages/Account';
 import PreOrder from './pages/PreOrder';
 import NotFound from './pages/NotFound';
 import AuthCallback from './pages/AuthCallback';
+import ResetPassword from './pages/ResetPassword';
 
 // Admin Pages
 import AdminDashboard from './pages/admin/Dashboard';
@@ -70,7 +71,13 @@ function App() {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    initialize();
+    // Skip auth initialization on reset-password — the PKCE code in the URL
+    // is single-use and must be consumed by the ResetPassword page itself.
+    if (!window.location.pathname.startsWith('/reset-password')) {
+      initialize();
+    } else {
+      setLoading(false);
+    }
     fetchSettings();
     // Pre-fetch products so they're ready when user navigates
     fetchProducts();
@@ -125,6 +132,7 @@ function App() {
           <Route path="preorder" element={<PreOrder />} />
           <Route path="wishlist" element={<Wishlist />} />
           <Route path="auth/callback" element={<AuthCallback />} />
+          <Route path="reset-password" element={<ResetPassword />} />
           <Route path="supplier/set-password" element={<SetPassword />} />
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
