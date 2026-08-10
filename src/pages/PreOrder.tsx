@@ -156,7 +156,7 @@ export default function PreOrder() {
       .then(({ data }) => {
         if (data) setSettings(data as PreorderSettings);
       })
-      .finally(() => setLoadingSettings(false));
+      .then(() => setLoadingSettings(false), () => setLoadingSettings(false));
   }, []);
 
   const makeKey = (id: string, size: string, flavor: string) =>
