@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { CheckCircle, Phone, MapPin } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { CheckCircle, Phone, MapPin, Clock, Lock, AlertCircle } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 const CITIES = [
   'Hendersonville, NC',
@@ -14,6 +15,18 @@ const CITIES = [
   'Greenville, SC',
   'Anderson, SC',
 ];
+
+interface DeliveryDate {
+  date: string;       // ISO date "2026-08-15"
+  label: string;      // "Saturday, August 15"
+  cities: string[];   // ["all"] or specific cities
+}
+
+interface PreorderSettings {
+  orders_open: boolean;
+  order_deadline: string | null;
+  delivery_dates: DeliveryDate[];
+}
 
 interface MenuItem {
   id: string;
@@ -104,36 +117,47 @@ const tnr: React.CSSProperties = { fontFamily: '"Times New Roman", Times, Georgi
 function QtyInput({ value, onChange }: { value: number; onChange: (v: number) => void }) {
   return (
     <div className="flex items-center gap-2 flex-shrink-0">
-      <button
-        type="button"
-        onClick={() => onChange(value - 1)}
-        className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-800 text-2xl font-bold flex items-center justify-center transition-colors leading-none"
-        aria-label="Decrease"
-      >
-        −
-      </button>
+      <button type="button" onClick={() => onChange(value - 1)}
+        className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-800 text-2xl font-bold flex items-center justify-center transition-colors leading-none">−</button>
       <span className="w-8 text-center text-xl font-bold text-gray-900" style={tnr}>{value}</span>
-      <button
-        type="button"
-        onClick={() => onChange(value + 1)}
-        className="w-10 h-10 rounded-full bg-[#CC0000] hover:bg-[#AA0000] text-white text-2xl font-bold flex items-center justify-center transition-colors leading-none"
-        aria-label="Increase"
-      >
-        +
-      </button>
+      <button type="button" onClick={() => onChange(value + 1)}
+        className="w-10 h-10 rounded-full bg-[#CC0000] hover:bg-[#AA0000] text-white text-2xl font-bold flex items-center justify-center transition-colors leading-none">+</button>
     </div>
   );
 }
 
+function formatDeadline(isoString: string) {
+  const d = new Date(isoString);
+  return d.toLocaleString('en-US', { weekday: 'long', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+}
+
+function isDeadlinePassed(isoString: string | null) {
+  if (!isoString) return false;
+  return new Date() > new Date(isoString);
+}
+
 export default function PreOrder() {
+  const [settings, setSettings] = useState<PreorderSettings | null>(null);
+  const [loadingSettings, setLoadingSettings] = useState(true);
+
   const [qtys, setQtys] = useState<Record<string, number>>({});
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [city, setCity] = useState('');
+  const [deliveryDate, setDeliveryDate] = useState('');
   const [notes, setNotes] = useState('');
+  const [suggestions, setSuggestions] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    supabase.from('preorder_settings').select('*').eq('id', 1).single()
+      .then(({ data }) => {
+        if (data) setSettings(data as PreorderSettings);
+      })
+      .finally(() => setLoadingSettings(false));
+  }, []);
 
   const makeKey = (id: string, size: string, flavor: string) =>
     flavor ? `${id}||${size}||${flavor}` : `${id}||${size}`;
@@ -141,9 +165,8 @@ export default function PreOrder() {
   const getQty = (id: string, size: string, flavor: string) =>
     qtys[makeKey(id, size, flavor)] ?? 0;
 
-  const setQty = (id: string, size: string, flavor: string, val: number) => {
+  const setQty = (id: string, size: string, flavor: string, val: number) =>
     setQtys((prev) => ({ ...prev, [makeKey(id, size, flavor)]: Math.max(0, val) }));
-  };
 
   const orderLines = Object.entries(qtys)
     .filter(([, qty]) => qty > 0)
@@ -155,10 +178,15 @@ export default function PreOrder() {
 
   const hasItems = orderLines.length > 0;
 
+  // Available dates for selected city
+  const availableDates = settings?.delivery_dates?.filter(d =>
+    d.cities.includes('all') || d.cities.includes(city)
+  ) ?? [];
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || !phone.trim() || !city) {
-      setError('Please fill in your name, phone number, and pickup city.');
+    if (!name.trim() || !phone.trim() || !city || !deliveryDate) {
+      setError('Please fill in your name, phone number, pickup city, and delivery date.');
       return;
     }
     if (!hasItems) {
@@ -171,7 +199,15 @@ export default function PreOrder() {
       const res = await fetch('/.netlify/functions/submit-preorder', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name.trim(), phone: phone.trim(), city, items: orderLines, notes: notes.trim() }),
+        body: JSON.stringify({
+          name: name.trim(),
+          phone: phone.trim(),
+          city,
+          delivery_date: deliveryDate,
+          items: orderLines,
+          notes: notes.trim(),
+          suggestions: suggestions.trim(),
+        }),
       });
       if (!res.ok) throw new Error('Failed');
       setSubmitted(true);
@@ -183,6 +219,53 @@ export default function PreOrder() {
     }
   };
 
+  // ── Loading ──
+  if (loadingSettings) {
+    return (
+      <div className="min-h-screen bg-[#FFF8F0] flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-10 h-10 border-4 border-[#CC0000] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-gray-500" style={tnr}>Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Orders closed ──
+  const ordersEffectivelyClosed = !settings?.orders_open || isDeadlinePassed(settings?.order_deadline ?? null);
+  if (ordersEffectivelyClosed) {
+    return (
+      <div className="min-h-screen bg-[#FFF8F0]" style={tnr}>
+        <div className="bg-[#CC0000] text-white text-center py-7 px-4">
+          <h1 className="text-4xl md:text-5xl font-bold mb-2">Pre-Order</h1>
+          <p className="text-xl text-white/85">Homemade European Specialties</p>
+        </div>
+        <div className="max-w-2xl mx-auto px-4 py-16 text-center">
+          <Lock className="h-16 w-16 text-[#CC0000] mx-auto mb-6" />
+          <h2 className="text-4xl font-bold text-gray-900 mb-4">
+            {isDeadlinePassed(settings?.order_deadline ?? null)
+              ? 'Order Registration Has Closed'
+              : 'Orders Are Not Open Yet'}
+          </h2>
+          <p className="text-2xl text-gray-600 mb-8 leading-relaxed">
+            {isDeadlinePassed(settings?.order_deadline ?? null)
+              ? 'The deadline for this order period has passed. Follow our Facebook page for the next order window!'
+              : 'We are not currently taking orders. Follow our Facebook page to be notified when orders open!'}
+          </p>
+          <a href="https://www.facebook.com/profile.php?id=100085334597598" target="_blank" rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 bg-[#CC0000] text-white font-bold px-8 py-4 rounded-2xl hover:bg-[#AA0000] transition-colors text-xl">
+            Follow Us on Facebook
+          </a>
+          <div className="mt-10 bg-white border-2 border-[#CC0000]/20 rounded-2xl p-6">
+            <p className="text-xl font-bold text-gray-800 mb-2">Questions? Call or text:</p>
+            <a href="tel:8645906760" className="text-3xl font-bold text-[#CC0000]">(864) 590-6760</a>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Success ──
   if (submitted) {
     return (
       <div className="min-h-screen bg-[#FFF8F0] flex items-center justify-center px-4 py-16">
@@ -191,7 +274,7 @@ export default function PreOrder() {
           <h1 className="text-4xl md:text-5xl font-bold text-[#CC0000] mb-4">Order Received!</h1>
           <p className="text-2xl text-gray-700 mb-4 leading-relaxed">
             Thank you, <strong>{name}</strong>!<br />
-            We received your order for pickup in <strong>{city}</strong>.
+            Pickup in <strong>{city}</strong> on <strong>{availableDates.find(d => d.date === deliveryDate)?.label ?? deliveryDate}</strong>.
           </p>
           <p className="text-xl text-gray-600 mb-8 leading-relaxed">
             We will contact you at <strong>{phone}</strong> to confirm your order and share the pickup location and time.
@@ -209,14 +292,27 @@ export default function PreOrder() {
     );
   }
 
+  // ── Order form ──
   return (
     <div className="min-h-screen bg-[#FFF8F0]" style={tnr}>
 
-      {/* Page header */}
+      {/* Header */}
       <div className="bg-[#CC0000] text-white text-center py-7 px-4">
         <h1 className="text-4xl md:text-5xl font-bold mb-2">Place a Pre-Order</h1>
         <p className="text-xl md:text-2xl text-white/85">Homemade European Specialties — Fresh Made to Order</p>
       </div>
+
+      {/* Deadline banner */}
+      {settings?.order_deadline && (
+        <div className="bg-amber-50 border-b-2 border-amber-300 px-4 py-3 text-center">
+          <div className="flex items-center justify-center gap-2 text-amber-800">
+            <Clock className="h-5 w-5 flex-shrink-0" />
+            <p className="text-lg font-bold">
+              Order deadline: <span className="text-amber-900">{formatDeadline(settings.order_deadline)}</span>
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Contact bar */}
       <div className="bg-white border-b-2 border-[#CC0000]/20 py-4 px-4">
@@ -238,7 +334,7 @@ export default function PreOrder() {
         <div className="bg-white border-2 border-[#CC0000]/25 rounded-2xl p-6 mb-8 text-center">
           <p className="text-xl md:text-2xl text-gray-700 leading-relaxed">
             Choose what you would like below, then fill in your<br className="hidden sm:block" />
-            <strong>name</strong>, <strong>phone number</strong>, and <strong>pickup city</strong> at the bottom.
+            <strong>name</strong>, <strong>phone</strong>, <strong>pickup city</strong>, and <strong>delivery date</strong> at the bottom.
           </p>
         </div>
 
@@ -247,16 +343,13 @@ export default function PreOrder() {
           {/* Menu items */}
           {MENU.map((item) => (
             <div key={item.id} className="bg-white rounded-2xl border-2 border-gray-100 p-6 mb-5 shadow-sm">
-              {/* Section header */}
               <div className="border-b-2 border-[#CC0000] pb-3 mb-4">
                 <h2 className="text-2xl md:text-3xl font-bold text-[#CC0000] leading-tight">
-                  {item.flag && <span className="mr-1">{item.flag}</span>}{item.emoji}{' '}
-                  {item.name}
+                  {item.flag && <span className="mr-1">{item.flag}</span>}{item.emoji} {item.name}
                 </h2>
               </div>
 
               {item.flavors.length === 0 ? (
-                /* No flavors — one row per size */
                 <div className="divide-y divide-gray-100">
                   {item.sizes.map((size) => (
                     <div key={size.label} className="flex items-center justify-between gap-4 py-3 first:pt-0 last:pb-0">
@@ -264,15 +357,11 @@ export default function PreOrder() {
                         <p className="text-xl font-bold text-gray-900">{size.label}</p>
                         <p className="text-lg text-[#CC0000] font-semibold">{size.priceNote}</p>
                       </div>
-                      <QtyInput
-                        value={getQty(item.id, size.label, '')}
-                        onChange={(v) => setQty(item.id, size.label, '', v)}
-                      />
+                      <QtyInput value={getQty(item.id, size.label, '')} onChange={(v) => setQty(item.id, size.label, '', v)} />
                     </div>
                   ))}
                 </div>
               ) : (
-                /* Has flavors */
                 item.sizes.map((size) => (
                   <div key={size.label} className="mb-5 last:mb-0">
                     <div className="flex items-baseline gap-3 mb-3">
@@ -283,10 +372,7 @@ export default function PreOrder() {
                       {item.flavors.map((flavor) => (
                         <div key={flavor} className="flex items-center justify-between gap-4 py-2.5 first:pt-0 last:pb-0">
                           <p className="text-lg text-gray-700">{flavor}</p>
-                          <QtyInput
-                            value={getQty(item.id, size.label, flavor)}
-                            onChange={(v) => setQty(item.id, size.label, flavor, v)}
-                          />
+                          <QtyInput value={getQty(item.id, size.label, flavor)} onChange={(v) => setQty(item.id, size.label, flavor, v)} />
                         </div>
                       ))}
                     </div>
@@ -323,63 +409,66 @@ export default function PreOrder() {
 
             <div className="space-y-5">
               <div>
-                <label className="block text-xl font-bold text-gray-800 mb-2">
-                  Your Name <span className="text-[#CC0000]">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="First and Last Name"
-                  style={tnr}
-                  className="w-full text-xl border-2 border-gray-300 rounded-xl px-4 py-3.5 focus:outline-none focus:border-[#CC0000] transition-colors"
-                />
+                <label className="block text-xl font-bold text-gray-800 mb-2">Your Name <span className="text-[#CC0000]">*</span></label>
+                <input type="text" value={name} onChange={(e) => setName(e.target.value)}
+                  placeholder="First and Last Name" style={tnr}
+                  className="w-full text-xl border-2 border-gray-300 rounded-xl px-4 py-3.5 focus:outline-none focus:border-[#CC0000] transition-colors" />
               </div>
 
               <div>
-                <label className="block text-xl font-bold text-gray-800 mb-2">
-                  Phone Number <span className="text-[#CC0000]">*</span>
-                </label>
-                <input
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="(000) 000-0000"
-                  style={tnr}
-                  className="w-full text-xl border-2 border-gray-300 rounded-xl px-4 py-3.5 focus:outline-none focus:border-[#CC0000] transition-colors"
-                />
+                <label className="block text-xl font-bold text-gray-800 mb-2">Phone Number <span className="text-[#CC0000]">*</span></label>
+                <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)}
+                  placeholder="(000) 000-0000" style={tnr}
+                  className="w-full text-xl border-2 border-gray-300 rounded-xl px-4 py-3.5 focus:outline-none focus:border-[#CC0000] transition-colors" />
                 <p className="text-lg text-gray-500 mt-1.5">We will text you to confirm your order and pickup details.</p>
               </div>
 
               <div>
-                <label className="block text-xl font-bold text-gray-800 mb-2">
-                  Pickup City <span className="text-[#CC0000]">*</span>
-                </label>
-                <select
-                  value={city}
-                  onChange={(e) => setCity(e.target.value)}
-                  style={tnr}
-                  className="w-full text-xl border-2 border-gray-300 rounded-xl px-4 py-3.5 focus:outline-none focus:border-[#CC0000] bg-white transition-colors"
-                >
+                <label className="block text-xl font-bold text-gray-800 mb-2">Pickup City <span className="text-[#CC0000]">*</span></label>
+                <select value={city} onChange={(e) => { setCity(e.target.value); setDeliveryDate(''); }} style={tnr}
+                  className="w-full text-xl border-2 border-gray-300 rounded-xl px-4 py-3.5 focus:outline-none focus:border-[#CC0000] bg-white transition-colors">
                   <option value="">— Select your city —</option>
-                  {CITIES.map((c) => (
-                    <option key={c} value={c}>{c}</option>
-                  ))}
+                  {CITIES.map((c) => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
 
               <div>
+                <label className="block text-xl font-bold text-gray-800 mb-2">Delivery Date <span className="text-[#CC0000]">*</span></label>
+                {city && availableDates.length === 0 ? (
+                  <div className="flex items-center gap-2 text-amber-700 bg-amber-50 border-2 border-amber-200 rounded-xl px-4 py-3">
+                    <AlertCircle className="h-5 w-5 flex-shrink-0" />
+                    <p className="text-lg">No delivery dates available for {city} yet. Please check back soon or call us.</p>
+                  </div>
+                ) : (
+                  <select value={deliveryDate} onChange={(e) => setDeliveryDate(e.target.value)} style={tnr}
+                    className="w-full text-xl border-2 border-gray-300 rounded-xl px-4 py-3.5 focus:outline-none focus:border-[#CC0000] bg-white transition-colors"
+                    disabled={!city}>
+                    <option value="">— {city ? 'Select a date' : 'Select city first'} —</option>
+                    {availableDates.map((d) => (
+                      <option key={d.date} value={d.date}>{d.label}</option>
+                    ))}
+                  </select>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-xl font-bold text-gray-800 mb-2">Special Notes <span className="text-lg font-normal text-gray-500">(optional)</span></label>
+                <textarea value={notes} onChange={(e) => setNotes(e.target.value)}
+                  placeholder="Any special requests..." rows={3} style={tnr}
+                  className="w-full text-xl border-2 border-gray-300 rounded-xl px-4 py-3.5 focus:outline-none focus:border-[#CC0000] resize-none transition-colors" />
+              </div>
+
+              {/* Suggestions */}
+              <div className="bg-[#FFF8F0] border-2 border-[#CC0000]/20 rounded-xl p-5">
                 <label className="block text-xl font-bold text-gray-800 mb-2">
-                  Special Notes <span className="text-lg font-normal text-gray-500">(optional)</span>
+                  🌟 What else would you like to see?
                 </label>
-                <textarea
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Any special requests or questions..."
-                  rows={3}
-                  style={tnr}
-                  className="w-full text-xl border-2 border-gray-300 rounded-xl px-4 py-3.5 focus:outline-none focus:border-[#CC0000] resize-none transition-colors"
-                />
+                <p className="text-lg text-gray-600 mb-3 leading-relaxed">
+                  Is there another homemade dish or European product you'd love us to make or carry? Let us know!
+                </p>
+                <textarea value={suggestions} onChange={(e) => setSuggestions(e.target.value)}
+                  placeholder="e.g. Borscht, German bread, Ukrainian sausage, stuffed peppers..." rows={3} style={tnr}
+                  className="w-full text-xl border-2 border-gray-300 rounded-xl px-4 py-3.5 focus:outline-none focus:border-[#CC0000] resize-none transition-colors bg-white" />
               </div>
             </div>
           </div>
@@ -390,12 +479,8 @@ export default function PreOrder() {
             </div>
           )}
 
-          <button
-            type="submit"
-            disabled={submitting}
-            className="w-full bg-[#CC0000] hover:bg-[#AA0000] disabled:opacity-60 text-white text-2xl font-bold py-5 rounded-2xl transition-colors shadow-lg"
-            style={tnr}
-          >
+          <button type="submit" disabled={submitting}
+            className="w-full bg-[#CC0000] hover:bg-[#AA0000] disabled:opacity-60 text-white text-2xl font-bold py-5 rounded-2xl transition-colors shadow-lg" style={tnr}>
             {submitting ? 'Sending Your Order...' : 'Submit Order'}
           </button>
 

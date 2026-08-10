@@ -16,9 +16,9 @@ const handler: Handler = async (event) => {
   }
 
   try {
-    const { name, phone, city, items, notes } = JSON.parse(event.body || '{}');
+    const { name, phone, city, delivery_date, items, notes, suggestions } = JSON.parse(event.body || '{}');
 
-    if (!name || !phone || !city || !Array.isArray(items) || items.length === 0) {
+    if (!name || !phone || !city || !delivery_date || !Array.isArray(items) || items.length === 0) {
       return { statusCode: 400, headers: corsHeaders, body: JSON.stringify({ error: 'Missing required fields' }) };
     }
 
@@ -35,8 +35,10 @@ const handler: Handler = async (event) => {
       customer_name: name,
       customer_phone: phone,
       pickup_city: city,
+      delivery_date,
       items,
       notes: notes || null,
+      suggestions: suggestions || null,
       status: 'pending',
     });
 
@@ -57,8 +59,8 @@ const handler: Handler = async (event) => {
         await resend.emails.send({
           from: 'European Market <orders@europeanmarketus.com>',
           to: notifyEmail,
-          subject: `New Pre-Order from ${name} — ${city}`,
-          text: `New pre-order received!\n\nCustomer: ${name}\nPhone: ${phone}\nPickup City: ${city}\n\nItems:\n${itemLines}${notes ? `\n\nNotes: ${notes}` : ''}`,
+          subject: `New Pre-Order from ${name} — ${city} — ${delivery_date}`,
+          text: `New pre-order received!\n\nCustomer: ${name}\nPhone: ${phone}\nPickup City: ${city}\nDelivery Date: ${delivery_date}\n\nItems:\n${itemLines}${notes ? `\n\nNotes: ${notes}` : ''}${suggestions ? `\n\nSuggestions: ${suggestions}` : ''}`,
         });
       } catch {
         // Email failure is non-fatal — order is already saved

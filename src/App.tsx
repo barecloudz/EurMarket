@@ -37,6 +37,7 @@ import AdminOrderDetail from './pages/admin/OrderDetail';
 import AdminCustomers from './pages/admin/Customers';
 
 import AdminSettings from './pages/admin/Settings';
+import AdminPreOrders from './pages/admin/PreOrders';
 import AdminThemes from './pages/admin/Themes';
 import AdminPromoCodes from './pages/admin/PromoCodes';
 import AdminEmailSubscribers from './pages/admin/EmailSubscribers';
@@ -155,6 +156,7 @@ function App() {
           <Route path="categories" element={<AdminCategories />} />
           <Route path="orders" element={<AdminOrders />} />
           <Route path="orders/:id" element={<AdminOrderDetail />} />
+          <Route path="preorders" element={<AdminPreOrders />} />
           <Route path="payouts" element={<AdminPayouts />} />
           <Route path="customers" element={<AdminCustomers />} />
           <Route path="team" element={<AdminTeam />} />
