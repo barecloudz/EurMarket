@@ -140,7 +140,7 @@ const handler: Handler = async (event) => {
   }
 
   const resendApiKey = process.env.RESEND_API_KEY;
-  const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL || 'printsbythepossum@gmail.com';
+  const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL || 'europeanmarketus@gmail.com';
   const resendFromEmail = process.env.RESEND_FROM_EMAIL || "Genovas Merch <orders@resend.dev>";
 
   if (!resendApiKey) {

@@ -191,7 +191,11 @@ export default function Header() {
                 </Link>
               ))}
               <Link to="/preorder"
-                className="bg-[#CC0000] text-white text-sm font-bold uppercase tracking-wide px-4 py-1.5 rounded-lg hover:bg-[#AA0000] transition-colors">
+                className={`text-sm font-bold uppercase tracking-wide px-4 py-1.5 rounded-lg transition-colors ${
+                  location.pathname === '/preorder'
+                    ? 'bg-[#CC0000] text-white hover:bg-[#AA0000]'
+                    : 'text-gray-500 hover:text-[var(--color-primary)]'
+                }`}>
                 Pre-Order
               </Link>
             </nav>

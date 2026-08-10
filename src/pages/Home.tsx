@@ -253,42 +253,21 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Right — store info card */}
-              <div className="w-full md:w-72 bg-white border-2 border-[#CC0000]/20 rounded-3xl shadow-lg overflow-hidden flex-shrink-0">
-                {/* Card header */}
-                <div className="bg-[#CC0000] px-5 py-4 text-white text-center">
-                  <p className="font-display font-black text-xl tracking-tight">European Market</p>
-                  <p className="text-white/80 text-sm">Columbus, NC</p>
+              {/* Right — food photo + store info */}
+              <div className="w-full md:w-80 flex-shrink-0 flex flex-col gap-4">
+                <div className="rounded-3xl overflow-hidden shadow-lg border-2 border-[#CC0000]/20">
+                  <img src="/eur-banner.jpg" alt="Our homemade goodies" className="w-full object-cover" />
                 </div>
-                <div className="p-5">
-                  <div className="mb-4">
-                    <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">Address</p>
-                    <a href="https://maps.google.com/?q=155+W+Mills+St+Columbus+NC" target="_blank" rel="noopener noreferrer"
-                      className="text-gray-800 font-semibold text-sm hover:text-[#CC0000] transition-colors leading-snug block">
-                      155 W Mills Street<br />Columbus, NC 28722
-                    </a>
-                  </div>
-                  <div className="border-t border-gray-100 pt-4 mb-4">
-                    <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">Store Hours</p>
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Mon – Thu</span>
-                        <span className="font-bold text-gray-900">11AM – 6PM</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Fri – Sun</span>
-                        <span className="font-medium text-gray-400">Closed</span>
-                      </div>
-                    </div>
-                  </div>
+                <div className="bg-white border-2 border-[#CC0000]/20 rounded-2xl shadow p-4 flex flex-col gap-2">
+                  <a href="https://maps.google.com/?q=155+W+Mills+St+Columbus+NC" target="_blank" rel="noopener noreferrer"
+                    className="text-gray-700 text-sm hover:text-[#CC0000] transition-colors leading-snug block">
+                    📍 155 W Mills Street, Columbus, NC 28722
+                  </a>
+                  <p className="text-gray-700 text-sm">🕐 Mon–Thu: 11AM–6PM &nbsp;·&nbsp; Fri–Sun: Closed</p>
                   <a href="tel:8645906760"
-                    className="flex items-center justify-center gap-2 w-full bg-[#CC0000] hover:bg-[#AA0000] text-white font-bold text-sm py-2.5 rounded-xl transition-colors mb-3">
+                    className="flex items-center justify-center gap-2 w-full bg-[#CC0000] hover:bg-[#AA0000] text-white font-bold text-sm py-2.5 rounded-xl transition-colors mt-1">
                     📞 (864) 590-6760
                   </a>
-                  <div className="bg-[#FFF8F0] rounded-xl p-3 border border-[#CC0000]/10">
-                    <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Also Find Us At</p>
-                    <p className="text-xs text-gray-600 leading-relaxed">Local farmers markets &amp; vendor events across NC — follow our Facebook for upcoming dates!</p>
-                  </div>
                 </div>
               </div>
             </div>
@@ -347,18 +326,21 @@ export default function Home() {
               ) : (
                 /* Placeholder categories */
                 [
-                  { name: 'Meats & Deli',   emoji: '🥩', slug: 'meats' },
-                  { name: 'Dairy & Cheese', emoji: '🧀', slug: 'dairy' },
-                  { name: 'Fresh Bakery',   emoji: '🍞', slug: 'bakery' },
-                  { name: 'Beverages',      emoji: '🍺', slug: 'beverages' },
-                  { name: 'Sweets & Candy', emoji: '🍬', slug: 'sweets' },
-                  { name: 'Pantry & Jars',  emoji: '🫙', slug: 'pantry' },
-                  { name: 'Frozen Foods',   emoji: '❄️', slug: 'frozen' },
-                  { name: 'Snacks',         emoji: '🥨', slug: 'snacks' },
+                  { name: 'Meats & Deli',   emoji: '🥩',  slug: 'meats',      image: null },
+                  { name: 'Dairy & Cheese', emoji: '🧀',  slug: 'dairy',      image: null },
+                  { name: 'Fresh Bakery',   emoji: '🍞',  slug: 'bakery',     image: '/eur4.jpg' },
+                  { name: 'Beverages',      emoji: '🍺',  slug: 'beverages',  image: null },
+                  { name: 'Sweets & Candy', emoji: '🍬',  slug: 'sweets',     image: '/eur1.jpg' },
+                  { name: 'Pantry & Jars',  emoji: '🫙',  slug: 'pantry',     image: null },
+                  { name: 'Frozen Foods',   emoji: '❄️', slug: 'frozen',     image: '/eur3.jpg' },
+                  { name: 'Snacks',         emoji: '🥨',  slug: 'snacks',     image: null },
                 ].map((cat, idx) => (
                   <Link key={cat.name} to={`/products?category=${cat.slug}`}
-                    className={`relative overflow-hidden rounded-2xl w-36 h-36 flex-shrink-0 flex flex-col justify-end group card-hover btn-press shadow-sm bg-gradient-to-br ${CATEGORY_GRADIENTS[idx % CATEGORY_GRADIENTS.length]}`}>
-                    <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -mt-3 text-4xl select-none">{cat.emoji}</span>
+                    className={`relative overflow-hidden rounded-2xl w-36 h-36 flex-shrink-0 flex flex-col justify-end group card-hover btn-press shadow-sm ${!cat.image ? `bg-gradient-to-br ${CATEGORY_GRADIENTS[idx % CATEGORY_GRADIENTS.length]}` : ''}`}>
+                    {cat.image
+                      ? <img src={cat.image} alt={cat.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      : <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -mt-3 text-4xl select-none">{cat.emoji}</span>
+                    }
                     <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/5 to-transparent" />
                     <span className="relative z-10 text-white font-bold text-xs drop-shadow px-3 pb-3 leading-tight">{cat.name}</span>
                   </Link>
@@ -458,6 +440,7 @@ export default function Home() {
       <div className="px-4 pb-6">
         <div className="max-w-7xl mx-auto">
           <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#CC0000] to-[#880000] p-6 md:p-8 shadow-lg">
+            <img src="/eur-pretzel.jpg" alt="" className="absolute inset-0 w-full h-full object-cover opacity-20" />
             <div className="absolute -right-8 -top-8 w-40 h-40 bg-white/5 rounded-full" />
             <div className="absolute right-4 -bottom-12 w-56 h-56 bg-white/5 rounded-full" />
             <div className="relative z-10">
