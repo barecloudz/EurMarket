@@ -5,6 +5,7 @@ import { useCartStore } from '../store/cartStore';
 import { useProductStore } from '../store/productStore';
 import { supabase } from '../lib/supabase';
 import type { Category, BannerSlide } from '../types';
+import { useStoreLocation } from '../hooks/useStoreLocation';
 
 function useSwipe(onLeft: () => void, onRight: () => void) {
   const startX = useRef<number | null>(null);
@@ -79,6 +80,7 @@ export default function Home() {
   const { addItem } = useCartStore();
   const navigate                                = useNavigate();
   const { products, isLoading, error, fetchProducts } = useProductStore();
+  const { compactHours: storeHours } = useStoreLocation('columbus-nc');
   const categoryContainerRef                    = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft]       = useState(false);
   const [canScrollRight, setCanScrollRight]     = useState(false);
@@ -263,7 +265,9 @@ export default function Home() {
                     className="text-gray-700 text-sm hover:text-[#CC0000] transition-colors leading-snug block">
                     📍 155 W Mills Street, Columbus, NC 28722
                   </a>
-                  <p className="text-gray-700 text-sm">🕐 Mon–Thu: 11AM–6PM &nbsp;·&nbsp; Fri–Sun: Closed</p>
+                  <p className="text-gray-700 text-sm">
+                    🕐 {storeHours.length > 0 ? storeHours.join(' · ') : 'Mon–Thu: 11AM–6PM · Fri–Sun: Closed'}
+                  </p>
                   <a href="tel:8645906760"
                     className="flex items-center justify-center gap-2 w-full bg-[#CC0000] hover:bg-[#AA0000] text-white font-bold text-sm py-2.5 rounded-xl transition-colors mt-1">
                     📞 (864) 590-6760

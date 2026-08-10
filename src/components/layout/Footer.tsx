@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Mail, Send, Check, MapPin, Phone, Clock, Facebook } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { useStoreLocation } from '../../hooks/useStoreLocation';
 
 const COUNTRIES = [
   { code: 'de', name: 'Germany'    },
@@ -19,6 +20,7 @@ const COUNTRIES = [
 ];
 
 export default function Footer() {
+  const { data: store, compactHours } = useStoreLocation('columbus-nc');
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
@@ -128,7 +130,20 @@ export default function Footer() {
               </a>
               <div className="flex items-start gap-2.5 text-gray-600">
                 <Clock className="h-4 w-4 mt-0.5 flex-shrink-0 text-[#CC0000]" />
-                <span>Mon – Thu: 11AM – 6PM<br /><span className="text-gray-400">Fri – Sun: Closed</span></span>
+                {compactHours.length > 0 ? (
+                  <span>
+                    {compactHours.map((line, i) => {
+                      const isClosed = line.toLowerCase().includes('closed');
+                      return (
+                        <span key={i} className={isClosed ? 'text-gray-400' : undefined}>
+                          {line}{i < compactHours.length - 1 && <br />}
+                        </span>
+                      );
+                    })}
+                  </span>
+                ) : (
+                  <span>Mon – Thu: 11AM – 6PM<br /><span className="text-gray-400">Fri – Sun: Closed</span></span>
+                )}
               </div>
               <a href="https://www.facebook.com/profile.php?id=100085334597598" target="_blank" rel="noopener noreferrer"
                 className="flex items-center gap-2.5 text-gray-600 hover:text-[#CC0000] transition-colors">
@@ -239,7 +254,8 @@ export default function Footer() {
             &copy; {new Date().getFullYear()} European Market — Columbus, NC. All rights reserved.
           </p>
           <p className="text-white/50 text-xs">
-            155 W Mills Street · (864) 590-6760 · Mon–Thu 11AM–6PM
+            {store?.address ?? '155 W Mills Street, Columbus, NC 28722'} · {store?.phoneNumber ?? '(864) 590-6760'}
+            {compactHours[0] ? ` · ${compactHours[0]}` : ' · Mon–Thu 11AM–6PM'}
           </p>
         </div>
       </div>
