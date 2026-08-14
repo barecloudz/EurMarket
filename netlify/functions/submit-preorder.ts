@@ -16,7 +16,7 @@ const handler: Handler = async (event) => {
   }
 
   try {
-    const { name, phone, city, delivery_date, items, notes, suggestions } = JSON.parse(event.body || '{}');
+    const { name, phone, email, city, delivery_date, items, notes, suggestions } = JSON.parse(event.body || '{}');
 
     if (!name || !phone || !city || !delivery_date || !Array.isArray(items) || items.length === 0) {
       return { statusCode: 400, headers: corsHeaders, body: JSON.stringify({ error: 'Missing required fields' }) };
@@ -63,10 +63,10 @@ const handler: Handler = async (event) => {
 
     if (dbError) throw dbError;
 
-    // Send email notification to store if Resend is configured
+    // Send emails if Resend is configured
     const resendKey = process.env.RESEND_API_KEY;
     const notifyEmail = process.env.STORE_NOTIFY_EMAIL;
-    if (resendKey && notifyEmail) {
+    if (resendKey) {
       try {
         const resend = new Resend(resendKey);
         const itemLines = items
@@ -75,12 +75,29 @@ const handler: Handler = async (event) => {
           )
           .join('\n');
 
-        await resend.emails.send({
-          from: 'European Market <orders@europeanmarketus.com>',
-          to: notifyEmail,
-          subject: `New Pre-Order from ${name} — ${city} — ${delivery_date}`,
-          text: `New pre-order received!\n\nCustomer: ${name}\nPhone: ${phone}\nPickup City: ${city}\nDelivery Date: ${delivery_date}\n\nItems:\n${itemLines}${notes ? `\n\nNotes: ${notes}` : ''}${suggestions ? `\n\nSuggestions: ${suggestions}` : ''}`,
-        });
+        const sends: Promise<unknown>[] = [];
+
+        // Store notification
+        if (notifyEmail) {
+          sends.push(resend.emails.send({
+            from: 'European Market <orders@europeanmarketus.com>',
+            to: notifyEmail,
+            subject: `New Pre-Order from ${name} — ${city} — ${delivery_date}`,
+            text: `New pre-order received!\n\nCustomer: ${name}\nPhone: ${phone}${email ? `\nEmail: ${email}` : ''}\nPickup City: ${city}\nDelivery Date: ${delivery_date}\n\nItems:\n${itemLines}${notes ? `\n\nNotes: ${notes}` : ''}${suggestions ? `\n\nSuggestions: ${suggestions}` : ''}`,
+          }));
+        }
+
+        // Customer confirmation
+        if (email) {
+          sends.push(resend.emails.send({
+            from: 'European Market <orders@europeanmarketus.com>',
+            to: email,
+            subject: `Your Pre-Order is Confirmed — European Market`,
+            text: `Hi ${name},\n\nThank you for your pre-order! We've received it and will text you at ${phone} to confirm pickup details.\n\nYour Order:\n${itemLines}\n\nPickup City: ${city}\nDelivery Date: ${delivery_date}${notes ? `\n\nNotes: ${notes}` : ''}\n\nQuestions? Text us at (864) 590-6760.\n\n❤️ European Market\nhttps://europeanmarketus.com`,
+          }));
+        }
+
+        await Promise.allSettled(sends);
       } catch {
         // Email failure is non-fatal — order is already saved
       }

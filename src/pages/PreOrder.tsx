@@ -147,6 +147,7 @@ export default function PreOrder() {
   const [phone, setPhone] = useState('');
   const [city, setCity] = useState('');
   const [deliveryDate, setDeliveryDate] = useState('');
+  const [email, setEmail] = useState('');
   const [notes, setNotes] = useState('');
   const [suggestions, setSuggestions] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -204,6 +205,7 @@ export default function PreOrder() {
         body: JSON.stringify({
           name: name.trim(),
           phone: phone.trim(),
+          email: email.trim() || null,
           city,
           delivery_date: deliveryDate,
           items: orderLines,
@@ -436,6 +438,14 @@ export default function PreOrder() {
                   placeholder="(000) 000-0000" style={tnr}
                   className="w-full text-xl border-2 border-gray-300 rounded-xl px-4 py-3.5 focus:outline-none focus:border-[#CC0000] transition-colors" />
                 <p className="text-lg text-gray-500 mt-1.5">We will <strong>text</strong> you to confirm your order and pickup details.</p>
+              </div>
+
+              <div>
+                <label className="block text-xl font-bold text-gray-800 mb-2">Email <span className="text-lg font-normal text-gray-500">(optional — for order confirmation)</span></label>
+                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com" style={tnr}
+                  className="w-full text-xl border-2 border-gray-300 rounded-xl px-4 py-3.5 focus:outline-none focus:border-[#CC0000] transition-colors" />
+                <p className="text-lg text-gray-500 mt-1.5">We'll send a copy of your order to this email if provided.</p>
               </div>
 
               <div>
