@@ -11,9 +11,6 @@ export default defineConfig({
           if (id.includes('/pages/admin/') || id.includes('/pages/supplier/')) {
             return 'admin';
           }
-          if (id.includes('node_modules/@supabase')) return 'supabase';
-          if (id.includes('node_modules/react-dom')) return 'react-dom';
-          if (id.includes('node_modules/')) return 'vendor';
         },
       },
     },
