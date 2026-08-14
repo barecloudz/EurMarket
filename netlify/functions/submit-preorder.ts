@@ -31,6 +31,25 @@ const handler: Handler = async (event) => {
 
     const supabase = createClient(supabaseUrl, supabaseKey);
 
+    // Gate: reject if orders are closed
+    const { data: preorderSettings } = await supabase
+      .from('preorder_settings')
+      .select('orders_open, order_deadline')
+      .eq('id', 1)
+      .single();
+
+    const deadlinePassed = preorderSettings?.order_deadline
+      ? new Date() > new Date(preorderSettings.order_deadline)
+      : false;
+
+    if (!preorderSettings?.orders_open || deadlinePassed) {
+      return {
+        statusCode: 409,
+        headers: corsHeaders,
+        body: JSON.stringify({ error: 'Orders are currently closed' }),
+      };
+    }
+
     const { error: dbError } = await supabase.from('pre_orders').insert({
       customer_name: name,
       customer_phone: phone,

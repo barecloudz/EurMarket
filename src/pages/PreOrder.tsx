@@ -17,9 +17,11 @@ const CITIES = [
 ];
 
 interface DeliveryDate {
-  date: string;       // ISO date "2026-08-15"
-  label: string;      // "Saturday, August 15"
-  cities: string[];   // ["all"] or specific cities
+  date: string;
+  label: string;
+  cities: string[];
+  time?: string;
+  location_address?: string;
 }
 
 interface PreorderSettings {
@@ -213,7 +215,7 @@ export default function PreOrder() {
       setSubmitted(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch {
-      setError('Something went wrong. Please call or text us at (864) 590-6760 to place your order.');
+      setError('Something went wrong. Please text us at (864) 590-6760 to place your order.');
     } finally {
       setSubmitting(false);
     }
@@ -257,8 +259,8 @@ export default function PreOrder() {
             Follow Us on Facebook
           </a>
           <div className="mt-10 bg-white border-2 border-[#CC0000]/20 rounded-2xl p-6">
-            <p className="text-xl font-bold text-gray-800 mb-2">Questions? Call or text:</p>
-            <a href="tel:8645906760" className="text-3xl font-bold text-[#CC0000]">(864) 590-6760</a>
+            <p className="text-xl font-bold text-gray-800 mb-2">Questions? Text us:</p>
+            <a href="sms:8645906760" className="text-3xl font-bold text-[#CC0000]">(864) 590-6760</a>
           </div>
         </div>
       </div>
@@ -276,12 +278,25 @@ export default function PreOrder() {
             Thank you, <strong>{name}</strong>!<br />
             Pickup in <strong>{city}</strong> on <strong>{availableDates.find(d => d.date === deliveryDate)?.label ?? deliveryDate}</strong>.
           </p>
+          {(() => {
+            const pickedDate = availableDates.find(d => d.date === deliveryDate);
+            return (pickedDate?.time || pickedDate?.location_address) ? (
+              <div className="bg-white border-2 border-[#CC0000]/20 rounded-2xl p-5 mb-6 text-left">
+                {pickedDate?.time && (
+                  <p className="text-lg text-gray-700 mb-1.5">🕐 <strong>Time:</strong> {pickedDate.time}</p>
+                )}
+                {pickedDate?.location_address && (
+                  <p className="text-lg text-gray-700">📍 <strong>Location:</strong> {pickedDate.location_address}</p>
+                )}
+              </div>
+            ) : null;
+          })()}
           <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-            We will contact you at <strong>{phone}</strong> to confirm your order and share the pickup location and time.
+            We will <strong>text</strong> you at <strong>{phone}</strong> to confirm your order.
           </p>
           <div className="bg-[#CC0000] text-white rounded-2xl p-6 mb-6">
-            <p className="text-xl font-bold mb-1">Questions? Text or call us:</p>
-            <p className="text-3xl font-bold">(864) 590-6760</p>
+            <p className="text-xl font-bold mb-1">Questions? Text us:</p>
+            <a href="sms:8645906760" className="text-3xl font-bold">(864) 590-6760</a>
           </div>
           <p className="text-lg text-gray-500 italic leading-relaxed">
             ❤️ Thank you for supporting our small family business!<br />
@@ -319,7 +334,7 @@ export default function PreOrder() {
         <div className="max-w-3xl mx-auto flex flex-col sm:flex-row gap-3 sm:gap-10 items-center justify-center">
           <div className="flex items-center gap-2.5 text-gray-700">
             <Phone className="h-5 w-5 text-[#CC0000] flex-shrink-0" />
-            <span className="text-xl"><strong>Text or call:</strong> (864) 590-6760</span>
+            <span className="text-xl"><strong>Text us:</strong> (864) 590-6760</span>
           </div>
           <div className="flex items-center gap-2.5 text-gray-700">
             <MapPin className="h-5 w-5 text-[#CC0000] flex-shrink-0" />
@@ -420,7 +435,7 @@ export default function PreOrder() {
                 <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)}
                   placeholder="(000) 000-0000" style={tnr}
                   className="w-full text-xl border-2 border-gray-300 rounded-xl px-4 py-3.5 focus:outline-none focus:border-[#CC0000] transition-colors" />
-                <p className="text-lg text-gray-500 mt-1.5">We will text you to confirm your order and pickup details.</p>
+                <p className="text-lg text-gray-500 mt-1.5">We will <strong>text</strong> you to confirm your order and pickup details.</p>
               </div>
 
               <div>
@@ -437,17 +452,32 @@ export default function PreOrder() {
                 {city && availableDates.length === 0 ? (
                   <div className="flex items-center gap-2 text-amber-700 bg-amber-50 border-2 border-amber-200 rounded-xl px-4 py-3">
                     <AlertCircle className="h-5 w-5 flex-shrink-0" />
-                    <p className="text-lg">No delivery dates available for {city} yet. Please check back soon or call us.</p>
+                    <p className="text-lg">No delivery dates available for {city} yet. Please check back soon or text us.</p>
                   </div>
                 ) : (
-                  <select value={deliveryDate} onChange={(e) => setDeliveryDate(e.target.value)} style={tnr}
-                    className="w-full text-xl border-2 border-gray-300 rounded-xl px-4 py-3.5 focus:outline-none focus:border-[#CC0000] bg-white transition-colors"
-                    disabled={!city}>
-                    <option value="">— {city ? 'Select a date' : 'Select city first'} —</option>
-                    {availableDates.map((d) => (
-                      <option key={d.date} value={d.date}>{d.label}</option>
-                    ))}
-                  </select>
+                  <>
+                    <select value={deliveryDate} onChange={(e) => setDeliveryDate(e.target.value)} style={tnr}
+                      className="w-full text-xl border-2 border-gray-300 rounded-xl px-4 py-3.5 focus:outline-none focus:border-[#CC0000] bg-white transition-colors"
+                      disabled={!city}>
+                      <option value="">— {city ? 'Select a date' : 'Select city first'} —</option>
+                      {availableDates.map((d) => (
+                        <option key={d.date} value={d.date}>{d.label}</option>
+                      ))}
+                    </select>
+                    {deliveryDate && (() => {
+                      const picked = availableDates.find(d => d.date === deliveryDate);
+                      return (picked?.time || picked?.location_address) ? (
+                        <div className="mt-3 bg-[#FFF8F0] border-2 border-[#CC0000]/20 rounded-xl px-4 py-3 space-y-1">
+                          {picked?.time && (
+                            <p className="text-lg text-gray-700">🕐 <strong>Time:</strong> {picked.time}</p>
+                          )}
+                          {picked?.location_address && (
+                            <p className="text-lg text-gray-700">📍 <strong>Location:</strong> {picked.location_address}</p>
+                          )}
+                        </div>
+                      ) : null;
+                    })()}
+                  </>
                 )}
               </div>
 

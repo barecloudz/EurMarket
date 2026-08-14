@@ -38,32 +38,51 @@ export function formatHoursCompact(weekdayDescriptions: string[]): string[] {
   });
 }
 
+// Module-level cache — shared across all hook instances for the same slug
+const cache = new Map<string, LocationDetail>();
+const inflight = new Map<string, Promise<LocationDetail>>();
+
+function fetchLocation(slug: string): Promise<LocationDetail> {
+  if (cache.has(slug)) return Promise.resolve(cache.get(slug)!);
+  if (inflight.has(slug)) return inflight.get(slug)!;
+
+  const promise = fetch(`/.netlify/functions/locations?slug=${encodeURIComponent(slug)}`)
+    .then((res) => {
+      if (!res.ok) throw new Error(`Failed to fetch location (${res.status})`);
+      return res.json() as Promise<LocationDetail>;
+    })
+    .then((data) => {
+      cache.set(slug, data);
+      inflight.delete(slug);
+      return data;
+    })
+    .catch((err) => {
+      inflight.delete(slug);
+      throw err;
+    });
+
+  inflight.set(slug, promise);
+  return promise;
+}
+
 export function useStoreLocation(slug: string) {
-  const [data, setData] = useState<LocationDetail | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [data, setData] = useState<LocationDetail | null>(() => cache.get(slug) ?? null);
+  const [isLoading, setIsLoading] = useState(!cache.has(slug));
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    const controller = new AbortController();
+    if (cache.has(slug)) return; // already cached, no fetch needed
+    let cancelled = false;
 
-    fetch(`/.netlify/functions/locations?slug=${encodeURIComponent(slug)}`, {
-      signal: controller.signal,
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error(`Failed to fetch location (${res.status})`);
-        return res.json() as Promise<LocationDetail>;
-      })
+    fetchLocation(slug)
       .then((location) => {
-        setData(location);
-        setIsLoading(false);
+        if (!cancelled) { setData(location); setIsLoading(false); }
       })
       .catch((err) => {
-        if (err.name === 'AbortError') return;
-        setError(err);
-        setIsLoading(false);
+        if (!cancelled) { setError(err); setIsLoading(false); }
       });
 
-    return () => controller.abort();
+    return () => { cancelled = true; };
   }, [slug]);
 
   const compactHours = data ? formatHoursCompact(data.hoursOfOperation) : [];

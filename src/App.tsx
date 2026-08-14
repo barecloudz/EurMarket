@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useAuthStore } from './store/authStore';
 import { useSettingsStore } from './store/settingsStore';
@@ -16,7 +16,6 @@ import ProductDetail from './pages/ProductDetail';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import OrderConfirmation from './pages/OrderConfirmation';
-
 import Wishlist from './pages/Wishlist';
 import ReturnPolicy from './pages/ReturnPolicy';
 import PrivacyPolicy from './pages/PrivacyPolicy';
@@ -28,34 +27,33 @@ import NotFound from './pages/NotFound';
 import AuthCallback from './pages/AuthCallback';
 import ResetPassword from './pages/ResetPassword';
 
-// Admin Pages
-import AdminDashboard from './pages/admin/Dashboard';
-import AdminProducts from './pages/admin/Products';
-import AdminProductEdit from './pages/admin/ProductEdit';
-import AdminCategories from './pages/admin/Categories';
-import AdminOrders from './pages/admin/Orders';
-import AdminOrderDetail from './pages/admin/OrderDetail';
-import AdminCustomers from './pages/admin/Customers';
+// Admin Pages — lazy loaded so customers never download this code
+const AdminDashboard      = lazy(() => import('./pages/admin/Dashboard'));
+const AdminProducts       = lazy(() => import('./pages/admin/Products'));
+const AdminProductEdit    = lazy(() => import('./pages/admin/ProductEdit'));
+const AdminCategories     = lazy(() => import('./pages/admin/Categories'));
+const AdminOrders         = lazy(() => import('./pages/admin/Orders'));
+const AdminOrderDetail    = lazy(() => import('./pages/admin/OrderDetail'));
+const AdminCustomers      = lazy(() => import('./pages/admin/Customers'));
+const AdminSettings       = lazy(() => import('./pages/admin/Settings'));
+const AdminPreOrders      = lazy(() => import('./pages/admin/PreOrders'));
+const AdminThemes         = lazy(() => import('./pages/admin/Themes'));
+const AdminPromoCodes     = lazy(() => import('./pages/admin/PromoCodes'));
+const AdminEmailSubscribers = lazy(() => import('./pages/admin/EmailSubscribers'));
+const AdminReviews        = lazy(() => import('./pages/admin/Reviews'));
+const AdminTeam           = lazy(() => import('./pages/admin/Team'));
+const AdminBanners        = lazy(() => import('./pages/admin/Banners'));
+const AdminSuppliers      = lazy(() => import('./pages/admin/Suppliers'));
+const AdminPayouts        = lazy(() => import('./pages/admin/Payouts'));
 
-import AdminSettings from './pages/admin/Settings';
-import AdminPreOrders from './pages/admin/PreOrders';
-import AdminThemes from './pages/admin/Themes';
-import AdminPromoCodes from './pages/admin/PromoCodes';
-import AdminEmailSubscribers from './pages/admin/EmailSubscribers';
-import AdminReviews from './pages/admin/Reviews';
-import AdminTeam from './pages/admin/Team';
-import AdminBanners from './pages/admin/Banners';
-import AdminSuppliers from './pages/admin/Suppliers';
-import AdminPayouts from './pages/admin/Payouts';
-
-// Supplier Pages
-import SupplierDashboard from './pages/supplier/SupplierDashboard';
-import SupplierOrders from './pages/supplier/SupplierOrders';
-import SupplierOrderDetail from './pages/supplier/SupplierOrderDetail';
-import SupplierProducts from './pages/supplier/SupplierProducts';
-import SupplierAccount from './pages/supplier/SupplierAccount';
-import SupplierPayouts from './pages/supplier/SupplierPayouts';
-import SetPassword from './pages/supplier/SetPassword';
+// Supplier Pages — lazy loaded
+const SupplierDashboard   = lazy(() => import('./pages/supplier/SupplierDashboard'));
+const SupplierOrders      = lazy(() => import('./pages/supplier/SupplierOrders'));
+const SupplierOrderDetail = lazy(() => import('./pages/supplier/SupplierOrderDetail'));
+const SupplierProducts    = lazy(() => import('./pages/supplier/SupplierProducts'));
+const SupplierAccount     = lazy(() => import('./pages/supplier/SupplierAccount'));
+const SupplierPayouts     = lazy(() => import('./pages/supplier/SupplierPayouts'));
+const SetPassword         = lazy(() => import('./pages/supplier/SetPassword'));
 
 // Components
 import ProtectedRoute from './components/ProtectedRoute';
@@ -153,7 +151,9 @@ function App() {
           path="/admin/*"
           element={
             <ProtectedRoute requireAdmin>
-              <AdminLayout />
+              <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 border-4 border-[#CC0000] border-t-transparent rounded-full animate-spin" /></div>}>
+                <AdminLayout />
+              </Suspense>
             </ProtectedRoute>
           }
         >
@@ -168,7 +168,6 @@ function App() {
           <Route path="payouts" element={<AdminPayouts />} />
           <Route path="customers" element={<AdminCustomers />} />
           <Route path="team" element={<AdminTeam />} />
-
           <Route path="promo-codes" element={<AdminPromoCodes />} />
           <Route path="subscribers" element={<AdminEmailSubscribers />} />
           <Route path="reviews" element={<AdminReviews />} />
@@ -183,7 +182,9 @@ function App() {
           path="/supplier/*"
           element={
             <ProtectedRoute requireSupplier>
-              <SupplierLayout />
+              <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 border-4 border-[#CC0000] border-t-transparent rounded-full animate-spin" /></div>}>
+                <SupplierLayout />
+              </Suspense>
             </ProtectedRoute>
           }
         >

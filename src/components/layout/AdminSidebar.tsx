@@ -104,14 +104,16 @@ export default function AdminSidebar() {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
+  const [pendingPreorderCount, setPendingPreorderCount] = useState(0);
 
   useEffect(() => {
     const fetchPending = async () => {
-      const { count } = await supabase
-        .from('orders')
-        .select('*', { count: 'exact', head: true })
-        .in('status', ['pending', 'processing']);
-      setPendingCount(count || 0);
+      const [{ count: orderCount }, { count: preorderCount }] = await Promise.all([
+        supabase.from('orders').select('*', { count: 'exact', head: true }).in('status', ['pending', 'processing']),
+        supabase.from('pre_orders').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+      ]);
+      setPendingCount(orderCount || 0);
+      setPendingPreorderCount(preorderCount || 0);
     };
     fetchPending();
     const interval = setInterval(fetchPending, 60000);
@@ -203,6 +205,11 @@ export default function AdminSidebar() {
                   {item.href === '/admin/orders' && pendingCount > 0 && (
                     <span className="bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center leading-tight">
                       {pendingCount}
+                    </span>
+                  )}
+                  {item.href === '/admin/preorders' && pendingPreorderCount > 0 && (
+                    <span className="bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center leading-tight">
+                      {pendingPreorderCount}
                     </span>
                   )}
                 </Link>
