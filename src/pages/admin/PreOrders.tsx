@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Plus, Trash2, Package, Lightbulb, CheckCircle, XCircle,
   Clock, MapPin, Calendar, ChevronDown, ChevronUp, HelpCircle,
-  Users, AlertTriangle,
+  Users, AlertTriangle, Printer, Download,
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useToast } from '../../components/ui/Toast';
@@ -53,39 +53,17 @@ const STATUS_LABELS: Record<string, string> = {
 function HelpGuide() {
   const [open, setOpen] = useState(false);
   const steps = [
-    {
-      icon: '🟢',
-      title: 'Step 1 — Open or close orders',
-      body: 'Tap the big green/red button to let customers order (or stop them). It saves automatically — no extra button needed.',
-    },
-    {
-      icon: '⏰',
-      title: 'Step 2 — Set a deadline (optional)',
-      body: 'If you want orders to stop automatically at a specific time, pick a date & time. Leave it blank if you want to close manually.',
-    },
-    {
-      icon: '📅',
-      title: 'Step 3 — Add a market date',
-      body: 'Fill in the date, the label customers will see (like "Saturday, August 15"), the time (like "10 AM – 2 PM"), and the address where pickup will happen. Then pick which cities can order for that date, and tap "Add This Date".',
-    },
-    {
-      icon: '📦',
-      title: 'Viewing orders',
-      body: 'Click the "Orders" tab to see everyone who ordered. Tap the status dropdown on each order to mark it Confirmed, Ready, or Completed.',
-    },
-    {
-      icon: '💡',
-      title: 'Customer suggestions',
-      body: 'The "Ideas" tab shows what products customers are asking for — good for planning future markets.',
-    },
+    { icon: '🟢', title: 'Step 1 — Open or close orders', body: 'Tap the big green/red button to let customers order (or stop them). It saves automatically.' },
+    { icon: '⏰', title: 'Step 2 — Set a deadline (optional)', body: 'Pick a date & time for orders to close automatically. Leave blank to close manually.' },
+    { icon: '📅', title: 'Step 3 — Add a market date', body: 'Fill in the date, label (like "Saturday, August 15"), time, and pickup address. Pick cities, then tap "Add This Date".' },
+    { icon: '📦', title: 'Viewing orders', body: 'Click "Orders" to see all orders. Use the dropdown on each card to mark it Confirmed, Ready, or Completed.' },
+    { icon: '🖨️', title: 'Print / Export', body: 'In the Orders tab, use Print for a market-day checklist or Export CSV to open in Excel.' },
+    { icon: '💡', title: 'Customer suggestions', body: 'The "Ideas" tab shows what customers want to see — good for planning future markets.' },
   ];
-
   return (
     <div className="bg-white rounded-2xl border border-blue-100 shadow-sm overflow-hidden mb-6">
-      <button
-        onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center justify-between px-5 py-4 hover:bg-blue-50 transition-colors"
-      >
+      <button onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center justify-between px-5 py-4 hover:bg-blue-50 transition-colors">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
             <HelpCircle className="w-4 h-4 text-blue-600" />
@@ -97,7 +75,6 @@ function HelpGuide() {
         </div>
         {open ? <ChevronUp className="w-4 h-4 text-gray-400 flex-shrink-0" /> : <ChevronDown className="w-4 h-4 text-gray-400 flex-shrink-0" />}
       </button>
-
       {open && (
         <div className="border-t border-blue-100 divide-y divide-blue-50">
           {steps.map((step, i) => (
@@ -115,6 +92,41 @@ function HelpGuide() {
   );
 }
 
+/** Aggregates all items across orders into a totals map. */
+function buildSummary(orders: PreOrder[]) {
+  const totals = new Map<string, number>();
+  for (const order of orders) {
+    if (order.status === 'completed') continue; // exclude already-done
+    for (const item of order.items) {
+      const key = [item.product, item.size, item.flavor].filter(Boolean).join(' · ');
+      totals.set(key, (totals.get(key) ?? 0) + item.qty);
+    }
+  }
+  return [...totals.entries()].sort((a, b) => b[1] - a[1]);
+}
+
+function exportCSV(orders: PreOrder[]) {
+  const rows = [
+    ['Name', 'Phone', 'City', 'Date', 'Status', 'Product', 'Size', 'Flavor', 'Qty', 'Notes'],
+  ];
+  for (const o of orders) {
+    for (const item of o.items) {
+      rows.push([
+        o.customer_name, o.customer_phone, o.pickup_city, o.delivery_date, o.status,
+        item.product, item.size ?? '', item.flavor ?? '', String(item.qty), o.notes ?? '',
+      ]);
+    }
+  }
+  const csv = rows.map(r => r.map(c => `"${c.replace(/"/g, '""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `preorders-${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 export default function AdminPreOrders() {
   const { addToast } = useToast();
   const [settings, setSettings] = useState<PreorderSettings>({
@@ -128,6 +140,9 @@ export default function AdminPreOrders() {
   const [savingDates, setSavingDates] = useState(false);
   const [activeTab, setActiveTab] = useState<'settings' | 'orders' | 'suggestions'>('settings');
 
+  // Controlled deadline input — separate from settings so it only saves on blur
+  const [deadlineInput, setDeadlineInput] = useState('');
+
   const [newDate, setNewDate] = useState('');
   const [newLabel, setNewLabel] = useState('');
   const [newCities, setNewCities] = useState<string[]>(['all']);
@@ -139,17 +154,22 @@ export default function AdminPreOrders() {
       supabase.from('preorder_settings').select('*').eq('id', 1).single(),
       supabase.from('pre_orders').select('*').order('created_at', { ascending: false }),
     ]).then(([{ data: s }, { data: o }]) => {
-      if (s) setSettings(s as PreorderSettings);
+      if (s) {
+        const parsed = s as PreorderSettings;
+        setSettings(parsed);
+        setDeadlineInput(parsed.order_deadline ? parsed.order_deadline.slice(0, 16) : '');
+      }
       if (o) setOrders(o as PreOrder[]);
     }).finally(() => setLoading(false));
   }, []);
 
+  // Fix #6: use upsert so it works even if the row doesn't exist
   const toggleOrdersOpen = async () => {
     const newValue = !settings.orders_open;
     setSettings(prev => ({ ...prev, orders_open: newValue }));
     setTogglingOpen(true);
     const { error } = await supabase.from('preorder_settings')
-      .update({ orders_open: newValue }).eq('id', 1);
+      .upsert({ id: 1, orders_open: newValue });
     setTogglingOpen(false);
     if (error) {
       setSettings(prev => ({ ...prev, orders_open: !newValue }));
@@ -159,21 +179,29 @@ export default function AdminPreOrders() {
     }
   };
 
-  const persistDatesAndDeadline = async (updated: PreorderSettings) => {
+  const persistDatesAndDeadline = useCallback(async (updated: PreorderSettings) => {
     setSavingDates(true);
     const { error } = await supabase.from('preorder_settings')
-      .update({ order_deadline: updated.order_deadline, delivery_dates: updated.delivery_dates })
-      .eq('id', 1);
+      .upsert({ id: 1, order_deadline: updated.order_deadline, delivery_dates: updated.delivery_dates });
     setSavingDates(false);
     if (error) {
       addToast(`Failed to save: ${error.message}`, 'error');
     } else {
       addToast('Saved!', 'success');
     }
+  }, [addToast]);
+
+  // Fix #3: only saves when user leaves the field
+  const handleDeadlineBlur = async () => {
+    const iso = deadlineInput ? new Date(deadlineInput).toISOString() : null;
+    const updated = { ...settings, order_deadline: iso };
+    setSettings(updated);
+    await persistDatesAndDeadline(updated);
   };
 
-  const saveDeadline = async (value: string | null) => {
-    const updated = { ...settings, order_deadline: value };
+  const clearDeadline = async () => {
+    setDeadlineInput('');
+    const updated = { ...settings, order_deadline: null };
     setSettings(updated);
     await persistDatesAndDeadline(updated);
   };
@@ -209,6 +237,7 @@ export default function AdminPreOrders() {
 
   const suggestions = orders.filter(o => o.suggestions?.trim());
   const pendingOrders = orders.filter(o => o.status === 'pending');
+  const summary = buildSummary(orders);
 
   if (loading) {
     return (
@@ -225,23 +254,19 @@ export default function AdminPreOrders() {
       <div className="flex items-start justify-between mb-6">
         <div>
           <h1 className="text-2xl font-black text-gray-900">Pre-Orders</h1>
-          <p className="text-gray-500 text-sm mt-0.5">Manage market dates, open/close orders, and view customer orders</p>
+          <p className="text-gray-500 text-sm mt-0.5">Manage market dates, open/close orders, view customer orders</p>
         </div>
-        {/* Live status pill */}
         <div className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold border-2 flex-shrink-0 ${
-          settings.orders_open
-            ? 'bg-green-50 text-green-700 border-green-300'
-            : 'bg-gray-50 text-gray-500 border-gray-200'
+          settings.orders_open ? 'bg-green-50 text-green-700 border-green-300' : 'bg-gray-50 text-gray-500 border-gray-200'
         }`}>
           <span className={`w-2 h-2 rounded-full ${settings.orders_open ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`} />
           {settings.orders_open ? 'OPEN' : 'CLOSED'}
         </div>
       </div>
 
-      {/* Help guide */}
       <HelpGuide />
 
-      {/* Stats row */}
+      {/* Stats */}
       <div className="grid grid-cols-3 gap-3 mb-6">
         {[
           { label: 'Total Orders', value: orders.length, icon: Package, color: 'text-gray-700', bg: 'bg-gray-50 border-gray-200' },
@@ -267,9 +292,7 @@ export default function AdminPreOrders() {
         ].map(tab => (
           <button key={tab.key} onClick={() => setActiveTab(tab.key as typeof activeTab)}
             className={`flex-1 py-2.5 text-sm font-bold rounded-lg transition-colors ${
-              activeTab === tab.key
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-500 hover:text-gray-700'
+              activeTab === tab.key ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
             }`}>
             {tab.label}
           </button>
@@ -280,37 +303,29 @@ export default function AdminPreOrders() {
       {activeTab === 'settings' && (
         <div className="space-y-4">
 
-          {/* Step 1 — Open/Close */}
+          {/* Step 1 */}
           <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
             <div className="flex items-center gap-2 bg-gradient-to-r from-gray-50 to-white px-5 py-3 border-b border-gray-100">
               <span className="w-6 h-6 rounded-full bg-[#CC0000] text-white text-xs font-black flex items-center justify-center flex-shrink-0">1</span>
               <p className="font-bold text-gray-700 text-sm">Open or close orders</p>
             </div>
             <div className="p-5">
-              <button
-                onClick={toggleOrdersOpen}
-                disabled={togglingOpen}
+              <button onClick={toggleOrdersOpen} disabled={togglingOpen}
                 className={`w-full rounded-2xl border-2 p-5 transition-all text-left flex items-center gap-5 active:scale-[0.99] ${
-                  settings.orders_open
-                    ? 'bg-green-50 border-green-400 hover:bg-green-100'
-                    : 'bg-red-50 border-red-300 hover:bg-red-100'
-                } disabled:opacity-60 disabled:cursor-not-allowed`}
-              >
-                {togglingOpen ? (
-                  <div className="w-12 h-12 border-4 border-gray-400 border-t-transparent rounded-full animate-spin flex-shrink-0" />
-                ) : settings.orders_open ? (
-                  <CheckCircle className="w-12 h-12 text-green-500 flex-shrink-0" />
-                ) : (
-                  <XCircle className="w-12 h-12 text-red-400 flex-shrink-0" />
-                )}
+                  settings.orders_open ? 'bg-green-50 border-green-400 hover:bg-green-100' : 'bg-red-50 border-red-300 hover:bg-red-100'
+                } disabled:opacity-60 disabled:cursor-not-allowed`}>
+                {togglingOpen
+                  ? <div className="w-12 h-12 border-4 border-gray-400 border-t-transparent rounded-full animate-spin flex-shrink-0" />
+                  : settings.orders_open
+                    ? <CheckCircle className="w-12 h-12 text-green-500 flex-shrink-0" />
+                    : <XCircle className="w-12 h-12 text-red-400 flex-shrink-0" />
+                }
                 <div>
                   <p className={`text-xl font-black ${settings.orders_open ? 'text-green-700' : 'text-red-600'}`}>
                     {settings.orders_open ? 'ORDERS ARE OPEN' : 'ORDERS ARE CLOSED'}
                   </p>
                   <p className="text-sm text-gray-500 mt-0.5">
-                    {settings.orders_open
-                      ? 'Customers CAN order right now. Tap here to CLOSE.'
-                      : 'Customers CANNOT order. Tap here to OPEN orders.'}
+                    {settings.orders_open ? 'Customers CAN order right now. Tap here to CLOSE.' : 'Customers CANNOT order. Tap here to OPEN orders.'}
                   </p>
                   <p className="text-xs text-gray-400 mt-1.5 font-semibold">Saves automatically when tapped</p>
                 </div>
@@ -318,20 +333,19 @@ export default function AdminPreOrders() {
             </div>
           </div>
 
-          {/* Step 2 — Deadline */}
+          {/* Step 2 */}
           <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
             <div className="flex items-center gap-2 bg-gradient-to-r from-gray-50 to-white px-5 py-3 border-b border-gray-100">
               <span className="w-6 h-6 rounded-full bg-[#CC0000] text-white text-xs font-black flex items-center justify-center flex-shrink-0">2</span>
               <p className="font-bold text-gray-700 text-sm">Order deadline <span className="text-gray-400 font-normal">(optional)</span></p>
             </div>
             <div className="p-5">
-              <p className="text-sm text-gray-500 mb-3">
-                Orders will close automatically at this time. Leave blank to close manually with the button above.
-              </p>
+              <p className="text-sm text-gray-500 mb-3">Orders close automatically at this time. Leave blank to close manually.</p>
               <input
                 type="datetime-local"
-                defaultValue={settings.order_deadline ? settings.order_deadline.slice(0, 16) : ''}
-                onBlur={(e) => saveDeadline(e.target.value ? new Date(e.target.value).toISOString() : null)}
+                value={deadlineInput}
+                onChange={e => setDeadlineInput(e.target.value)}
+                onBlur={handleDeadlineBlur}
                 className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-gray-900 text-base focus:outline-none focus:border-[#CC0000] transition-colors"
               />
               {settings.order_deadline && (
@@ -341,7 +355,7 @@ export default function AdminPreOrders() {
                       weekday: 'long', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit',
                     })}
                   </p>
-                  <button onClick={() => saveDeadline(null)} className="text-sm text-red-500 font-bold hover:text-red-700 ml-4 flex-shrink-0">
+                  <button onClick={clearDeadline} className="text-sm text-red-500 font-bold hover:text-red-700 ml-4 flex-shrink-0">
                     Remove
                   </button>
                 </div>
@@ -349,15 +363,13 @@ export default function AdminPreOrders() {
             </div>
           </div>
 
-          {/* Step 3 — Market dates */}
+          {/* Step 3 */}
           <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
             <div className="flex items-center gap-2 bg-gradient-to-r from-gray-50 to-white px-5 py-3 border-b border-gray-100">
               <span className="w-6 h-6 rounded-full bg-[#CC0000] text-white text-xs font-black flex items-center justify-center flex-shrink-0">3</span>
               <p className="font-bold text-gray-700 text-sm">Market dates</p>
             </div>
             <div className="p-5">
-
-              {/* Existing dates list */}
               {settings.delivery_dates.length > 0 ? (
                 <div className="space-y-2 mb-6">
                   <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Current dates</p>
@@ -369,24 +381,11 @@ export default function AdminPreOrders() {
                           <Users className="w-3.5 h-3.5 flex-shrink-0" />
                           {d.cities.includes('all') ? 'All cities' : d.cities.join(', ')}
                         </p>
-                        {d.time && (
-                          <p className="text-sm text-gray-600 mt-1 flex items-center gap-1.5">
-                            <Clock className="w-3.5 h-3.5 flex-shrink-0 text-[#CC0000]" />
-                            {d.time}
-                          </p>
-                        )}
-                        {d.location_address && (
-                          <p className="text-sm text-gray-600 mt-0.5 flex items-center gap-1.5">
-                            <MapPin className="w-3.5 h-3.5 flex-shrink-0 text-[#CC0000]" />
-                            {d.location_address}
-                          </p>
-                        )}
+                        {d.time && <p className="text-sm text-gray-600 mt-1 flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 flex-shrink-0 text-[#CC0000]" />{d.time}</p>}
+                        {d.location_address && <p className="text-sm text-gray-600 mt-0.5 flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 flex-shrink-0 text-[#CC0000]" />{d.location_address}</p>}
                       </div>
-                      <button
-                        onClick={() => removeDeliveryDate(idx)}
-                        className="flex-shrink-0 bg-red-50 hover:bg-red-100 text-red-500 hover:text-red-700 rounded-lg p-2 transition-colors border border-red-200"
-                        title="Remove this date"
-                      >
+                      <button onClick={() => removeDeliveryDate(idx)}
+                        className="flex-shrink-0 bg-red-50 hover:bg-red-100 text-red-500 hover:text-red-700 rounded-lg p-2 transition-colors border border-red-200">
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
@@ -400,59 +399,41 @@ export default function AdminPreOrders() {
                 </div>
               )}
 
-              {/* Add new date form */}
               <div className="border-t-2 border-dashed border-gray-100 pt-5">
                 <p className="text-sm font-black text-gray-700 uppercase tracking-wider mb-4 flex items-center gap-2">
-                  <Plus className="w-4 h-4 text-[#CC0000]" />
-                  Add a new market date
+                  <Plus className="w-4 h-4 text-[#CC0000]" /> Add a new market date
                 </p>
-
                 <div className="space-y-3">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1.5">
-                        Date <span className="text-red-500">*</span>
-                      </label>
+                      <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1.5">Date <span className="text-red-500">*</span></label>
                       <input type="date" value={newDate} onChange={e => setNewDate(e.target.value)}
                         className="w-full border-2 border-gray-200 rounded-xl px-3 py-3 text-gray-900 focus:outline-none focus:border-[#CC0000] transition-colors" />
                     </div>
                     <div>
-                      <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1.5">
-                        Label customers see <span className="text-red-500">*</span>
-                      </label>
+                      <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1.5">Label customers see <span className="text-red-500">*</span></label>
                       <input type="text" value={newLabel} onChange={e => setNewLabel(e.target.value)}
                         placeholder="e.g. Saturday, August 15"
                         className="w-full border-2 border-gray-200 rounded-xl px-3 py-3 text-gray-900 focus:outline-none focus:border-[#CC0000] transition-colors" />
                     </div>
                     <div>
-                      <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1.5">
-                        🕐 Time
-                      </label>
+                      <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1.5">🕐 Time</label>
                       <input type="text" value={newTime} onChange={e => setNewTime(e.target.value)}
                         placeholder="e.g. 10:00 AM – 2:00 PM"
                         className="w-full border-2 border-gray-200 rounded-xl px-3 py-3 text-gray-900 focus:outline-none focus:border-[#CC0000] transition-colors" />
                     </div>
                     <div>
-                      <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1.5">
-                        📍 Pickup Address
-                      </label>
+                      <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1.5">📍 Pickup Address</label>
                       <input type="text" value={newLocationAddress} onChange={e => setNewLocationAddress(e.target.value)}
                         placeholder="e.g. 123 Main St, Swannanoa, NC"
                         className="w-full border-2 border-gray-200 rounded-xl px-3 py-3 text-gray-900 focus:outline-none focus:border-[#CC0000] transition-colors" />
                     </div>
                   </div>
-
                   <div>
-                    <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-2">
-                      Which cities can order for this date?
-                    </label>
+                    <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-2">Which cities can order for this date?</label>
                     <div className="flex flex-wrap gap-2">
                       <button type="button" onClick={() => setNewCities(['all'])}
-                        className={`px-3 py-1.5 rounded-full border-2 font-bold text-sm transition-colors ${
-                          newCities.includes('all')
-                            ? 'border-[#CC0000] bg-[#CC0000] text-white'
-                            : 'border-gray-200 text-gray-600 hover:border-[#CC0000]/50'
-                        }`}>
+                        className={`px-3 py-1.5 rounded-full border-2 font-bold text-sm transition-colors ${newCities.includes('all') ? 'border-[#CC0000] bg-[#CC0000] text-white' : 'border-gray-200 text-gray-600 hover:border-[#CC0000]/50'}`}>
                         All Cities
                       </button>
                       {CITIES.map(c => (
@@ -462,27 +443,16 @@ export default function AdminPreOrders() {
                             else if (newCities.includes(c)) setNewCities(newCities.filter(x => x !== c));
                             else setNewCities([...newCities, c]);
                           }}
-                          className={`px-3 py-1.5 rounded-full border-2 font-bold text-sm transition-colors ${
-                            !newCities.includes('all') && newCities.includes(c)
-                              ? 'border-[#CC0000] bg-[#CC0000] text-white'
-                              : 'border-gray-200 text-gray-600 hover:border-[#CC0000]/50'
-                          }`}>
+                          className={`px-3 py-1.5 rounded-full border-2 font-bold text-sm transition-colors ${!newCities.includes('all') && newCities.includes(c) ? 'border-[#CC0000] bg-[#CC0000] text-white' : 'border-gray-200 text-gray-600 hover:border-[#CC0000]/50'}`}>
                           {c}
                         </button>
                       ))}
                     </div>
                   </div>
-
-                  <button
-                    type="button"
-                    onClick={addDeliveryDate}
+                  <button type="button" onClick={addDeliveryDate}
                     disabled={!newDate || !newLabel || savingDates}
-                    className="w-full flex items-center justify-center gap-2 bg-[#CC0000] text-white font-black text-base px-4 py-4 rounded-xl hover:bg-[#AA0000] disabled:opacity-40 transition-colors shadow-sm active:scale-[0.99]"
-                  >
-                    {savingDates
-                      ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      : <Plus className="h-5 w-5" />
-                    }
+                    className="w-full flex items-center justify-center gap-2 bg-[#CC0000] text-white font-black text-base px-4 py-4 rounded-xl hover:bg-[#AA0000] disabled:opacity-40 transition-colors shadow-sm active:scale-[0.99]">
+                    {savingDates ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Plus className="h-5 w-5" />}
                     {savingDates ? 'Saving...' : 'Add This Date'}
                   </button>
                 </div>
@@ -494,7 +464,42 @@ export default function AdminPreOrders() {
 
       {/* ── ORDERS TAB ── */}
       {activeTab === 'orders' && (
-        <div className="space-y-3">
+        <div className="space-y-4">
+
+          {orders.length > 0 && (
+            <>
+              {/* #2 — Production summary */}
+              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+                <div className="flex items-center justify-between px-5 py-3 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
+                  <p className="font-black text-gray-800 text-sm uppercase tracking-wider">📋 Production Summary</p>
+                  <p className="text-xs text-gray-400">Excludes completed orders</p>
+                </div>
+                <div className="p-4 divide-y divide-gray-50">
+                  {summary.length === 0 ? (
+                    <p className="text-sm text-gray-400 text-center py-3">All orders completed</p>
+                  ) : summary.map(([key, qty]) => (
+                    <div key={key} className="flex items-center justify-between py-2.5">
+                      <p className="text-sm text-gray-700 leading-snug">{key}</p>
+                      <span className="text-lg font-black text-[#CC0000] ml-4 flex-shrink-0">×{qty}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* #5 — Print / Export */}
+              <div className="flex gap-2">
+                <button onClick={() => window.print()}
+                  className="flex-1 flex items-center justify-center gap-2 bg-white border-2 border-gray-200 hover:border-gray-300 text-gray-700 font-bold text-sm px-4 py-3 rounded-xl transition-colors">
+                  <Printer className="w-4 h-4" /> Print Orders
+                </button>
+                <button onClick={() => exportCSV(orders)}
+                  className="flex-1 flex items-center justify-center gap-2 bg-white border-2 border-gray-200 hover:border-gray-300 text-gray-700 font-bold text-sm px-4 py-3 rounded-xl transition-colors">
+                  <Download className="w-4 h-4" /> Export CSV
+                </button>
+              </div>
+            </>
+          )}
+
           {orders.length === 0 ? (
             <div className="text-center py-20 text-gray-400 bg-white rounded-2xl border border-gray-200">
               <Package className="h-14 w-14 mx-auto mb-3 opacity-30" />
@@ -502,9 +507,7 @@ export default function AdminPreOrders() {
               <p className="text-sm mt-1">Orders will appear here once customers submit them</p>
             </div>
           ) : orders.map(order => (
-            <div key={order.id} className={`bg-white rounded-2xl border-2 shadow-sm p-5 ${
-              order.status === 'pending' ? 'border-amber-300' : 'border-gray-100'
-            }`}>
+            <div key={order.id} className={`bg-white rounded-2xl border-2 shadow-sm p-5 ${order.status === 'pending' ? 'border-amber-300' : 'border-gray-100'}`}>
               <div className="flex items-start justify-between gap-4 mb-3">
                 <div>
                   <p className="text-lg font-black text-gray-900">{order.customer_name}</p>
@@ -515,11 +518,8 @@ export default function AdminPreOrders() {
                 </div>
                 <div className="flex-shrink-0 text-right">
                   <label className="text-xs font-bold text-gray-400 block mb-1">Update status</label>
-                  <select
-                    value={order.status}
-                    onChange={e => updateOrderStatus(order.id, e.target.value)}
-                    className={`text-sm font-bold px-3 py-2 rounded-xl border-2 focus:outline-none cursor-pointer ${STATUS_STYLES[order.status] ?? STATUS_STYLES.pending}`}
-                  >
+                  <select value={order.status} onChange={e => updateOrderStatus(order.id, e.target.value)}
+                    className={`text-sm font-bold px-3 py-2 rounded-xl border-2 focus:outline-none cursor-pointer ${STATUS_STYLES[order.status] ?? STATUS_STYLES.pending}`}>
                     {Object.entries(STATUS_LABELS).map(([val, label]) => (
                       <option key={val} value={val}>{label}</option>
                     ))}
@@ -564,8 +564,7 @@ export default function AdminPreOrders() {
               {suggestions.map(order => (
                 <div key={order.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
                   <p className="font-bold text-gray-900 mb-1">
-                    {order.customer_name}
-                    <span className="font-normal text-gray-500 text-sm"> · {order.pickup_city}</span>
+                    {order.customer_name}<span className="font-normal text-gray-500 text-sm"> · {order.pickup_city}</span>
                   </p>
                   <p className="text-gray-700 text-base leading-relaxed bg-amber-50 rounded-xl px-4 py-3 border border-amber-100">
                     💡 {order.suggestions}
