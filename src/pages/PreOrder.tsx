@@ -192,6 +192,15 @@ export default function PreOrder() {
       setError('Please fill in your name, phone number, pickup city, and delivery date.');
       return;
     }
+    const phoneDigits = phone.replace(/\D/g, '');
+    if (phoneDigits.length < 10) {
+      setError('Please enter a valid phone number (at least 10 digits).');
+      return;
+    }
+    if (email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setError('Please enter a valid email address or leave the email field blank.');
+      return;
+    }
     if (!hasItems) {
       setError('Please select at least one item.');
       return;
@@ -213,6 +222,10 @@ export default function PreOrder() {
           suggestions: suggestions.trim(),
         }),
       });
+      if (res.status === 409) {
+        setError('Orders are currently closed. Please follow our Facebook page to be notified when the next order window opens.');
+        return;
+      }
       if (!res.ok) throw new Error('Failed');
       setSubmitted(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });

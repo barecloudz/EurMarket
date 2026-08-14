@@ -89,11 +89,18 @@ const handler: Handler = async (event) => {
 
         // Customer confirmation
         if (email) {
+          interface DeliveryDate { date: string; label: string; time?: string; location_address?: string; }
+          const pickedDate = (preorderSettings?.delivery_dates as DeliveryDate[] | undefined)
+            ?.find(d => d.date === delivery_date);
+          const dateLabel = pickedDate?.label ?? delivery_date;
+          const timeLine = pickedDate?.time ? `\nTime: ${pickedDate.time}` : '';
+          const locationLine = pickedDate?.location_address ? `\nPickup Location: ${pickedDate.location_address}` : '';
+
           sends.push(resend.emails.send({
             from: 'European Market <orders@europeanmarketus.com>',
             to: email,
             subject: `Your Pre-Order is Confirmed — European Market`,
-            text: `Hi ${name},\n\nThank you for your pre-order! We've received it and will text you at ${phone} to confirm pickup details.\n\nYour Order:\n${itemLines}\n\nPickup City: ${city}\nDelivery Date: ${delivery_date}${notes ? `\n\nNotes: ${notes}` : ''}\n\nQuestions? Text us at (864) 590-6760.\n\n❤️ European Market\nhttps://europeanmarketus.com`,
+            text: `Hi ${name},\n\nThank you for your pre-order! We've received it and will text you at ${phone} to confirm pickup details.\n\nYour Order:\n${itemLines}\n\nPickup City: ${city}\nDate: ${dateLabel}${timeLine}${locationLine}${notes ? `\n\nNotes: ${notes}` : ''}\n\nQuestions? Text us at (864) 590-6760.\n\n❤️ European Market\nhttps://europeanmarketus.com`,
           }));
         }
 

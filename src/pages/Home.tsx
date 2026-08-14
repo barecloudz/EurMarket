@@ -268,7 +268,7 @@ export default function Home() {
                   <p className="text-gray-700 text-sm">
                     🕐 {storeHours.length > 0 ? storeHours.join(' · ') : 'Mon–Thu: 11AM–6PM · Fri–Sun: Closed'}
                   </p>
-                  <a href="tel:8645906760"
+                  <a href="tel:+18645906760"
                     className="flex items-center justify-center gap-2 w-full bg-[#CC0000] hover:bg-[#AA0000] text-white font-bold text-sm py-2.5 rounded-xl transition-colors mt-1">
                     📞 (864) 590-6760
                   </a>

@@ -117,7 +117,7 @@ function exportCSV(orders: PreOrder[]) {
       ]);
     }
   }
-  const csv = rows.map(r => r.map(c => `"${c.replace(/"/g, '""')}"`).join(',')).join('\n');
+  const csv = rows.map(r => r.map(c => `"${c.replace(/"/g, '""').replace(/[\n\r]+/g, ' ')}"`).join(',')).join('\n');
   const blob = new Blob([csv], { type: 'text/csv' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -138,6 +138,7 @@ export default function AdminPreOrders() {
   const [loading, setLoading] = useState(true);
   const [togglingOpen, setTogglingOpen] = useState(false);
   const [savingDates, setSavingDates] = useState(false);
+  const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'settings' | 'orders' | 'suggestions'>('settings');
 
   // Controlled deadline input — separate from settings so it only saves on blur
@@ -231,8 +232,11 @@ export default function AdminPreOrders() {
   };
 
   const updateOrderStatus = async (id: string, status: string) => {
+    if (updatingStatus) return;
+    setUpdatingStatus(id);
     await supabase.from('pre_orders').update({ status }).eq('id', id);
     setOrders(prev => prev.map(o => o.id === id ? { ...o, status } : o));
+    setUpdatingStatus(null);
   };
 
   const suggestions = orders.filter(o => o.suggestions?.trim());
@@ -519,7 +523,8 @@ export default function AdminPreOrders() {
                 <div className="flex-shrink-0 text-right">
                   <label className="text-xs font-bold text-gray-400 block mb-1">Update status</label>
                   <select value={order.status} onChange={e => updateOrderStatus(order.id, e.target.value)}
-                    className={`text-sm font-bold px-3 py-2 rounded-xl border-2 focus:outline-none cursor-pointer ${STATUS_STYLES[order.status] ?? STATUS_STYLES.pending}`}>
+                    disabled={updatingStatus === order.id}
+                    className={`text-sm font-bold px-3 py-2 rounded-xl border-2 focus:outline-none cursor-pointer disabled:opacity-60 ${STATUS_STYLES[order.status] ?? STATUS_STYLES.pending}`}>
                     {Object.entries(STATUS_LABELS).map(([val, label]) => (
                       <option key={val} value={val}>{label}</option>
                     ))}
