@@ -46,12 +46,12 @@ const COUNTRY_FLAGS = [
 ];
 
 const CATEGORY_GRADIENTS = [
-  'from-red-700 to-rose-900',
-  'from-amber-600 to-orange-700',
-  'from-amber-700 to-yellow-900',
-  'from-blue-600 to-indigo-800',
-  'from-purple-600 to-pink-800',
-  'from-slate-600 to-gray-800',
+  'from-[#CC0000] to-[#880000]',
+  'from-amber-700 to-orange-800',
+  'from-[#8B4513] to-[#5C2F0D]',
+  'from-[#2D6A2D] to-[#1A4D1A]',
+  'from-[#8B2252] to-[#5C1736]',
+  'from-[#5C3A1E] to-[#3D270F]',
 ];
 
 const CATEGORY_EMOJIS: Record<string, string> = {
@@ -293,11 +293,16 @@ export default function Home() {
         </form>
       </div>
 
+      {/* ── Ornamental divider ── */}
+      <div className="section-divider px-6 py-3 max-w-7xl mx-auto">
+        <span>✦ ✦ ✦</span>
+      </div>
+
       {/* ── Categories ── */}
       <div className="px-4 py-5">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-base font-bold text-gray-900">Browse Categories</h2>
+            <h2 className="font-display text-lg font-bold text-gray-900">Browse Categories</h2>
             <Link to="/products" className="text-[var(--color-primary)] text-sm font-semibold hover:opacity-80 flex items-center gap-1">
               All <ArrowRight className="h-3.5 w-3.5" />
             </Link>
@@ -371,7 +376,7 @@ export default function Home() {
       <div className="px-4 pb-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-base font-bold text-gray-900">Featured Products</h2>
+            <h2 className="font-display text-lg font-bold text-gray-900">Featured Products</h2>
             <Link to="/products" className="text-[var(--color-primary)] hover:opacity-80 flex items-center text-sm font-semibold">
               View All <ArrowRight className="ml-1 h-3.5 w-3.5" />
             </Link>
@@ -438,6 +443,11 @@ export default function Home() {
             )}
           </div>
         </div>
+      </div>
+
+      {/* ── Ornamental divider ── */}
+      <div className="section-divider px-6 py-3 max-w-7xl mx-auto">
+        <span>✦ ✦ ✦</span>
       </div>
 
       {/* ── Fresh Bakery Spotlight ── */}
@@ -511,11 +521,11 @@ export default function Home() {
           <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 md:p-8">
             <div className="flex items-start justify-between mb-4">
               <div>
-                <h2 className="text-xl font-black text-gray-900 mb-1">From 25+ Countries</h2>
+                <h2 className="font-display text-xl font-black text-gray-900 mb-1">From 25+ Countries</h2>
                 <p className="text-gray-500 text-sm">Authentic imports sourced directly from Europe</p>
               </div>
               <div className="text-right">
-                <span className="text-3xl font-black text-[var(--color-primary)]">25+</span>
+                <span className="font-display text-4xl font-black text-[var(--color-primary)]">25+</span>
                 <p className="text-gray-400 text-xs">countries</p>
               </div>
             </div>

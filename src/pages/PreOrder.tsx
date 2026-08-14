@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { CheckCircle, Phone, MapPin, Clock, Lock, AlertCircle } from 'lucide-react';
+import { CheckCircle, Phone, MapPin, Clock, AlertCircle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 const CITIES = [
@@ -153,6 +153,9 @@ export default function PreOrder() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
+  const [notifyEmail, setNotifyEmail] = useState('');
+  const [notifySubmitting, setNotifySubmitting] = useState(false);
+  const [notifySubmitted, setNotifySubmitted] = useState(false);
 
   useEffect(() => {
     supabase.from('preorder_settings').select('*').eq('id', 1).single()
@@ -236,6 +239,39 @@ export default function PreOrder() {
     }
   };
 
+  const handleNotifySubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!notifyEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(notifyEmail)) return;
+    setNotifySubmitting(true);
+    try {
+      const { data: existing } = await supabase
+        .from('email_subscribers')
+        .select('id, is_subscribed')
+        .eq('email', notifyEmail.toLowerCase())
+        .single();
+      if (existing) {
+        if (!existing.is_subscribed) {
+          await supabase.from('email_subscribers')
+            .update({ is_subscribed: true, source: 'preorder_notify', unsubscribed_at: null })
+            .eq('id', existing.id);
+        }
+      } else {
+        await supabase.from('email_subscribers').insert({
+          email: notifyEmail.toLowerCase(),
+          source: 'preorder_notify',
+          is_subscribed: true,
+          subscribed_at: new Date().toISOString(),
+        });
+      }
+      setNotifySubmitted(true);
+    } catch {
+      // silently fail — form shows success anyway
+      setNotifySubmitted(true);
+    } finally {
+      setNotifySubmitting(false);
+    }
+  };
+
   // ── Loading ──
   if (loadingSettings) {
     return (
@@ -251,31 +287,79 @@ export default function PreOrder() {
   // ── Orders closed ──
   const ordersEffectivelyClosed = !settings?.orders_open || isDeadlinePassed(settings?.order_deadline ?? null);
   if (ordersEffectivelyClosed) {
+    const deadlinePassed = isDeadlinePassed(settings?.order_deadline ?? null);
     return (
-      <div className="min-h-screen bg-[#FFF8F0]" style={tnr}>
-        <div className="bg-[#CC0000] text-white text-center py-7 px-4">
-          <h1 className="text-4xl md:text-5xl font-bold mb-2">Pre-Order</h1>
-          <p className="text-xl text-white/85">Homemade European Specialties</p>
+      <div className="min-h-screen bg-[#FFF8F0]">
+        {/* Red header banner */}
+        <div className="bg-[#CC0000] text-white text-center py-8 px-4">
+          <h1 className="font-display text-4xl md:text-5xl font-black mb-2">Pre-Order</h1>
+          <p className="font-script text-xl md:text-2xl text-white/85">Homemade European Specialties</p>
         </div>
-        <div className="max-w-2xl mx-auto px-4 py-16 text-center">
-          <Lock className="h-16 w-16 text-[#CC0000] mx-auto mb-6" />
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">
-            {isDeadlinePassed(settings?.order_deadline ?? null)
-              ? 'Order Registration Has Closed'
-              : 'Orders Are Not Open Yet'}
+
+        <div className="max-w-lg mx-auto px-4 py-12 text-center">
+          {/* Food icons */}
+          <div className="flex justify-center gap-3 text-4xl mb-6 select-none">
+            <span>🥟</span><span>🍩</span><span>🥬</span><span>🍞</span><span>🧀</span>
+          </div>
+
+          <h2 className="font-display text-3xl md:text-4xl font-black text-gray-900 mb-3 leading-tight">
+            {deadlinePassed ? 'Order Window Has Closed' : 'Orders Opening Soon'}
           </h2>
-          <p className="text-2xl text-gray-600 mb-8 leading-relaxed">
-            {isDeadlinePassed(settings?.order_deadline ?? null)
-              ? 'The deadline for this order period has passed. Follow our Facebook page for the next order window!'
-              : 'We are not currently taking orders. Follow our Facebook page to be notified when orders open!'}
+          <p className="text-gray-600 text-lg mb-8 leading-relaxed">
+            {deadlinePassed
+              ? 'The deadline for this order period has passed. Sign up below and we\'ll email you when the next window opens!'
+              : 'We\'re not taking orders right now. Enter your email and we\'ll notify you as soon as orders open!'}
           </p>
+
+          {/* Available items teaser */}
+          <div className="bg-white border-2 border-[#CC0000]/20 rounded-2xl p-5 mb-8 text-left shadow-sm">
+            <p className="font-display font-bold text-[#CC0000] text-sm uppercase tracking-widest mb-3 text-center">Available to Pre-Order</p>
+            <div className="grid grid-cols-2 gap-y-2 gap-x-4">
+              {['🥟 Pierogies', '🍩 Paczki', '🥬 Cabbage Rolls', '🍞 Poppy Seed Rolls', '🧀 Sweet Cheese Rolls', '🥟 Ukrainian Pirozhki'].map(item => (
+                <span key={item} className="text-sm text-gray-700 font-medium">{item}</span>
+              ))}
+            </div>
+          </div>
+
+          {/* Email notification form */}
+          <div className="mb-6">
+            {notifySubmitted ? (
+              <div className="flex items-center justify-center gap-2 text-green-700 bg-green-50 border border-green-200 rounded-xl px-5 py-4 font-semibold">
+                <CheckCircle className="h-5 w-5 flex-shrink-0" />
+                We'll email you when orders open!
+              </div>
+            ) : (
+              <>
+                <p className="text-gray-700 font-semibold mb-3">Get notified when orders open:</p>
+                <form onSubmit={handleNotifySubmit} className="flex gap-2">
+                  <input
+                    type="email"
+                    value={notifyEmail}
+                    onChange={(e) => setNotifyEmail(e.target.value)}
+                    placeholder="your@email.com"
+                    required
+                    className="flex-1 border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#CC0000] text-gray-900 text-base transition-colors"
+                  />
+                  <button type="submit" disabled={notifySubmitting}
+                    className="bg-[#CC0000] text-white font-bold px-5 py-3 rounded-xl hover:bg-[#AA0000] transition-colors flex-shrink-0 disabled:opacity-60">
+                    {notifySubmitting ? '...' : 'Notify Me'}
+                  </button>
+                </form>
+              </>
+            )}
+          </div>
+
+          <div className="text-gray-400 text-sm mb-4">— or —</div>
+
           <a href="https://www.facebook.com/profile.php?id=100085334597598" target="_blank" rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 bg-[#CC0000] text-white font-bold px-8 py-4 rounded-2xl hover:bg-[#AA0000] transition-colors text-xl">
-            Follow Us on Facebook
+            className="inline-flex items-center gap-2 text-[#CC0000] font-bold border-2 border-[#CC0000] px-6 py-3 rounded-xl hover:bg-[#CC0000]/5 transition-colors mb-10">
+            Follow Us on Facebook for Updates
           </a>
-          <div className="mt-10 bg-white border-2 border-[#CC0000]/20 rounded-2xl p-6">
-            <p className="text-xl font-bold text-gray-800 mb-2">Questions? Text us:</p>
-            <a href="sms:8645906760" className="text-3xl font-bold text-[#CC0000]">(864) 590-6760</a>
+
+          {/* Phone card */}
+          <div className="bg-white border-2 border-[#CC0000]/20 rounded-2xl p-6 shadow-sm">
+            <p className="text-gray-500 text-sm mb-1">Questions? Text us:</p>
+            <a href="sms:8645906760" className="font-display text-2xl font-black text-[#CC0000]">(864) 590-6760</a>
           </div>
         </div>
       </div>
@@ -288,7 +372,7 @@ export default function PreOrder() {
       <div className="min-h-screen bg-[#FFF8F0] flex items-center justify-center px-4 py-16">
         <div className="text-center max-w-lg w-full" style={tnr}>
           <CheckCircle className="h-20 w-20 text-[#CC0000] mx-auto mb-5" />
-          <h1 className="text-4xl md:text-5xl font-bold text-[#CC0000] mb-4">Order Received!</h1>
+          <h1 className="font-display text-4xl md:text-5xl font-black text-[#CC0000] mb-4">Order Received!</h1>
           <p className="text-2xl text-gray-700 mb-4 leading-relaxed">
             Thank you, <strong>{name}</strong>!<br />
             Pickup in <strong>{city}</strong> on <strong>{availableDates.find(d => d.date === deliveryDate)?.label ?? deliveryDate}</strong>.
@@ -327,9 +411,9 @@ export default function PreOrder() {
     <div className="min-h-screen bg-[#FFF8F0]" style={tnr}>
 
       {/* Header */}
-      <div className="bg-[#CC0000] text-white text-center py-7 px-4">
-        <h1 className="text-4xl md:text-5xl font-bold mb-2">Place a Pre-Order</h1>
-        <p className="text-xl md:text-2xl text-white/85">Homemade European Specialties — Fresh Made to Order</p>
+      <div className="bg-[#CC0000] text-white text-center py-8 px-4">
+        <h1 className="font-display text-4xl md:text-5xl font-black mb-2">Place a Pre-Order</h1>
+        <p className="font-script text-xl md:text-2xl text-white/85">Homemade European Specialties — Fresh Made to Order</p>
       </div>
 
       {/* Deadline banner */}

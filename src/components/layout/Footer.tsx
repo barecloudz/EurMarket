@@ -236,9 +236,9 @@ export default function Footer() {
               </form>
             )}
 
-            <div className="mt-5 p-4 rounded-xl border-2 border-[#CC0000]/20 bg-white">
-              <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Made Fresh Daily</p>
-              <p className="text-sm text-gray-700 leading-relaxed">
+            <div className="mt-5 p-4 rounded-xl border-2 border-[#CC0000]/20 bg-[#FFF8F0]">
+              <p className="font-display font-bold text-[#CC0000] text-sm mb-1.5">Made Fresh Daily</p>
+              <p className="text-sm text-gray-600 leading-relaxed">
                 Pierogies · Paczki · Cabbage Rolls<br />
                 Poppyseed Rolls · Borscht · Blintzes
               </p>

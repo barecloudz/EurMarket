@@ -701,23 +701,23 @@ export default function Checkout() {
   }
 
   return (
-    <div className="min-h-screen pb-24 md:pb-8">
+    <div className="min-h-screen bg-[#FFF8F0] pb-24 md:pb-8">
       {/* Header */}
-      <div className="sticky top-0 z-30 bg-[var(--color-surface)]/95 backdrop-blur-sm border-b border-[var(--color-border)]">
+      <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-sm border-b border-gray-200 shadow-sm">
         <div className="max-w-2xl mx-auto px-4 py-4 flex items-center gap-4">
           <button
             onClick={() => step === 'payment' ? setStep('details') : navigate(-1)}
-            className="p-2 -ml-2 text-gray-400 hover:text-white transition-colors"
+            className="p-2 -ml-2 text-gray-400 hover:text-gray-900 transition-colors"
           >
             <ChevronLeft className="h-6 w-6" />
           </button>
-          <h1 className="text-xl font-bold text-white">Checkout</h1>
+          <h1 className="font-display text-xl font-black text-gray-900">Checkout</h1>
         </div>
       </div>
 
-      <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
+      <div className="max-w-2xl mx-auto px-4 py-6 space-y-4">
         {/* Order Summary - Compact */}
-        <div className="bg-[var(--color-surface)]/80 backdrop-blur-sm rounded-2xl border border-[var(--color-border)] p-4">
+        <div className="bg-white rounded-2xl border border-[#CC0000]/10 shadow-sm p-4">
           <div className="space-y-3">
             {items.map((item) => {
               const itemPrice = item.product.price + (item.variant?.price_adjustment || 0);
@@ -727,7 +727,7 @@ export default function Checkout() {
                   key={`${item.product.id}-${item.variant?.id || 'default'}`}
                   className="flex items-center gap-4"
                 >
-                  <div className="w-16 h-16 bg-[var(--color-border)] rounded-xl flex-shrink-0 overflow-hidden">
+                  <div className="w-16 h-16 bg-gray-100 rounded-xl flex-shrink-0 overflow-hidden">
                     {primaryImage?.image_url ? (
                       <img
                         src={primaryImage.image_url}
@@ -735,21 +735,21 @@ export default function Checkout() {
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-500 text-xs">
+                      <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">
                         No image
                       </div>
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-white font-medium truncate">{item.product.name}</h3>
-                    <p className="text-gray-400 text-sm">
+                    <h3 className="text-gray-900 font-semibold truncate">{item.product.name}</h3>
+                    <p className="text-gray-500 text-sm">
                       Qty: {item.quantity}
                       {item.variant && ` • ${item.variant.name}`}
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-[var(--color-primary)] font-bold">{formatPrice(itemPrice * item.quantity)}</p>
-                    <p className="text-gray-500 text-xs">incl. taxes</p>
+                    <p className="text-[#CC0000] font-bold">{formatPrice(itemPrice * item.quantity)}</p>
+                    <p className="text-gray-400 text-xs">incl. taxes</p>
                   </div>
                 </div>
               );
@@ -760,8 +760,8 @@ export default function Checkout() {
         {step === 'details' ? (
           <>
             {/* Contact & Address */}
-            <div className="bg-[var(--color-surface)]/80 backdrop-blur-sm rounded-2xl border border-[var(--color-border)] p-4 space-y-4">
-              <h2 className="text-white font-semibold">Contact information</h2>
+            <div className="bg-white rounded-2xl border border-[#CC0000]/10 shadow-sm p-4 space-y-4">
+              <h2 className="text-gray-900 font-semibold">Contact information</h2>
 
               <Input
                 label="Email"
@@ -797,8 +797,8 @@ export default function Checkout() {
                 onChange={handleInputChange}
               />
 
-              <div className="border-t border-[var(--color-border)] pt-4 mt-4">
-                <h2 className="text-white font-semibold mb-4">Shipping address</h2>
+              <div className="border-t border-gray-100 pt-4 mt-4">
+                <h2 className="text-gray-900 font-semibold mb-4">Shipping address</h2>
               </div>
 
               <Input
@@ -847,9 +847,9 @@ export default function Checkout() {
 
               {/* Shipping Options */}
               {canCalculateShipping && isValidState && (
-                <div className="mt-4 p-4 bg-[var(--color-background)]/50 rounded-xl">
+                <div className="mt-4 p-4 bg-[#FFF8F0] rounded-xl border border-[#CC0000]/10">
                   <div className="flex items-center justify-between mb-3">
-                    <p className="text-white font-medium">Shipping Method</p>
+                    <p className="text-gray-900 font-semibold">Shipping Method</p>
                     <Button
                       type="button"
                       variant="outline"
@@ -875,10 +875,10 @@ export default function Checkout() {
                       {shippingRates.map((rate, index) => (
                         <label
                           key={rate.serviceToken}
-                          className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors border ${
+                          className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-colors border ${
                             selectedRateIndex === index
-                              ? 'border-[var(--color-primary)] bg-[var(--color-primary)]/10'
-                              : 'border-[var(--color-border)] hover:bg-white/5'
+                              ? 'border-[#CC0000] bg-[#CC0000]/5'
+                              : 'border-gray-200 hover:border-[#CC0000]/30 bg-white'
                           }`}
                         >
                           <input
@@ -886,17 +886,17 @@ export default function Checkout() {
                             name="shippingRate"
                             checked={selectedRateIndex === index}
                             onChange={() => setSelectedRateIndex(index)}
-                            className="w-4 h-4 border-[var(--color-border)] bg-[var(--color-background)] text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
+                            className="w-4 h-4 border-gray-300 text-[#CC0000] focus:ring-[#CC0000]"
                           />
                           <div className="flex-1">
-                            <span className="text-white text-sm font-medium">{rate.serviceName}</span>
+                            <span className="text-gray-900 text-sm font-medium">{rate.serviceName}</span>
                             {rate.estimatedDays && (
                               <span className="text-gray-400 text-xs ml-2">
                                 ({rate.estimatedDays} day{rate.estimatedDays !== 1 ? 's' : ''})
                               </span>
                             )}
                           </div>
-                          <span className="text-[var(--color-primary)] font-bold text-sm">
+                          <span className="text-[#CC0000] font-bold text-sm">
                             {formatPrice(rate.rate)}
                           </span>
                         </label>
@@ -926,22 +926,22 @@ export default function Checkout() {
                   id="marketingOptIn"
                   checked={formData.marketingOptIn}
                   onChange={handleInputChange}
-                  className="w-4 h-4 rounded border-[var(--color-border)] bg-[var(--color-background)] text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
+                  className="w-4 h-4 rounded border-gray-300 text-[#CC0000] focus:ring-[#CC0000]"
                 />
-                <label htmlFor="marketingOptIn" className="text-gray-400 text-sm">
+                <label htmlFor="marketingOptIn" className="text-gray-500 text-sm">
                   Email me with news and offers
                 </label>
               </div>
             </div>
 
             {/* Promo Code */}
-            <div className="bg-[var(--color-surface)]/80 backdrop-blur-sm rounded-2xl border border-[var(--color-border)] p-4">
-              <h2 className="text-white font-semibold mb-4">Promo code</h2>
+            <div className="bg-white rounded-2xl border border-[#CC0000]/10 shadow-sm p-4">
+              <h2 className="text-gray-900 font-semibold mb-4">Promo code</h2>
               {appliedPromo ? (
-                <div className="flex items-center justify-between bg-[var(--color-primary)]/10 border border-[var(--color-primary)]/30 rounded-xl px-4 py-3">
+                <div className="flex items-center justify-between bg-[#CC0000]/5 border border-[#CC0000]/20 rounded-xl px-4 py-3">
                   <div className="flex items-center gap-2">
-                    <Tag className="h-4 w-4 text-[var(--color-primary)]" />
-                    <span className="font-mono text-[var(--color-primary)] font-medium">{appliedPromo.code}</span>
+                    <Tag className="h-4 w-4 text-[#CC0000]" />
+                    <span className="font-mono text-[#CC0000] font-medium">{appliedPromo.code}</span>
                     <span className="text-gray-400 text-sm">
                       ({appliedPromo.discount_type === 'percentage'
                         ? `${appliedPromo.discount_value}% off`
@@ -991,10 +991,10 @@ export default function Checkout() {
                             key={promo.id}
                             type="button"
                             onClick={() => applyFeaturedPromo(promo)}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[var(--color-primary)]/10 border border-[var(--color-primary)]/30 rounded-lg text-sm hover:bg-[var(--color-primary)]/20 transition-colors"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#CC0000]/8 border border-[#CC0000]/20 rounded-lg text-sm hover:bg-[#CC0000]/15 transition-colors"
                           >
-                            <Tag className="h-3 w-3 text-[var(--color-primary)]" />
-                            <span className="font-mono text-[var(--color-primary)] font-medium">{promo.code}</span>
+                            <Tag className="h-3 w-3 text-[#CC0000]" />
+                            <span className="font-mono text-[#CC0000] font-medium">{promo.code}</span>
                             <span className="text-gray-400">
                               {promo.discount_type === 'percentage'
                                 ? `${promo.discount_value}% off`
@@ -1010,13 +1010,13 @@ export default function Checkout() {
             </div>
 
             {/* Order Total */}
-            <div className="bg-[var(--color-surface)]/80 backdrop-blur-sm rounded-2xl border border-[var(--color-border)] p-4 space-y-3">
-              <div className="flex justify-between text-gray-400">
+            <div className="bg-white rounded-2xl border border-[#CC0000]/10 shadow-sm p-4 space-y-3">
+              <div className="flex justify-between text-gray-500">
                 <span>Subtotal</span>
-                <span>{formatPrice(subtotal)}</span>
+                <span className="text-gray-900">{formatPrice(subtotal)}</span>
               </div>
               {discount > 0 && (
-                <div className="flex justify-between text-green-500">
+                <div className="flex justify-between text-green-600">
                   <span className="flex items-center gap-1">
                     <Check className="h-4 w-4" />
                     Discount
@@ -1024,12 +1024,12 @@ export default function Checkout() {
                   <span>-{formatPrice(discount)}</span>
                 </div>
               )}
-              <div className="flex justify-between text-gray-400">
+              <div className="flex justify-between text-gray-500">
                 <span className="flex items-center gap-2">
                   Shipping
                   {shippingLoading && <Loader2 className="h-3 w-3 animate-spin" />}
                 </span>
-                <span className={shippingRate === null && !shippingLoading ? 'text-orange-400' : ''}>
+                <span className={shippingRate === null && !shippingLoading ? 'text-orange-500 font-medium' : 'text-gray-900'}>
                   {shippingLoading
                     ? 'Calculating...'
                     : shippingRate !== null
@@ -1040,20 +1040,20 @@ export default function Checkout() {
               {!shippingLoading && (
                 <p className="text-xs text-right">
                   {shippingRate === null ? (
-                    <span className="text-orange-400">Select a shipping method above to continue</span>
+                    <span className="text-orange-500">Select a shipping method above to continue</span>
                   ) : isRateFallback ? (
-                    <span className="text-orange-400">Could not verify rate - please recalculate</span>
+                    <span className="text-orange-500">Could not verify rate - please recalculate</span>
                   ) : selectedRate ? (
-                    <span className="text-gray-500">
+                    <span className="text-gray-400">
                       {selectedRate.serviceName}
                       {estimatedDelivery && ` - Est. ${estimatedDelivery} business day${estimatedDelivery !== 1 ? 's' : ''}`}
                     </span>
                   ) : null}
                 </p>
               )}
-              <div className="flex justify-between text-xl font-bold pt-3 border-t border-[var(--color-border)]">
-                <span className="text-white">Total</span>
-                <span className="text-[var(--color-primary)]">{formatPrice(total)}</span>
+              <div className="flex justify-between text-xl font-bold pt-3 border-t border-gray-100">
+                <span className="text-gray-900">Total</span>
+                <span className="text-[#CC0000]">{formatPrice(total)}</span>
               </div>
             </div>
 
@@ -1084,17 +1084,17 @@ export default function Checkout() {
         ) : (
           <>
             {/* Payment Section */}
-            <div className="bg-[var(--color-surface)]/80 backdrop-blur-sm rounded-2xl border border-[var(--color-border)] p-4">
-              <h2 className="text-white font-semibold mb-4">Select payment method</h2>
+            <div className="bg-white rounded-2xl border border-[#CC0000]/10 shadow-sm p-4">
+              <h2 className="text-gray-900 font-semibold mb-4">Select payment method</h2>
 
               {/* Shipping summary */}
-              <div className="mb-4 p-3 bg-[var(--color-background)]/50 rounded-xl">
-                <p className="text-gray-400 text-sm">
+              <div className="mb-4 p-3 bg-[#FFF8F0] rounded-xl border border-[#CC0000]/10">
+                <p className="text-gray-600 text-sm">
                   Shipping to: {formData.firstName} {formData.lastName}, {formData.address}, {formData.city}, {formData.state} {formData.zip}
                 </p>
                 <button
                   onClick={() => setStep('details')}
-                  className="text-[var(--color-primary)] text-sm hover:underline mt-1"
+                  className="text-[#CC0000] text-sm hover:underline mt-1 font-medium"
                 >
                   Edit details
                 </button>
@@ -1114,10 +1114,10 @@ export default function Checkout() {
             </div>
 
             {/* Order Total - Payment Step */}
-            <div className="bg-[var(--color-surface)]/80 backdrop-blur-sm rounded-2xl border border-[var(--color-border)] p-4">
+            <div className="bg-white rounded-2xl border border-[#CC0000]/10 shadow-sm p-4">
               <div className="flex justify-between text-xl font-bold">
-                <span className="text-white">Total</span>
-                <span className="text-[var(--color-primary)]">{formatPrice(total)}</span>
+                <span className="text-gray-900">Total</span>
+                <span className="text-[#CC0000]">{formatPrice(total)}</span>
               </div>
             </div>
           </>

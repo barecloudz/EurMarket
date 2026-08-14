@@ -300,7 +300,7 @@ export default function ProductDetail() {
             )}
 
             {/* Title */}
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">{product.name}</h1>
+            <h1 className="font-display text-2xl md:text-3xl font-black text-gray-900">{product.name}</h1>
 
             {/* Price */}
             <div className="flex items-center gap-4">
@@ -377,8 +377,8 @@ export default function ProductDetail() {
             {/* Description */}
             {product.description && (
               <div className="bg-[#FAF9F7] rounded-2xl border border-[var(--color-border)] p-5">
-                <h2 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-3">
-                  Product Description
+                <h2 className="font-display font-bold text-gray-700 text-sm mb-3 border-b border-[var(--color-border)] pb-2">
+                  About this product
                 </h2>
                 <div className="text-gray-700 text-sm leading-relaxed">
                   <p className={!isDescriptionExpanded ? 'line-clamp-4' : ''} style={{ whiteSpace: 'pre-line' }}>

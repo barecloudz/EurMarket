@@ -151,10 +151,10 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-6">
       {/* Welcome Header */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-gray-100 via-white to-gray-100 border border-gray-200 p-6 sm:p-8">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--color-primary)]/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#CC0000]/8 via-[#FFF8F0] to-[#CC0000]/5 border border-[#CC0000]/20 p-6 sm:p-8">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-[#CC0000]/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
         <div className="relative">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="font-display text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
             Welcome to European Market
           </h1>
           <p className="text-gray-600 mb-4">
@@ -314,8 +314,8 @@ export default function AdminDashboard() {
               <AreaChart data={salesData}>
                 <defs>
                   <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#00ff66" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#00ff66" stopOpacity={0} />
+                    <stop offset="5%" stopColor="#CC0000" stopOpacity={0.25} />
+                    <stop offset="95%" stopColor="#CC0000" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
@@ -345,7 +345,7 @@ export default function AdminDashboard() {
                 <Area
                   type="monotone"
                   dataKey="revenue"
-                  stroke="#00ff66"
+                  stroke="#CC0000"
                   strokeWidth={2}
                   fillOpacity={1}
                   fill="url(#revenueGradient)"

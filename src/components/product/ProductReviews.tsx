@@ -142,45 +142,50 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
       <h2 className="text-2xl font-bold text-theme mb-6">Customer Reviews</h2>
 
       {/* Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-        {/* Average Rating */}
-        <Card>
-          <div className="flex items-center gap-4">
-            <div className="text-center">
-              <div className="text-4xl font-bold text-theme">
-                {averageRating.toFixed(1)}
-              </div>
-              <div className="flex justify-center mt-1">
-                {renderStars(Math.round(averageRating))}
-              </div>
-              <p className="text-theme opacity-60 text-sm mt-1">
-                {reviews.length} {reviews.length === 1 ? 'review' : 'reviews'}
-              </p>
-            </div>
-            <div className="flex-1 space-y-1">
-              {ratingDistribution.map(({ rating, count, percentage }) => (
-                <div key={rating} className="flex items-center gap-2">
-                  <span className="text-sm text-theme opacity-60 w-8">{rating}</span>
-                  <Star className="h-3 w-3 text-yellow-400 fill-yellow-400" />
-                  <div className="flex-1 h-2 bg-[var(--color-border)] rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-yellow-400 rounded-full transition-all"
-                      style={{ width: `${percentage}%` }}
-                    />
-                  </div>
-                  <span className="text-sm text-theme opacity-60 w-8">{count}</span>
+      <div className={`grid grid-cols-1 ${reviews.length > 0 ? 'md:grid-cols-2' : 'max-w-md'} gap-8 mb-8`}>
+        {/* Average Rating — only show when there are reviews */}
+        {reviews.length > 0 && (
+          <Card>
+            <div className="flex items-center gap-4">
+              <div className="text-center">
+                <div className="text-4xl font-bold text-theme">
+                  {averageRating.toFixed(1)}
                 </div>
-              ))}
+                <div className="flex justify-center mt-1">
+                  {renderStars(Math.round(averageRating))}
+                </div>
+                <p className="text-theme opacity-60 text-sm mt-1">
+                  {reviews.length} {reviews.length === 1 ? 'review' : 'reviews'}
+                </p>
+              </div>
+              <div className="flex-1 space-y-1">
+                {ratingDistribution.map(({ rating, count, percentage }) => (
+                  <div key={rating} className="flex items-center gap-2">
+                    <span className="text-sm text-theme opacity-60 w-8">{rating}</span>
+                    <Star className="h-3 w-3 text-yellow-400 fill-yellow-400" />
+                    <div className="flex-1 h-2 bg-[var(--color-border)] rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-yellow-400 rounded-full transition-all"
+                        style={{ width: `${percentage}%` }}
+                      />
+                    </div>
+                    <span className="text-sm text-theme opacity-60 w-8">{count}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        </Card>
+          </Card>
+        )}
 
         {/* Write Review CTA */}
         <Card>
           <div className="text-center py-4">
+            <Star className={`h-8 w-8 text-yellow-400 fill-yellow-400 mx-auto mb-2 ${reviews.length > 0 ? 'hidden' : ''}`} />
             <h3 className="text-lg font-semibold text-theme mb-2">Share Your Experience</h3>
             <p className="text-theme opacity-60 text-sm mb-4">
-              Help other customers by sharing your thoughts
+              {reviews.length === 0
+                ? 'Be the first to leave a review for this product'
+                : 'Help other customers by sharing your thoughts'}
             </p>
             {hasReviewed ? (
               <p className="text-green-400 text-sm flex items-center justify-center gap-2">
@@ -263,12 +268,7 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
       )}
 
       {/* Reviews List */}
-      {reviews.length === 0 ? (
-        <Card className="text-center py-12">
-          <Star className="h-12 w-12 text-theme opacity-30 mx-auto mb-4" />
-          <p className="text-theme opacity-60">No reviews yet. Be the first to review!</p>
-        </Card>
-      ) : (
+      {reviews.length === 0 ? null : (
         <div className="space-y-4">
           {reviews.map((review) => (
             <Card key={review.id}>

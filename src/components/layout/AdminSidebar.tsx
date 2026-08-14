@@ -142,13 +142,16 @@ export default function AdminSidebar() {
     <>
       {/* Logo */}
       <div className={`p-5 border-b ${isMobile ? 'border-gray-200 bg-white' : 'border-gray-200'}`}>
-        <Link to="/admin" className="flex items-center space-x-2" onClick={() => setMobileOpen(false)}>
+        <Link to="/admin" className="flex items-center gap-3" onClick={() => setMobileOpen(false)}>
           <img
             src="/logo.jpg"
             alt="European Market"
-            className="h-8 w-auto object-contain"
+            className="h-10 w-10 object-cover rounded-xl shadow-sm flex-shrink-0"
           />
-          <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded font-medium">Admin</span>
+          <div className="min-w-0">
+            <p className="font-display font-black text-[#CC0000] text-sm leading-tight truncate">European Market</p>
+            <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Admin Panel</span>
+          </div>
         </Link>
       </div>
 

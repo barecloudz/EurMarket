@@ -65,8 +65,8 @@ export default function AdminOrders() {
               onClick={() => setStatusFilter(value)}
               className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
                 statusFilter === value
-                  ? 'bg-white text-black'
-                  : 'bg-brand-gray text-gray-400 hover:text-white'
+                  ? 'bg-gray-900 text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-900'
               }`}
             >
               {label} ({count})

@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
-import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
-import Card from '../components/ui/Card';
+import Button from '../components/ui/Button';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -11,10 +10,7 @@ export default function Login() {
   const { signIn } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  });
+  const [formData, setFormData] = useState({ email: '', password: '' });
 
   const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/';
 
@@ -31,7 +27,6 @@ export default function Login() {
       return;
     }
 
-    // Redirect suppliers to their portal
     const updatedProfile = useAuthStore.getState().profile;
     if (updatedProfile?.role === 'supplier') {
       navigate('/supplier/orders', { replace: true });
@@ -41,48 +36,71 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-[60vh] flex items-center justify-center px-4 py-12">
-      <Card className="w-full max-w-md">
-        <div className="text-center mb-6">
-          <h1 className="text-2xl font-bold text-theme">Welcome Back</h1>
-          <p className="text-theme opacity-60 mt-2">Sign in to your account</p>
+    <div className="min-h-[70vh] flex items-center justify-center px-4 py-12 bg-[#FFF8F0]">
+      <div className="w-full max-w-md">
+        {/* Brand header */}
+        <div className="text-center mb-8">
+          <Link to="/" className="inline-flex items-center gap-3 mb-6">
+            <img src="/logo.jpg" alt="European Market" className="h-14 w-14 object-cover rounded-2xl shadow-md" />
+          </Link>
+          <h1 className="font-display text-3xl font-black text-gray-900 mb-1">Welcome Back</h1>
+          <p className="text-gray-500">Sign in to your European Market account</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {error && (
-            <div className="bg-red-500/10 border border-red-500/50 rounded-lg p-3 text-red-400 text-sm">
-              {error}
+        {/* Form card */}
+        <div className="bg-white rounded-3xl border border-[#CC0000]/15 shadow-lg p-8">
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-red-600 text-sm">
+                {error}
+              </div>
+            )}
+
+            <Input
+              label="Email"
+              type="email"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              required
+              autoComplete="email"
+            />
+
+            <div>
+              <Input
+                label="Password"
+                type="password"
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                required
+                autoComplete="current-password"
+              />
+              <div className="text-right mt-1">
+                <Link to="/reset-password" className="text-xs text-[#CC0000] hover:underline">
+                  Forgot password?
+                </Link>
+              </div>
             </div>
-          )}
 
-          <Input
-            label="Email"
-            type="email"
-            value={formData.email}
-            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-            required
-          />
+            <Button type="submit" className="w-full" isLoading={isLoading}>
+              Sign In
+            </Button>
+          </form>
 
-          <Input
-            label="Password"
-            type="password"
-            value={formData.password}
-            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-            required
-          />
+          <div className="mt-6 pt-6 border-t border-gray-100 text-center">
+            <p className="text-gray-500 text-sm">
+              Don't have an account?{' '}
+              <Link to="/register" className="text-[#CC0000] font-bold hover:underline">
+                Create one free
+              </Link>
+            </p>
+          </div>
+        </div>
 
-          <Button type="submit" className="w-full" isLoading={isLoading}>
-            Sign In
-          </Button>
-        </form>
-
-        <p className="text-center text-theme opacity-60 mt-6">
-          Don't have an account?{' '}
-          <Link to="/register" className="text-[var(--color-primary)] hover:opacity-80 transition-colors">
-            Create one
-          </Link>
+        {/* Footer tagline */}
+        <p className="text-center text-gray-400 text-xs mt-6">
+          Fresh homemade European specialties from 25+ countries
         </p>
-      </Card>
+      </div>
     </div>
   );
 }

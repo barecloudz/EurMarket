@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Package, Plus, Heart } from 'lucide-react';
+import { Package, Plus, Heart, Check } from 'lucide-react';
 import Badge from '../ui/Badge';
 import { formatPrice, getStockStatus } from '../../lib/utils';
 import { useCartStore } from '../../store/cartStore';
@@ -101,7 +101,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           <p className="text-gray-400 text-[11px] mb-2">{product.category.name}</p>
         )}
 
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-2">
           <div>
             <span className="text-gray-900 font-bold text-sm">{formatPrice(product.price)}</span>
             {product.compare_at_price && product.compare_at_price > product.price && (
@@ -111,16 +111,19 @@ export default function ProductCard({ product }: ProductCardProps) {
             )}
           </div>
 
-          {/* Circular + add button */}
           <button onClick={handleAddToCart} disabled={outOfStock}
-            className={`w-8 h-8 rounded-full flex items-center justify-center transition-all btn-press shadow-sm flex-shrink-0 ${
+            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all btn-press flex-shrink-0 ${
               adding
-                ? 'bg-[var(--color-primary-light)] text-white scale-90'
+                ? 'bg-green-500 text-white'
                 : outOfStock
                 ? 'bg-gray-100 text-gray-300 cursor-not-allowed'
-                : 'bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-light)]'
+                : 'bg-[#CC0000] text-white hover:bg-[#AA0000]'
             }`}>
-            <Plus className={`h-4 w-4 ${adding ? 'animate-spin' : ''}`} />
+            {adding ? (
+              <><Check className="h-3 w-3" /> Added</>
+            ) : (
+              <><Plus className="h-3 w-3" /> Add</>
+            )}
           </button>
         </div>
 

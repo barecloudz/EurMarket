@@ -15,14 +15,14 @@ export default function Cart() {
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4">
+      <div className="min-h-screen bg-[#FFF8F0] flex items-center justify-center px-4">
         <div className="text-center animate-fade-in">
-          <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-gray-100 flex items-center justify-center">
-            <ShoppingBag className="h-12 w-12 text-gray-300" />
+          <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-white border-2 border-[#CC0000]/15 shadow-sm flex items-center justify-center">
+            <ShoppingBag className="h-12 w-12 text-[#CC0000]/30" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Your cart is empty</h1>
+          <h1 className="font-display text-2xl font-black text-gray-900 mb-2">Your cart is empty</h1>
           <p className="text-gray-500 mb-8 max-w-sm text-sm leading-relaxed">
-            Looks like you haven't added any items to your cart yet. Let's find something awesome!
+            Discover our fresh European specialties and imported groceries.
           </p>
           <Link
             to="/products"
@@ -37,7 +37,7 @@ export default function Cart() {
   }
 
   return (
-    <div className="min-h-screen pb-48 md:pb-8" style={{ backgroundColor: 'var(--color-background)' }}>
+    <div className="min-h-screen bg-[#FFF8F0] pb-48 md:pb-8">
       {/* Sticky header */}
       <div className="sticky top-0 z-30 bg-white border-b border-gray-100 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
@@ -49,7 +49,7 @@ export default function Cart() {
               <ChevronLeft className="h-6 w-6" />
             </button>
             <div>
-              <h1 className="text-lg font-bold text-gray-900">Shopping Cart</h1>
+              <h1 className="font-display text-lg font-black text-gray-900">Shopping Cart</h1>
               <p className="text-gray-400 text-xs">{itemCount} {itemCount === 1 ? 'item' : 'items'}</p>
             </div>
           </div>
@@ -166,8 +166,8 @@ export default function Cart() {
               className="bg-white rounded-2xl border border-gray-100 p-6 sticky top-20 shadow-sm animate-fade-in"
               style={{ animationDelay: '0.2s' }}
             >
-              <h2 className="text-base font-bold text-gray-900 mb-5 flex items-center gap-2">
-                <ShoppingCart className="h-4 w-4 text-[var(--color-primary)]" />
+              <h2 className="font-display text-base font-bold text-gray-900 mb-5 flex items-center gap-2">
+                <ShoppingCart className="h-4 w-4 text-[#CC0000]" />
                 Order Summary
               </h2>
 

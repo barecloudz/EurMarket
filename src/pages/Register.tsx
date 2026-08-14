@@ -4,7 +4,6 @@ import { useAuthStore } from '../store/authStore';
 import { supabase } from '../lib/supabase';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
-import Card from '../components/ui/Card';
 import { Mail, CheckCircle } from 'lucide-react';
 
 export default function Register() {
@@ -75,147 +74,147 @@ export default function Register() {
       }
     }
 
-    // Show confirmation modal instead of navigating
     setRegisteredEmail(formData.email);
     setShowConfirmModal(true);
     setIsLoading(false);
   };
 
   const handleVerifiedClick = () => {
-    // Reload the page to check auth state
     window.location.href = '/account';
   };
 
-  // Confirmation Modal
+  // Confirmation screen
   if (showConfirmModal) {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center px-4 py-12">
-        <Card className="w-full max-w-md text-center">
-          <div className="flex justify-center mb-6">
-            <div className="w-16 h-16 bg-[var(--color-primary)]/10 rounded-full flex items-center justify-center">
-              <Mail className="w-8 h-8 text-[var(--color-primary)]" />
+      <div className="min-h-[70vh] flex items-center justify-center px-4 py-12 bg-[#FFF8F0]">
+        <div className="w-full max-w-md text-center">
+          <div className="flex justify-center mb-5">
+            <div className="w-20 h-20 bg-[#CC0000]/10 rounded-full flex items-center justify-center border-2 border-[#CC0000]/20">
+              <Mail className="w-9 h-9 text-[#CC0000]" />
             </div>
           </div>
-
-          <h1 className="text-2xl font-bold text-theme mb-3">Check Your Email</h1>
-
-          <p className="text-theme opacity-70 mb-2">
-            We've sent a confirmation link to:
-          </p>
-          <p className="text-[var(--color-primary)] font-medium mb-6">
-            {registeredEmail}
-          </p>
-
-          <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg p-4 mb-6">
-            <p className="text-theme opacity-70 text-sm">
+          <h1 className="font-display text-2xl font-black text-gray-900 mb-3">Check Your Email</h1>
+          <p className="text-gray-500 mb-2">We've sent a confirmation link to:</p>
+          <p className="text-[#CC0000] font-bold mb-6">{registeredEmail}</p>
+          <div className="bg-white border border-[#CC0000]/15 rounded-2xl p-5 mb-6 text-left shadow-sm">
+            <p className="text-gray-600 text-sm leading-relaxed">
               Click the link in your email to verify your account.
-              <span className="block mt-2 text-theme opacity-50">
-                Don't see it? Check your spam or junk folder.
-              </span>
+              <span className="block mt-2 text-gray-400">Don't see it? Check your spam or junk folder.</span>
             </p>
           </div>
-
           <Button onClick={handleVerifiedClick} className="w-full">
             <CheckCircle className="w-5 h-5 mr-2" />
             I've Verified My Email
           </Button>
-
-          <p className="text-theme opacity-50 text-sm mt-4">
+          <p className="text-gray-400 text-sm mt-4">
             Didn't receive the email?{' '}
             <button
-              onClick={() => {
-                setShowConfirmModal(false);
-                setFormData({ ...formData, password: '', confirmPassword: '' });
-              }}
-              className="text-[var(--color-primary)] hover:opacity-80 transition-colors"
+              onClick={() => { setShowConfirmModal(false); setFormData({ ...formData, password: '', confirmPassword: '' }); }}
+              className="text-[#CC0000] font-bold hover:underline"
             >
               Try again
             </button>
           </p>
-        </Card>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-[60vh] flex items-center justify-center px-4 py-12">
-      <Card className="w-full max-w-md">
-        <div className="text-center mb-6">
-          <h1 className="text-2xl font-bold text-theme">Create Account</h1>
-          <p className="text-theme opacity-60 mt-2">Join us to track orders and more</p>
+    <div className="min-h-[70vh] flex items-center justify-center px-4 py-12 bg-[#FFF8F0]">
+      <div className="w-full max-w-md">
+        {/* Brand header */}
+        <div className="text-center mb-8">
+          <Link to="/" className="inline-flex items-center gap-3 mb-6">
+            <img src="/logo.jpg" alt="European Market" className="h-14 w-14 object-cover rounded-2xl shadow-md" />
+          </Link>
+          <h1 className="font-display text-3xl font-black text-gray-900 mb-1">Create Account</h1>
+          <p className="text-gray-500">Join us to track orders and save favourites</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {error && (
-            <div className="bg-red-500/10 border border-red-500/50 rounded-lg p-3 text-red-400 text-sm">
-              {error}
+        {/* Form card */}
+        <div className="bg-white rounded-3xl border border-[#CC0000]/15 shadow-lg p-8">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-red-600 text-sm">
+                {error}
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 gap-4">
+              <Input
+                label="First Name"
+                value={formData.firstName}
+                onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                required
+              />
+              <Input
+                label="Last Name"
+                value={formData.lastName}
+                onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                required
+              />
             </div>
-          )}
 
-          <div className="grid grid-cols-2 gap-4">
             <Input
-              label="First Name"
-              value={formData.firstName}
-              onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+              label="Email"
+              type="email"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               required
+              autoComplete="email"
             />
+
             <Input
-              label="Last Name"
-              value={formData.lastName}
-              onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+              label="Password"
+              type="password"
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               required
+              autoComplete="new-password"
             />
-          </div>
 
-          <Input
-            label="Email"
-            type="email"
-            value={formData.email}
-            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-            required
-          />
-
-          <Input
-            label="Password"
-            type="password"
-            value={formData.password}
-            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-            required
-          />
-
-          <Input
-            label="Confirm Password"
-            type="password"
-            value={formData.confirmPassword}
-            onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-            required
-          />
-
-          <div className="flex items-start gap-2">
-            <input
-              type="checkbox"
-              id="marketingOptIn"
-              checked={formData.marketingOptIn}
-              onChange={(e) => setFormData({ ...formData, marketingOptIn: e.target.checked })}
-              className="mt-1 w-4 h-4 rounded border-[var(--color-border)] bg-[var(--color-background)] text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
+            <Input
+              label="Confirm Password"
+              type="password"
+              value={formData.confirmPassword}
+              onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+              required
+              autoComplete="new-password"
             />
-            <label htmlFor="marketingOptIn" className="text-theme opacity-60 text-sm">
-              Sign me up for exclusive offers, new product launches, and updates via email
-            </label>
+
+            <div className="flex items-start gap-2">
+              <input
+                type="checkbox"
+                id="marketingOptIn"
+                checked={formData.marketingOptIn}
+                onChange={(e) => setFormData({ ...formData, marketingOptIn: e.target.checked })}
+                className="mt-1 w-4 h-4 rounded border-gray-300 text-[#CC0000] focus:ring-[#CC0000]"
+              />
+              <label htmlFor="marketingOptIn" className="text-gray-500 text-sm leading-snug">
+                Sign me up for exclusive offers, new product launches, and updates via email
+              </label>
+            </div>
+
+            <Button type="submit" className="w-full" isLoading={isLoading}>
+              Create Account
+            </Button>
+          </form>
+
+          <div className="mt-6 pt-6 border-t border-gray-100 text-center">
+            <p className="text-gray-500 text-sm">
+              Already have an account?{' '}
+              <Link to="/login" className="text-[#CC0000] font-bold hover:underline">
+                Sign in
+              </Link>
+            </p>
           </div>
+        </div>
 
-          <Button type="submit" className="w-full" isLoading={isLoading}>
-            Create Account
-          </Button>
-        </form>
-
-        <p className="text-center text-theme opacity-60 mt-6">
-          Already have an account?{' '}
-          <Link to="/login" className="text-[var(--color-primary)] hover:opacity-80 transition-colors">
-            Sign in
-          </Link>
+        <p className="text-center text-gray-400 text-xs mt-6">
+          Fresh homemade European specialties from 25+ countries
         </p>
-      </Card>
+      </div>
     </div>
   );
 }

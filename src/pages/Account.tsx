@@ -4,7 +4,6 @@ import { User, Package, LogOut, Settings, ChevronRight, MapPin, Clock } from 'lu
 import { useAuthStore } from '../store/authStore';
 import { supabase } from '../lib/supabase';
 import Button from '../components/ui/Button';
-import Card from '../components/ui/Card';
 import Badge from '../components/ui/Badge';
 import Input from '../components/ui/Input';
 import Spinner from '../components/ui/Spinner';
@@ -131,262 +130,262 @@ export default function Account() {
 
   const getStatusVariant = (status: string): 'success' | 'danger' | 'info' | 'warning' | 'default' => {
     switch (status) {
-      case 'delivered':
-        return 'success';
-      case 'cancelled':
-        return 'danger';
-      case 'shipped':
-        return 'info';
-      case 'processing':
-        return 'warning';
-      default:
-        return 'default';
+      case 'delivered': return 'success';
+      case 'cancelled': return 'danger';
+      case 'shipped': return 'info';
+      case 'processing': return 'warning';
+      default: return 'default';
     }
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-        <div className="flex items-center gap-4">
-          <div className="w-16 h-16 bg-[var(--color-surface)] rounded-full flex items-center justify-center border border-[var(--color-border)]">
-            <User className="h-8 w-8 text-[var(--color-primary)]" />
+    <div className="min-h-screen bg-[#FFF8F0]">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center border-2 border-[#CC0000]/20 shadow-sm">
+              <User className="h-8 w-8 text-[#CC0000]" />
+            </div>
+            <div>
+              <h1 className="font-display text-2xl font-black text-gray-900">
+                {profile?.first_name
+                  ? `${profile.first_name} ${profile.last_name || ''}`
+                  : 'My Account'}
+              </h1>
+              <p className="text-gray-500 text-sm">{user?.email}</p>
+            </div>
           </div>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex gap-4 mb-6 border-b border-gray-200">
+          <button
+            onClick={() => setActiveTab('orders')}
+            className={`pb-3 px-1 font-semibold transition-colors flex items-center gap-2 text-sm ${
+              activeTab === 'orders'
+                ? 'text-[#CC0000] border-b-2 border-[#CC0000]'
+                : 'text-gray-500 hover:text-gray-900'
+            }`}
+          >
+            <Package className="h-4 w-4" />
+            Orders
+            {orders.length > 0 && (
+              <span className="text-xs bg-[#CC0000]/10 text-[#CC0000] px-2 py-0.5 rounded-full font-bold">
+                {orders.length}
+              </span>
+            )}
+          </button>
+          <button
+            onClick={() => setActiveTab('settings')}
+            className={`pb-3 px-1 font-semibold transition-colors flex items-center gap-2 text-sm ${
+              activeTab === 'settings'
+                ? 'text-[#CC0000] border-b-2 border-[#CC0000]'
+                : 'text-gray-500 hover:text-gray-900'
+            }`}
+          >
+            <Settings className="h-4 w-4" />
+            Settings
+          </button>
+        </div>
+
+        {/* Content */}
+        {activeTab === 'orders' ? (
           <div>
-            <h1 className="text-2xl font-bold text-theme">
-              {profile?.first_name
-                ? `${profile.first_name} ${profile.last_name || ''}`
-                : 'My Account'}
-            </h1>
-            <p className="text-theme opacity-60">{user?.email}</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Tabs */}
-      <div className="flex gap-4 mb-6 border-b border-[var(--color-border)]">
-        <button
-          onClick={() => setActiveTab('orders')}
-          className={`pb-3 px-1 font-medium transition-colors flex items-center gap-2 ${
-            activeTab === 'orders'
-              ? 'text-[var(--color-primary)] border-b-2 border-[var(--color-primary)]'
-              : 'text-theme opacity-60 hover:opacity-100'
-          }`}
-        >
-          <Package className="h-5 w-5" />
-          Orders
-          {orders.length > 0 && (
-            <span className="text-xs bg-[var(--color-primary)]/20 text-[var(--color-primary)] px-2 py-0.5 rounded-full">
-              {orders.length}
-            </span>
-          )}
-        </button>
-        <button
-          onClick={() => setActiveTab('settings')}
-          className={`pb-3 px-1 font-medium transition-colors flex items-center gap-2 ${
-            activeTab === 'settings'
-              ? 'text-[var(--color-primary)] border-b-2 border-[var(--color-primary)]'
-              : 'text-theme opacity-60 hover:opacity-100'
-          }`}
-        >
-          <Settings className="h-5 w-5" />
-          Settings
-        </button>
-      </div>
-
-      {/* Content */}
-      {activeTab === 'orders' ? (
-        <div>
-          {isLoading ? (
-            <div className="flex justify-center py-12">
-              <Spinner size="lg" />
-            </div>
-          ) : orders.length === 0 ? (
-            <Card className="text-center py-12">
-              <Package className="h-12 w-12 text-theme opacity-30 mx-auto mb-4" />
-              <p className="text-theme opacity-60 mb-4">No orders yet</p>
-              <Button onClick={() => navigate('/products')}>Start Shopping</Button>
-            </Card>
-          ) : (
-            <div className="space-y-4">
-              {orders.map((order) => (
-                <Card key={order.id} padding="none" className="overflow-hidden">
-                  <button
-                    onClick={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)}
-                    className="w-full p-4 flex items-center justify-between hover:bg-[var(--color-border)]/10 transition-colors"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 bg-[var(--color-primary)]/10 rounded-lg flex items-center justify-center">
-                        <Package className="h-5 w-5 text-[var(--color-primary)]" />
+            {isLoading ? (
+              <div className="flex justify-center py-12">
+                <Spinner size="lg" />
+              </div>
+            ) : orders.length === 0 ? (
+              <div className="bg-white rounded-2xl border border-[#CC0000]/10 shadow-sm p-8 text-center">
+                <div className="w-16 h-16 bg-[#CC0000]/8 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Package className="h-8 w-8 text-[#CC0000]/40" />
+                </div>
+                <p className="font-display text-lg font-bold text-gray-900 mb-1">No orders yet</p>
+                <p className="text-gray-500 text-sm mb-5">Your order history will appear here.</p>
+                <Button onClick={() => navigate('/products')}>Start Shopping</Button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {orders.map((order) => (
+                  <div key={order.id} className="bg-white rounded-2xl border border-[#CC0000]/10 shadow-sm overflow-hidden">
+                    <button
+                      onClick={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)}
+                      className="w-full p-4 flex items-center justify-between hover:bg-[#CC0000]/3 transition-colors"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 bg-[#CC0000]/8 rounded-xl flex items-center justify-center">
+                          <Package className="h-5 w-5 text-[#CC0000]" />
+                        </div>
+                        <div className="text-left">
+                          <p className="text-gray-900 font-semibold">Order #{order.order_number}</p>
+                          <p className="text-gray-500 text-sm flex items-center gap-1">
+                            <Clock className="h-3 w-3" />
+                            {formatDate(order.created_at)}
+                          </p>
+                        </div>
                       </div>
-                      <div className="text-left">
-                        <p className="text-theme font-medium">Order #{order.order_number}</p>
-                        <p className="text-theme opacity-60 text-sm flex items-center gap-1">
-                          <Clock className="h-3 w-3" />
-                          {formatDate(order.created_at)}
-                        </p>
+                      <div className="flex items-center gap-4">
+                        <div className="text-right">
+                          <Badge variant={getStatusVariant(order.status)}>
+                            {ORDER_STATUSES[order.status as keyof typeof ORDER_STATUSES]?.label || order.status}
+                          </Badge>
+                          <p className="text-[#CC0000] font-bold mt-1">
+                            {formatPrice(order.total)}
+                          </p>
+                        </div>
+                        <ChevronRight className={`h-5 w-5 text-gray-400 transition-transform ${expandedOrder === order.id ? 'rotate-90' : ''}`} />
                       </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <div className="text-right">
-                        <Badge variant={getStatusVariant(order.status)}>
-                          {ORDER_STATUSES[order.status as keyof typeof ORDER_STATUSES]?.label || order.status}
-                        </Badge>
-                        <p className="text-[var(--color-primary)] font-semibold mt-1">
-                          {formatPrice(order.total)}
-                        </p>
-                      </div>
-                      <ChevronRight className={`h-5 w-5 text-theme opacity-60 transition-transform ${expandedOrder === order.id ? 'rotate-90' : ''}`} />
-                    </div>
-                  </button>
+                    </button>
 
-                  {/* Expanded Order Details */}
-                  {expandedOrder === order.id && (
-                    <div className="border-t border-[var(--color-border)] p-4 bg-[var(--color-background)]/50">
-                      {/* Items */}
-                      <div className="space-y-3 mb-4">
-                        {order.items.map((item) => (
-                          <div key={item.id} className="flex justify-between items-center">
-                            <div>
-                              <p className="text-theme">{item.product_name}</p>
-                              {item.variant_name && (
-                                <p className="text-theme opacity-60 text-sm">{item.variant_name}</p>
-                              )}
-                              <p className="text-theme opacity-60 text-sm">Qty: {item.quantity}</p>
+                    {/* Expanded Order Details */}
+                    {expandedOrder === order.id && (
+                      <div className="border-t border-gray-100 p-4 bg-[#FFF8F0]">
+                        {/* Items */}
+                        <div className="space-y-3 mb-4">
+                          {order.items.map((item) => (
+                            <div key={item.id} className="flex justify-between items-center">
+                              <div>
+                                <p className="text-gray-900 font-medium">{item.product_name}</p>
+                                {item.variant_name && (
+                                  <p className="text-gray-500 text-sm">{item.variant_name}</p>
+                                )}
+                                <p className="text-gray-500 text-sm">Qty: {item.quantity}</p>
+                              </div>
+                              <span className="text-gray-900 font-semibold">{formatPrice(item.total_price)}</span>
                             </div>
-                            <span className="text-theme">{formatPrice(item.total_price)}</span>
-                          </div>
-                        ))}
-                      </div>
-
-                      {/* Totals */}
-                      <div className="border-t border-[var(--color-border)] pt-4 space-y-1 text-sm">
-                        <div className="flex justify-between text-theme opacity-60">
-                          <span>Subtotal</span>
-                          <span>{formatPrice(order.subtotal)}</span>
+                          ))}
                         </div>
-                        {order.discount_amount && order.discount_amount > 0 && (
-                          <div className="flex justify-between text-green-400">
-                            <span>Discount</span>
-                            <span>-{formatPrice(order.discount_amount)}</span>
+
+                        {/* Totals */}
+                        <div className="border-t border-gray-200 pt-4 space-y-1.5 text-sm">
+                          <div className="flex justify-between text-gray-500">
+                            <span>Subtotal</span>
+                            <span>{formatPrice(order.subtotal)}</span>
+                          </div>
+                          {order.discount_amount && order.discount_amount > 0 && (
+                            <div className="flex justify-between text-green-600">
+                              <span>Discount</span>
+                              <span>-{formatPrice(order.discount_amount)}</span>
+                            </div>
+                          )}
+                          <div className="flex justify-between text-gray-500">
+                            <span>Shipping</span>
+                            <span>{formatPrice(order.shipping_cost)}</span>
+                          </div>
+                          {order.tax > 0 && (
+                            <div className="flex justify-between text-gray-500">
+                              <span>Tax</span>
+                              <span>{formatPrice(order.tax)}</span>
+                            </div>
+                          )}
+                          <div className="flex justify-between text-gray-900 font-bold pt-2 border-t border-gray-200">
+                            <span>Total</span>
+                            <span>{formatPrice(order.total)}</span>
+                          </div>
+                        </div>
+
+                        {/* Shipping Address */}
+                        {order.shipping_address && (
+                          <div className="mt-4 pt-4 border-t border-gray-200">
+                            <div className="flex items-center gap-2 mb-2 text-gray-500 text-sm">
+                              <MapPin className="h-4 w-4" />
+                              <span>Shipped to</span>
+                            </div>
+                            <p className="text-gray-700 text-sm">
+                              {order.shipping_address.address_line_1}
+                              {order.shipping_address.address_line_2 && `, ${order.shipping_address.address_line_2}`}
+                              <br />
+                              {order.shipping_address.city}, {order.shipping_address.state} {order.shipping_address.postal_code}
+                            </p>
                           </div>
                         )}
-                        <div className="flex justify-between text-theme opacity-60">
-                          <span>Shipping</span>
-                          <span>{formatPrice(order.shipping_cost)}</span>
-                        </div>
-                        {order.tax > 0 && (
-                          <div className="flex justify-between text-theme opacity-60">
-                            <span>Tax</span>
-                            <span>{formatPrice(order.tax)}</span>
+
+                        {/* Tracking */}
+                        {order.tracking_number && (
+                          <div className="mt-4 pt-4 border-t border-gray-200">
+                            <p className="text-gray-700 text-sm">
+                              <span className="text-gray-500">Tracking:</span>{' '}
+                              <span className="font-mono">{order.tracking_number}</span>
+                            </p>
                           </div>
                         )}
-                        <div className="flex justify-between text-theme font-semibold pt-2 border-t border-[var(--color-border)]">
-                          <span>Total</span>
-                          <span>{formatPrice(order.total)}</span>
-                        </div>
                       </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="bg-white rounded-2xl border border-[#CC0000]/10 shadow-sm p-6">
+            <h2 className="font-display text-xl font-bold text-gray-900 mb-6">Account Settings</h2>
+            <form onSubmit={handleSaveSettings} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Input
+                  label="First Name"
+                  value={formData.firstName}
+                  onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                />
+                <Input
+                  label="Last Name"
+                  value={formData.lastName}
+                  onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                />
+              </div>
 
-                      {/* Shipping Address */}
-                      {order.shipping_address && (
-                        <div className="mt-4 pt-4 border-t border-[var(--color-border)]">
-                          <div className="flex items-center gap-2 mb-2 text-theme opacity-60 text-sm">
-                            <MapPin className="h-4 w-4" />
-                            <span>Shipped to</span>
-                          </div>
-                          <p className="text-theme text-sm">
-                            {order.shipping_address.address_line_1}
-                            {order.shipping_address.address_line_2 && `, ${order.shipping_address.address_line_2}`}
-                            <br />
-                            {order.shipping_address.city}, {order.shipping_address.state} {order.shipping_address.postal_code}
-                          </p>
-                        </div>
-                      )}
-
-                      {/* Tracking */}
-                      {order.tracking_number && (
-                        <div className="mt-4 pt-4 border-t border-[var(--color-border)]">
-                          <p className="text-theme text-sm">
-                            <span className="opacity-60">Tracking:</span>{' '}
-                            <span className="font-mono">{order.tracking_number}</span>
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </Card>
-              ))}
-            </div>
-          )}
-        </div>
-      ) : (
-        <Card>
-          <h2 className="text-xl font-semibold text-theme mb-6">Account Settings</h2>
-          <form onSubmit={handleSaveSettings} className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input
-                label="First Name"
-                value={formData.firstName}
-                onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                label="Phone (optional)"
+                type="tel"
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
               />
-              <Input
-                label="Last Name"
-                value={formData.lastName}
-                onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-              />
+
+              <div className="flex items-start gap-2 pt-2">
+                <input
+                  type="checkbox"
+                  id="marketingOptIn"
+                  checked={formData.marketingOptIn}
+                  onChange={(e) => setFormData({ ...formData, marketingOptIn: e.target.checked })}
+                  className="mt-1 w-4 h-4 rounded border-gray-300 text-[#CC0000] focus:ring-[#CC0000]"
+                />
+                <label htmlFor="marketingOptIn" className="text-gray-500 text-sm leading-snug">
+                  I want to receive marketing emails about new products, offers, and updates
+                </label>
+              </div>
+
+              <div className="pt-4">
+                <Button type="submit" isLoading={isSaving}>
+                  Save Changes
+                </Button>
+              </div>
+            </form>
+
+            <div className="mt-8 pt-6 border-t border-gray-100">
+              <h3 className="font-semibold text-gray-900 mb-4">Account Information</h3>
+              <div className="space-y-3 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Email</span>
+                  <span className="text-gray-900">{user?.email}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Member since</span>
+                  <span className="text-gray-900">
+                    {user?.created_at ? formatDate(user.created_at) : 'N/A'}
+                  </span>
+                </div>
+              </div>
             </div>
 
-            <Input
-              label="Phone (optional)"
-              type="tel"
-              value={formData.phone}
-              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-            />
-
-            <div className="flex items-start gap-2 pt-2">
-              <input
-                type="checkbox"
-                id="marketingOptIn"
-                checked={formData.marketingOptIn}
-                onChange={(e) => setFormData({ ...formData, marketingOptIn: e.target.checked })}
-                className="mt-1 w-4 h-4 rounded border-[var(--color-border)] bg-[var(--color-background)] text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
-              />
-              <label htmlFor="marketingOptIn" className="text-theme opacity-60 text-sm">
-                I want to receive marketing emails about new products, offers, and updates
-              </label>
-            </div>
-
-            <div className="pt-4">
-              <Button type="submit" isLoading={isSaving}>
-                Save Changes
+            <div className="mt-8 pt-6 border-t border-gray-100">
+              <Button variant="outline" onClick={handleSignOut} className="w-full sm:w-auto">
+                <LogOut className="h-4 w-4 mr-2" />
+                Sign Out
               </Button>
             </div>
-          </form>
-
-          <div className="mt-8 pt-6 border-t border-[var(--color-border)]">
-            <h3 className="text-lg font-semibold text-theme mb-4">Account Information</h3>
-            <div className="space-y-3 text-sm">
-              <div className="flex justify-between">
-                <span className="text-theme opacity-60">Email</span>
-                <span className="text-theme">{user?.email}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-theme opacity-60">Member since</span>
-                <span className="text-theme">
-                  {user?.created_at ? formatDate(user.created_at) : 'N/A'}
-                </span>
-              </div>
-            </div>
           </div>
-
-          <div className="mt-8 pt-6 border-t border-[var(--color-border)]">
-            <Button variant="outline" onClick={handleSignOut} className="w-full sm:w-auto">
-              <LogOut className="h-4 w-4 mr-2" />
-              Sign Out
-            </Button>
-          </div>
-        </Card>
-      )}
+        )}
+      </div>
     </div>
   );
 }

@@ -145,6 +145,28 @@ body {
 .font-display { font-family: 'Playfair Display', Georgia, serif; }
 .font-script  { font-family: 'Dancing Script', cursive; }
 
+/* ── Ornamental section divider ── */
+.section-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 auto;
+}
+.section-divider::before,
+.section-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--color-border);
+}
+.section-divider span {
+  color: var(--color-primary);
+  font-size: 10px;
+  opacity: 0.5;
+  letter-spacing: 0.15em;
+  user-select: none;
+}
+
 /* ── Tailwind layer utilities ── */
 @layer utilities {
   .text-primary   { color: var(--color-text); }

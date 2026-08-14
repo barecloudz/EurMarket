@@ -179,17 +179,24 @@ export default function Header() {
                 { to: '/products', label: 'Shop' },
                 { to: '/products?category=bakery', label: 'Fresh Bakery' },
                 { to: '/wishlist', label: 'Wishlist', badge: wishlistCount },
-              ].map((item) => (
-                <Link key={item.to} to={item.to}
-                  className="relative text-gray-500 hover:text-[var(--color-primary)] font-semibold tracking-wide transition-colors text-sm uppercase flex items-center gap-1">
-                  {item.label}
-                  {item.badge != null && item.badge > 0 && (
-                    <span className="text-[10px] bg-[var(--color-primary)] text-white rounded-full px-1.5 py-0.5 font-bold">
-                      {item.badge}
-                    </span>
-                  )}
-                </Link>
-              ))}
+              ].map((item) => {
+                const isActive = location.pathname === item.to.split('?')[0];
+                return (
+                  <Link key={item.to} to={item.to}
+                    className={`relative font-semibold tracking-wide transition-colors text-sm uppercase flex items-center gap-1 pb-0.5 ${
+                      isActive
+                        ? 'text-[var(--color-primary)] border-b-2 border-[var(--color-primary)]'
+                        : 'text-gray-500 hover:text-[var(--color-primary)] border-b-2 border-transparent hover:border-[var(--color-primary)]/30'
+                    }`}>
+                    {item.label}
+                    {item.badge != null && item.badge > 0 && (
+                      <span className="text-[10px] bg-[var(--color-primary)] text-white rounded-full px-1.5 py-0.5 font-bold">
+                        {item.badge}
+                      </span>
+                    )}
+                  </Link>
+                );
+              })}
               <Link to="/preorder"
                 className={`text-sm font-bold uppercase tracking-wide px-4 py-1.5 rounded-lg transition-colors ${
                   location.pathname === '/preorder'
