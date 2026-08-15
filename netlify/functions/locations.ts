@@ -162,10 +162,22 @@ export const handler: Handler = async (event) => {
 
     const place = await fetchPlace(config.placeId, apiKey);
     if (!place) {
+      // Return static fallback so the footer still renders
+      const fallback: LocationDetail = {
+        location: config.locationName,
+        status: 'Open',
+        address: config.pageSlug === 'columbus-nc'
+          ? '155 W Mills Street, Columbus, NC 28722'
+          : '4921 Ooltewah Ringgold Rd, Ooltewah, TN 37363',
+        emailAddress: config.emailAddress,
+        phoneNumber: config.pageSlug === 'columbus-nc' ? '+1 864-590-6760' : '+1 423-899-3099',
+        hoursOfOperation: [],
+        coordinates: { latitude: 0, longitude: 0 },
+      };
       return {
-        statusCode: 502,
+        statusCode: 200,
         headers: responseHeaders,
-        body: JSON.stringify({ error: 'Failed to fetch place data' }),
+        body: JSON.stringify(fallback),
       };
     }
 
@@ -180,7 +192,7 @@ export const handler: Handler = async (event) => {
   const results = await Promise.all(
     STORES.map(async (config) => {
       const place = await fetchPlace(config.placeId, apiKey);
-      if (!place) return null;
+      if (!place) return { location: config.locationName, pageSlug: config.pageSlug, status: 'Open' } as LocationSummary;
       return toSummary(place, config);
     }),
   );
