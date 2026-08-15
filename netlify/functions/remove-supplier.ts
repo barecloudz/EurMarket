@@ -21,7 +21,7 @@ const handler: Handler = async (event) => {
     return { statusCode: 401, headers: corsHeaders, body: JSON.stringify({ error: 'Unauthorized' }) };
   }
 
-  const supabaseUrl = process.env.VITE_SUPABASE_URL!;
+  const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL!;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
   const adminClient = createClient(supabaseUrl, serviceRoleKey, {
@@ -53,7 +53,8 @@ const handler: Handler = async (event) => {
   const { error } = await adminClient
     .from('profiles')
     .update({ role: 'customer' })
-    .eq('id', supplierId);
+    .eq('id', supplierId)
+    .eq('role', 'supplier');
 
   if (error) {
     return { statusCode: 400, headers: corsHeaders, body: JSON.stringify({ error: error.message }) };

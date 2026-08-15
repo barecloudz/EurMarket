@@ -579,11 +579,14 @@ export default function Checkout() {
           order_id: order.id,
           product_id: item.product.id,
           variant_id: variantExists ? item.variant!.id : null,
+          supplier_id: item.product.supplier_id || null,
           product_name: item.product.name,
           variant_name: item.variant?.name || null,
           quantity: item.quantity,
           unit_price: item.product.price + (item.variant?.price_adjustment || 0),
           total_price: (item.product.price + (item.variant?.price_adjustment || 0)) * item.quantity,
+          fulfillment_status: 'pending',
+          payout_status: 'pending',
         };
       });
 
