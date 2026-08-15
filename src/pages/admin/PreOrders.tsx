@@ -5,6 +5,7 @@ import {
   Users, AlertTriangle, Printer, Download,
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { useAuthStore } from '../../store/authStore';
 import { useToast } from '../../components/ui/Toast';
 
 const CITIES = [
@@ -129,6 +130,7 @@ function exportCSV(orders: PreOrder[]) {
 
 export default function AdminPreOrders() {
   const { addToast } = useToast();
+  const { session } = useAuthStore();
   const [settings, setSettings] = useState<PreorderSettings>({
     orders_open: false,
     order_deadline: null,
@@ -164,15 +166,25 @@ export default function AdminPreOrders() {
     }).finally(() => setLoading(false));
   }, []);
 
-  // Fix #6: use upsert so it works even if the row doesn't exist
+  const updatePreorderSettings = async (patch: object): Promise<boolean> => {
+    const res = await fetch('/.netlify/functions/update-preorder-settings', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session?.access_token}`,
+      },
+      body: JSON.stringify(patch),
+    });
+    return res.ok;
+  };
+
   const toggleOrdersOpen = async () => {
     const newValue = !settings.orders_open;
     setSettings(prev => ({ ...prev, orders_open: newValue }));
     setTogglingOpen(true);
-    const { error } = await supabase.from('preorder_settings')
-      .upsert({ id: 1, orders_open: newValue });
+    const ok = await updatePreorderSettings({ orders_open: newValue });
     setTogglingOpen(false);
-    if (error) {
+    if (!ok) {
       setSettings(prev => ({ ...prev, orders_open: !newValue }));
       addToast('Failed to update. Try again.', 'error');
     } else {
@@ -182,15 +194,17 @@ export default function AdminPreOrders() {
 
   const persistDatesAndDeadline = useCallback(async (updated: PreorderSettings) => {
     setSavingDates(true);
-    const { error } = await supabase.from('preorder_settings')
-      .upsert({ id: 1, order_deadline: updated.order_deadline, delivery_dates: updated.delivery_dates });
+    const ok = await updatePreorderSettings({
+      order_deadline: updated.order_deadline,
+      delivery_dates: updated.delivery_dates,
+    });
     setSavingDates(false);
-    if (error) {
-      addToast(`Failed to save: ${error.message}`, 'error');
+    if (!ok) {
+      addToast('Failed to save. Try again.', 'error');
     } else {
       addToast('Saved!', 'success');
     }
-  }, [addToast]);
+  }, [session]);
 
   // Fix #3: only saves when user leaves the field
   const handleDeadlineBlur = async () => {
