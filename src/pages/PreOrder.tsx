@@ -205,8 +205,12 @@ export default function PreOrder() {
       setError('Please enter a valid phone number (at least 10 digits).');
       return;
     }
-    if (email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-      setError('Please enter a valid email address or leave the email field blank.');
+    if (!email.trim()) {
+      setError('Please enter your email address so we can send you your order confirmation.');
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setError('Please enter a valid email address.');
       return;
     }
     if (!hasItems) {
@@ -543,11 +547,11 @@ export default function PreOrder() {
               </div>
 
               <div>
-                <label className="block text-xl font-bold text-gray-800 mb-2">Email <span className="text-lg font-normal text-gray-500">(optional — for order confirmation)</span></label>
+                <label className="block text-xl font-bold text-gray-800 mb-2">Email <span className="text-[#CC0000]">*</span></label>
                 <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com" style={tnr}
                   className="w-full text-xl border-2 border-gray-300 rounded-xl px-4 py-3.5 focus:outline-none focus:border-[#CC0000] transition-colors" />
-                <p className="text-lg text-gray-500 mt-1.5">We'll send a copy of your order to this email if provided.</p>
+                <p className="text-lg text-gray-500 mt-1.5">We'll email you your confirmed order with prices and payment options.</p>
               </div>
 
               <div>

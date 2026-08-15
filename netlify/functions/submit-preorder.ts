@@ -53,6 +53,7 @@ const handler: Handler = async (event) => {
     const { error: dbError } = await supabase.from('pre_orders').insert({
       customer_name: name,
       customer_phone: phone,
+      customer_email: email || null,
       pickup_city: city,
       delivery_date,
       items,

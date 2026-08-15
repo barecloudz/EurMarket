@@ -22,6 +22,7 @@ const Login             = lazy(() => import('./pages/Login'));
 const Register          = lazy(() => import('./pages/Register'));
 const Account           = lazy(() => import('./pages/Account'));
 const PreOrder          = lazy(() => import('./pages/PreOrder'));
+const PreOrderPayment   = lazy(() => import('./pages/PreOrderPayment'));
 const NotFound          = lazy(() => import('./pages/NotFound'));
 const AuthCallback      = lazy(() => import('./pages/AuthCallback'));
 const ResetPassword     = lazy(() => import('./pages/ResetPassword'));
@@ -124,6 +125,7 @@ function App() {
           <Route path="return-policy" element={<ReturnPolicy />} />
           <Route path="privacy-policy" element={<PrivacyPolicy />} />
           <Route path="preorder" element={<PreOrder />} />
+          <Route path="preorder-payment" element={<PreOrderPayment />} />
           <Route path="wishlist" element={<Wishlist />} />
           <Route path="auth/callback" element={<AuthCallback />} />
           <Route path="reset-password" element={<ResetPassword />} />

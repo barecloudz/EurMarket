@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import {
   Plus, Trash2, Package, Lightbulb, CheckCircle, XCircle,
   Clock, MapPin, Calendar, ChevronDown, ChevronUp, HelpCircle,
-  Users, AlertTriangle, Printer, Download,
+  Users, AlertTriangle, Printer, Download, Mail, X,
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../store/authStore';
@@ -28,10 +28,21 @@ interface PreorderSettings {
   delivery_dates: DeliveryDate[];
 }
 
+interface ConfirmItem {
+  product: string;
+  size: string;
+  flavor: string;
+  qty: number;
+  price: number;
+  available: boolean;
+  substitution: string;
+}
+
 interface PreOrder {
   id: string;
   customer_name: string;
   customer_phone: string;
+  customer_email: string | null;
   pickup_city: string;
   delivery_date: string;
   items: { product: string; size: string; flavor: string; qty: number }[];
@@ -39,6 +50,10 @@ interface PreOrder {
   suggestions: string | null;
   status: string;
   created_at: string;
+  confirmed_items: ConfirmItem[] | null;
+  confirmed_total: number | null;
+  payment_method: string | null;
+  confirmation_sent_at: string | null;
 }
 
 const STATUS_STYLES: Record<string, string> = {
@@ -142,6 +157,11 @@ export default function AdminPreOrders() {
   const [savingDates, setSavingDates] = useState(false);
   const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'settings' | 'orders' | 'suggestions'>('settings');
+
+  // Confirmation modal
+  const [confirmingOrder, setConfirmingOrder] = useState<PreOrder | null>(null);
+  const [editItems, setEditItems] = useState<ConfirmItem[]>([]);
+  const [sendingConf, setSendingConf] = useState(false);
 
   // Controlled deadline input — separate from settings so it only saves on blur
   const [deadlineInput, setDeadlineInput] = useState('');
@@ -251,6 +271,54 @@ export default function AdminPreOrders() {
     await supabase.from('pre_orders').update({ status }).eq('id', id);
     setOrders(prev => prev.map(o => o.id === id ? { ...o, status } : o));
     setUpdatingStatus(null);
+  };
+
+  const openConfirmModal = (order: PreOrder) => {
+    const items: ConfirmItem[] = order.items.map(item => ({
+      product: item.product,
+      size: item.size,
+      flavor: item.flavor,
+      qty: item.qty,
+      price: 0,
+      available: true,
+      substitution: '',
+    }));
+    setEditItems(items);
+    setConfirmingOrder(order);
+  };
+
+  const updateEditItem = (idx: number, patch: Partial<ConfirmItem>) => {
+    setEditItems(prev => prev.map((item, i) => i === idx ? { ...item, ...patch } : item));
+  };
+
+  const confirmTotal = editItems.filter(i => i.available).reduce((sum, i) => sum + i.price, 0);
+  const cardTotal = confirmTotal * 1.035;
+
+  const sendConfirmation = async () => {
+    if (!confirmingOrder) return;
+    setSendingConf(true);
+    try {
+      const res = await fetch('/.netlify/functions/confirm-preorder', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`,
+        },
+        body: JSON.stringify({ orderId: confirmingOrder.id, confirmedItems: editItems }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed');
+      setOrders(prev => prev.map(o => o.id === confirmingOrder.id
+        ? { ...o, status: 'confirmed', confirmed_items: editItems, confirmed_total: confirmTotal }
+        : o
+      ));
+      addToast(data.emailSent ? '✅ Order confirmed & email sent!' : '✅ Order confirmed (no email on file)', 'success');
+      setConfirmingOrder(null);
+    } catch (err: any) {
+      addToast(err.message || 'Failed to send confirmation', 'error');
+    } finally {
+      setSendingConf(false);
+    }
   };
 
   const suggestions = orders.filter(o => o.suggestions?.trim());
@@ -564,8 +632,137 @@ export default function AdminPreOrders() {
                   <span className="font-bold">💡 Suggestion:</span> {order.suggestions}
                 </p>
               )}
+              {/* Payment method */}
+              {order.payment_method && (
+                <p className="mt-3 text-sm font-bold bg-green-50 border border-green-200 text-green-700 rounded-lg px-3 py-2">
+                  {{ cash: '💵 Paying with Cash', zelle: '💜 Paying with Zelle', card: '💳 Paying with Card (+3.5%)' }[order.payment_method] ?? order.payment_method}
+                </p>
+              )}
+              {order.status === 'confirmed' && !order.payment_method && (
+                <p className="mt-3 text-sm text-gray-400 italic">⏳ Awaiting customer payment choice</p>
+              )}
+              {/* Confirm button */}
+              {order.status === 'pending' && (
+                <button
+                  onClick={() => openConfirmModal(order)}
+                  className="mt-4 w-full flex items-center justify-center gap-2 bg-[#CC0000] hover:bg-[#AA0000] text-white font-bold text-sm px-4 py-3 rounded-xl transition-colors">
+                  <Mail className="w-4 h-4" /> Price &amp; Confirm Order
+                </button>
+              )}
+              {order.status === 'confirmed' && (
+                <button
+                  onClick={() => openConfirmModal(order)}
+                  className="mt-4 w-full flex items-center justify-center gap-2 bg-white border-2 border-[#CC0000]/30 hover:border-[#CC0000] text-[#CC0000] font-bold text-sm px-4 py-3 rounded-xl transition-colors">
+                  <Mail className="w-4 h-4" /> Resend Confirmation
+                </button>
+              )}
             </div>
           ))}
+        </div>
+      )}
+
+      {/* ── CONFIRMATION MODAL ── */}
+      {confirmingOrder && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => !sendingConf && setConfirmingOrder(null)} />
+          <div className="relative w-full sm:max-w-lg bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl max-h-[90vh] flex flex-col">
+
+            {/* Modal header */}
+            <div className="flex items-start justify-between px-5 pt-5 pb-4 border-b border-gray-100 flex-shrink-0">
+              <div>
+                <h2 className="text-lg font-black text-gray-900">{confirmingOrder.customer_name}</h2>
+                <p className="text-sm text-gray-500 mt-0.5">📍 {confirmingOrder.pickup_city} · 📅 {confirmingOrder.delivery_date}</p>
+                <p className="text-sm text-gray-500">📱 {confirmingOrder.customer_phone}</p>
+                {confirmingOrder.customer_email
+                  ? <p className="text-sm text-green-600 font-medium mt-0.5">✉️ {confirmingOrder.customer_email}</p>
+                  : <p className="text-sm text-red-500 font-medium mt-0.5">⚠️ No email — customer won't receive email</p>
+                }
+              </div>
+              <button onClick={() => !sendingConf && setConfirmingOrder(null)} className="p-1 text-gray-400 hover:text-gray-700">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Items */}
+            <div className="overflow-y-auto flex-1 px-5 py-4 space-y-4">
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Set price for each item — enter 0 or mark unavailable if you can't fill it</p>
+              {editItems.map((item, idx) => {
+                const label = [item.product, item.size && `(${item.size})`, item.flavor && `— ${item.flavor}`].filter(Boolean).join(' ');
+                return (
+                  <div key={idx} className={`rounded-2xl border-2 p-4 transition-colors ${item.available ? 'border-gray-200 bg-white' : 'border-red-200 bg-red-50'}`}>
+                    <div className="flex items-start justify-between gap-3 mb-3">
+                      <p className={`text-sm font-bold leading-snug ${item.available ? 'text-gray-900' : 'text-red-500 line-through'}`}>
+                        {item.available ? '✅' : '❌'} {label}
+                        {item.qty > 1 && <span className="font-normal text-gray-500"> × {item.qty}</span>}
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => updateEditItem(idx, { available: !item.available, price: item.available ? 0 : item.price })}
+                        className={`flex-shrink-0 text-xs font-bold px-3 py-1.5 rounded-full border-2 transition-colors ${item.available
+                          ? 'border-red-200 text-red-500 hover:bg-red-50'
+                          : 'border-green-300 text-green-600 hover:bg-green-50'
+                        }`}>
+                        {item.available ? 'Mark unavailable' : 'Mark available'}
+                      </button>
+                    </div>
+
+                    {item.available ? (
+                      <div>
+                        <label className="text-xs font-bold text-gray-500 block mb-1.5">Total price for this item</label>
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-bold">$</span>
+                          <input
+                            type="number"
+                            min="0"
+                            step="0.50"
+                            value={item.price || ''}
+                            onChange={e => updateEditItem(idx, { price: parseFloat(e.target.value) || 0 })}
+                            placeholder="0.00"
+                            className="w-full border-2 border-gray-200 rounded-xl pl-7 pr-3 py-2.5 text-gray-900 font-bold text-base focus:outline-none focus:border-[#CC0000] transition-colors"
+                          />
+                        </div>
+                      </div>
+                    ) : (
+                      <div>
+                        <label className="text-xs font-bold text-gray-500 block mb-1.5">Substitution (optional)</label>
+                        <input
+                          type="text"
+                          value={item.substitution}
+                          onChange={e => updateEditItem(idx, { substitution: e.target.value })}
+                          placeholder="e.g. Sweet Cheese Roll Medium ($8)"
+                          className="w-full border-2 border-red-200 rounded-xl px-3 py-2.5 text-gray-900 text-sm focus:outline-none focus:border-red-400 transition-colors bg-white"
+                        />
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Totals + send button */}
+            <div className="px-5 pb-5 pt-3 border-t border-gray-100 flex-shrink-0 bg-white rounded-b-3xl">
+              <div className="flex justify-between items-baseline mb-1">
+                <span className="text-sm text-gray-500">Order Total</span>
+                <span className="text-xl font-black text-gray-900">${confirmTotal.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between items-baseline mb-4">
+                <span className="text-xs text-gray-400">Card total (+3.5%)</span>
+                <span className="text-sm text-gray-400">${cardTotal.toFixed(2)}</span>
+              </div>
+              <button
+                onClick={sendConfirmation}
+                disabled={sendingConf || confirmTotal === 0}
+                className="w-full flex items-center justify-center gap-2 bg-[#CC0000] hover:bg-[#AA0000] disabled:opacity-50 text-white font-black text-base px-4 py-4 rounded-2xl transition-colors">
+                {sendingConf
+                  ? <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Sending...</>
+                  : <><Mail className="w-4 h-4" /> {confirmingOrder.customer_email ? 'Confirm & Send Email' : 'Confirm Order (no email)'}</>
+                }
+              </button>
+              {confirmTotal === 0 && (
+                <p className="text-center text-xs text-red-400 mt-2">Enter at least one price to confirm</p>
+              )}
+            </div>
+          </div>
         </div>
       )}
 
