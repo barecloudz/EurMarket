@@ -576,9 +576,11 @@ export default function PreOrder() {
                       className="w-full text-xl border-2 border-gray-300 rounded-xl px-4 py-3.5 focus:outline-none focus:border-[#CC0000] bg-white transition-colors"
                       disabled={!city}>
                       <option value="">— {city ? 'Select a date' : 'Select city first'} —</option>
-                      {availableDates.map((d) => (
-                        <option key={d.date} value={d.date}>{d.label}</option>
-                      ))}
+                      {availableDates.map((d) => {
+                        const dateStr = new Date(d.date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+                        const label = d.label && d.label !== dateStr ? `${dateStr} — ${d.label}` : dateStr;
+                        return <option key={d.date} value={d.date}>{label}</option>;
+                      })}
                     </select>
                     {deliveryDate && (() => {
                       const picked = availableDates.find(d => d.date === deliveryDate);

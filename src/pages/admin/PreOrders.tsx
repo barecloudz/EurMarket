@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import {
   Plus, Trash2, Package, Lightbulb, CheckCircle, XCircle,
   Clock, MapPin, Calendar, ChevronDown, ChevronUp, HelpCircle,
-  Users, AlertTriangle, Printer, Download, Mail, X,
+  Users, AlertTriangle, Printer, Download, Mail, X, Pencil,
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../store/authStore';
@@ -172,6 +172,14 @@ export default function AdminPreOrders() {
   const [newTime, setNewTime] = useState('');
   const [newLocationAddress, setNewLocationAddress] = useState('');
 
+  // Inline editing state for existing dates
+  const [editingIdx, setEditingIdx] = useState<number | null>(null);
+  const [editDate, setEditDate] = useState('');
+  const [editLabel, setEditLabel] = useState('');
+  const [editTime, setEditTime] = useState('');
+  const [editAddress, setEditAddress] = useState('');
+  const [editCities, setEditCities] = useState<string[]>(['all']);
+
   useEffect(() => {
     Promise.all([
       supabase.from('preorder_settings').select('*').eq('id', 1).single(),
@@ -242,17 +250,43 @@ export default function AdminPreOrders() {
   };
 
   const addDeliveryDate = async () => {
-    if (!newDate || !newLabel) return;
+    if (!newDate) return;
+    const label = newLabel || new Date(newDate + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
     const updated: PreorderSettings = {
       ...settings,
       delivery_dates: [...settings.delivery_dates, {
-        date: newDate, label: newLabel, cities: newCities,
+        date: newDate, label, cities: newCities,
         time: newTime.trim() || undefined,
         location_address: newLocationAddress.trim() || undefined,
       }],
     };
     setSettings(updated);
     setNewDate(''); setNewLabel(''); setNewCities(['all']); setNewTime(''); setNewLocationAddress('');
+    await persistDatesAndDeadline(updated);
+  };
+
+  const openEditDate = (idx: number) => {
+    const d = settings.delivery_dates[idx];
+    setEditingIdx(idx);
+    setEditDate(d.date);
+    setEditLabel(d.label);
+    setEditTime(d.time || '');
+    setEditAddress(d.location_address || '');
+    setEditCities(d.cities);
+  };
+
+  const saveEditDate = async () => {
+    if (editingIdx === null || !editDate) return;
+    const label = editLabel || new Date(editDate + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+    const updated: PreorderSettings = {
+      ...settings,
+      delivery_dates: settings.delivery_dates.map((d, i) => i === editingIdx
+        ? { date: editDate, label, cities: editCities, time: editTime.trim() || undefined, location_address: editAddress.trim() || undefined }
+        : d
+      ),
+    };
+    setSettings(updated);
+    setEditingIdx(null);
     await persistDatesAndDeadline(updated);
   };
 
@@ -459,7 +493,59 @@ export default function AdminPreOrders() {
               {settings.delivery_dates.length > 0 ? (
                 <div className="space-y-2 mb-6">
                   <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Current dates</p>
-                  {settings.delivery_dates.map((d, idx) => (
+                  {settings.delivery_dates.map((d, idx) => editingIdx === idx ? (
+                    // ── Inline edit mode ──
+                    <div key={idx} className="rounded-xl border-2 border-[#CC0000] bg-white p-4 space-y-3">
+                      <div>
+                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Date</label>
+                        <input type="date" value={editDate} onChange={e => {
+                          setEditDate(e.target.value);
+                          setEditLabel(new Date(e.target.value + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }));
+                        }} className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-gray-900 focus:outline-none focus:border-[#CC0000] transition-colors" />
+                      </div>
+                      <div>
+                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">🕐 Time</label>
+                        <input type="text" value={editTime} onChange={e => setEditTime(e.target.value)} placeholder="e.g. 10:00 AM – 2:00 PM"
+                          className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-gray-900 focus:outline-none focus:border-[#CC0000] transition-colors" />
+                      </div>
+                      <div>
+                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">📍 Pickup Address</label>
+                        <input type="text" value={editAddress} onChange={e => setEditAddress(e.target.value)} placeholder="e.g. 123 Main St, Marshall, NC"
+                          className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-gray-900 focus:outline-none focus:border-[#CC0000] transition-colors" />
+                      </div>
+                      <div>
+                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-2">Cities</label>
+                        <div className="flex flex-wrap gap-2">
+                          <button type="button" onClick={() => setEditCities(['all'])}
+                            className={`px-3 py-1.5 rounded-full border-2 font-bold text-sm transition-colors ${editCities.includes('all') ? 'border-[#CC0000] bg-[#CC0000] text-white' : 'border-gray-200 text-gray-600'}`}>
+                            All Cities
+                          </button>
+                          {CITIES.map(c => (
+                            <button key={c} type="button"
+                              onClick={() => {
+                                if (editCities.includes('all')) setEditCities([c]);
+                                else if (editCities.includes(c)) setEditCities(editCities.filter(x => x !== c));
+                                else setEditCities([...editCities, c]);
+                              }}
+                              className={`px-3 py-1.5 rounded-full border-2 font-bold text-sm transition-colors ${!editCities.includes('all') && editCities.includes(c) ? 'border-[#CC0000] bg-[#CC0000] text-white' : 'border-gray-200 text-gray-600'}`}>
+                              {c}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="flex gap-2 pt-1">
+                        <button onClick={saveEditDate} disabled={savingDates}
+                          className="flex-1 bg-[#CC0000] text-white font-bold py-2.5 rounded-xl hover:bg-[#AA0000] transition-colors disabled:opacity-50">
+                          {savingDates ? 'Saving...' : 'Save Changes'}
+                        </button>
+                        <button onClick={() => setEditingIdx(null)}
+                          className="px-4 py-2.5 border-2 border-gray-200 rounded-xl text-gray-600 font-bold hover:border-gray-300 transition-colors">
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    // ── Display mode ──
                     <div key={idx} className="flex items-start gap-3 bg-gradient-to-r from-gray-50 to-white rounded-xl px-4 py-4 border border-gray-200">
                       <div className="flex-1 min-w-0">
                         <p className="font-black text-gray-900">{d.label}</p>
@@ -470,10 +556,16 @@ export default function AdminPreOrders() {
                         {d.time && <p className="text-sm text-gray-600 mt-1 flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 flex-shrink-0 text-[#CC0000]" />{d.time}</p>}
                         {d.location_address && <p className="text-sm text-gray-600 mt-0.5 flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 flex-shrink-0 text-[#CC0000]" />{d.location_address}</p>}
                       </div>
-                      <button onClick={() => removeDeliveryDate(idx)}
-                        className="flex-shrink-0 bg-red-50 hover:bg-red-100 text-red-500 hover:text-red-700 rounded-lg p-2 transition-colors border border-red-200">
-                        <Trash2 className="h-4 w-4" />
-                      </button>
+                      <div className="flex gap-1 flex-shrink-0">
+                        <button onClick={() => openEditDate(idx)}
+                          className="bg-blue-50 hover:bg-blue-100 text-blue-500 rounded-lg p-2 transition-colors border border-blue-200">
+                          <Pencil className="h-4 w-4" />
+                        </button>
+                        <button onClick={() => removeDeliveryDate(idx)}
+                          className="bg-red-50 hover:bg-red-100 text-red-500 hover:text-red-700 rounded-lg p-2 transition-colors border border-red-200">
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -491,16 +583,19 @@ export default function AdminPreOrders() {
                 </p>
                 <div className="space-y-3">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
+                    <div className="sm:col-span-2">
                       <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1.5">Date <span className="text-red-500">*</span></label>
-                      <input type="date" value={newDate} onChange={e => setNewDate(e.target.value)}
+                      <input type="date" value={newDate} onChange={e => {
+                        const d = e.target.value;
+                        setNewDate(d);
+                        if (d) {
+                          // Auto-generate a nice label e.g. "Saturday, August 23, 2026"
+                          const formatted = new Date(d + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+                          setNewLabel(formatted);
+                        }
+                      }}
                         className="w-full border-2 border-gray-200 rounded-xl px-3 py-3 text-gray-900 focus:outline-none focus:border-[#CC0000] transition-colors" />
-                    </div>
-                    <div>
-                      <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1.5">Label customers see <span className="text-red-500">*</span></label>
-                      <input type="text" value={newLabel} onChange={e => setNewLabel(e.target.value)}
-                        placeholder="e.g. Saturday, August 15"
-                        className="w-full border-2 border-gray-200 rounded-xl px-3 py-3 text-gray-900 focus:outline-none focus:border-[#CC0000] transition-colors" />
+                      {newLabel && <p className="text-sm text-gray-500 mt-1.5">Customers will see: <strong>{newLabel}</strong></p>}
                     </div>
                     <div>
                       <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1.5">🕐 Time</label>
@@ -536,7 +631,7 @@ export default function AdminPreOrders() {
                     </div>
                   </div>
                   <button type="button" onClick={addDeliveryDate}
-                    disabled={!newDate || !newLabel || savingDates}
+                    disabled={!newDate || savingDates}
                     className="w-full flex items-center justify-center gap-2 bg-[#CC0000] text-white font-black text-base px-4 py-4 rounded-xl hover:bg-[#AA0000] disabled:opacity-40 transition-colors shadow-sm active:scale-[0.99]">
                     {savingDates ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Plus className="h-5 w-5" />}
                     {savingDates ? 'Saving...' : 'Add This Date'}
