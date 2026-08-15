@@ -51,13 +51,15 @@ const handler: Handler = async (event) => {
     return { statusCode: 400, headers: corsHeaders, body: JSON.stringify({ error: 'Email is required' }) };
   }
 
+  const siteUrl = process.env.SITE_URL || 'https://europeanmarketus.com';
+
   try {
     // Generate a Supabase invite link (we send the email ourselves via Resend)
     const { data: linkData, error: linkError } = await adminClient.auth.admin.generateLink({
       type: 'invite',
       email,
       options: {
-        redirectTo: `https://shop.genovaspizzamyrtlebeach.com/auth/callback?next=/supplier/set-password`,
+        redirectTo: `${siteUrl}/auth/callback?next=/supplier/set-password`,
         data: { first_name, last_name },
       },
     });
@@ -83,9 +85,9 @@ const handler: Handler = async (event) => {
     const inviteUrl = linkData.properties.action_link;
 
     await resend.emails.send({
-      from: "Genova's Merch <noreply@catering.genovaspizzamyrtlebeach.com>",
+      from: process.env.RESEND_FROM_EMAIL || 'European Market <noreply@europeanmarketus.com>',
       to: email,
-      subject: "You've been added as a supplier for Genova's Merch",
+      subject: "You've been invited as a supplier for European Market",
       html: `
 <!DOCTYPE html>
 <html>
@@ -93,32 +95,32 @@ const handler: Handler = async (event) => {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-<body style="margin:0;padding:0;background:#F8F9FA;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#F8F9FA;padding:40px 20px;">
+<body style="margin:0;padding:0;background:#FFF8F0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#FFF8F0;padding:40px 20px;">
     <tr>
       <td align="center">
-        <table width="560" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+        <table width="560" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.06);border:1px solid rgba(204,0,0,0.1);">
 
           <!-- Header -->
           <tr>
-            <td style="background:#2E7D32;padding:32px 40px;text-align:center;">
-              <img src="https://shop.genovaspizzamyrtlebeach.com/images/logo.png" alt="Genova's Merch" height="72" style="display:block;margin:0 auto;" />
-              <p style="margin:16px 0 0;color:rgba(255,255,255,0.85);font-size:13px;letter-spacing:2px;text-transform:uppercase;font-weight:600;">Official Merchandise</p>
+            <td style="background:#CC0000;padding:32px 40px;text-align:center;">
+              <h1 style="margin:0 0 4px;color:#ffffff;font-size:26px;font-weight:900;letter-spacing:-0.5px;">European Market</h1>
+              <p style="margin:0;color:rgba(255,255,255,0.8);font-size:13px;letter-spacing:1.5px;text-transform:uppercase;">Supplier Invitation</p>
             </td>
           </tr>
 
           <!-- Body -->
           <tr>
             <td style="padding:40px 40px 32px;">
-              <h1 style="margin:0 0 8px;font-size:24px;font-weight:800;color:#111827;">Hi ${firstName},</h1>
-              <p style="margin:0 0 24px;font-size:16px;color:#6B7280;line-height:1.6;">
-                You've been added as a supplier for <strong style="color:#111827;">Genova's Merch</strong>. Click the button below to set up your account and start managing your products.
+              <h2 style="margin:0 0 8px;font-size:22px;font-weight:800;color:#111827;">Hi ${firstName},</h2>
+              <p style="margin:0 0 24px;font-size:15px;color:#6B7280;line-height:1.6;">
+                You've been added as a supplier for <strong style="color:#111827;">European Market</strong>. Click the button below to set up your account and start managing your products.
               </p>
 
               <!-- CTA -->
               <table cellpadding="0" cellspacing="0" style="margin:0 0 32px;">
                 <tr>
-                  <td style="background:#2E7D32;border-radius:12px;">
+                  <td style="background:#CC0000;border-radius:12px;">
                     <a href="${inviteUrl}" style="display:block;padding:16px 32px;color:#ffffff;text-decoration:none;font-weight:700;font-size:16px;letter-spacing:0.3px;">
                       Set Up My Account →
                     </a>
@@ -127,7 +129,7 @@ const handler: Handler = async (event) => {
               </table>
 
               <!-- What you can do -->
-              <table width="100%" cellpadding="0" cellspacing="0" style="background:#F8F9FA;border-radius:12px;margin-bottom:32px;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="background:#FFF8F0;border-radius:12px;margin-bottom:32px;">
                 <tr>
                   <td style="padding:20px 24px;">
                     <p style="margin:0 0 12px;font-size:13px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:1px;">What you can do</p>
@@ -146,9 +148,9 @@ const handler: Handler = async (event) => {
 
           <!-- Footer -->
           <tr>
-            <td style="padding:20px 40px;border-top:1px solid #F3F4F6;text-align:center;">
-              <p style="margin:0;font-size:12px;color:#D1D5DB;">
-                Genova's Merch · Official merchandise for Genova's Pizza &amp; Pasta of Myrtle Beach
+            <td style="padding:20px 40px;border-top:1px solid #F3E8DC;text-align:center;">
+              <p style="margin:0;font-size:12px;color:#9ca3af;">
+                &copy; ${new Date().getFullYear()} European Market. All rights reserved.
               </p>
             </td>
           </tr>

@@ -27,18 +27,16 @@ interface AdminNotificationRequest {
   };
 }
 
-const formatPrice = (dollars: number) => {
-  return `$${dollars.toFixed(2)}`;
-};
+const formatPrice = (dollars: number) => `$${dollars.toFixed(2)}`;
 
 const generateAdminEmailHtml = (order: AdminNotificationRequest) => {
   const itemsHtml = order.items.map(item => `
     <tr>
-      <td style="padding: 8px 12px; border-bottom: 1px solid #e5e7eb; color: #111827;">
-        ${item.product_name}${item.variant_name ? ` - ${item.variant_name}` : ''}
+      <td style="padding: 8px 12px; border-bottom: 1px solid #F3E8DC; color: #111827; font-size: 14px;">
+        ${item.product_name}${item.variant_name ? ` — ${item.variant_name}` : ''}
       </td>
-      <td style="padding: 8px 12px; border-bottom: 1px solid #e5e7eb; text-align: center; color: #111827;">${item.quantity}</td>
-      <td style="padding: 8px 12px; border-bottom: 1px solid #e5e7eb; text-align: right; color: #111827;">${formatPrice(item.total_price)}</td>
+      <td style="padding: 8px 12px; border-bottom: 1px solid #F3E8DC; text-align: center; color: #111827; font-size: 14px;">${item.quantity}</td>
+      <td style="padding: 8px 12px; border-bottom: 1px solid #F3E8DC; text-align: right; color: #111827; font-size: 14px; font-weight: 600;">${formatPrice(item.total_price)}</td>
     </tr>
   `).join('');
 
@@ -50,86 +48,120 @@ const generateAdminEmailHtml = (order: AdminNotificationRequest) => {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>New Order Received</title>
 </head>
-<body style="margin: 0; padding: 0; background-color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-  <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
-    <div style="background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-      <div style="background-color: #16a34a; padding: 24px; text-align: center;">
-        <h1 style="color: #ffffff; font-size: 24px; margin: 0;">New Order Received!</h1>
-        <p style="color: #dcfce7; margin: 8px 0 0 0; font-size: 16px;">Order #${order.orderNumber}</p>
-      </div>
+<body style="margin: 0; padding: 0; background-color: #FFF8F0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #FFF8F0; padding: 40px 20px;">
+    <tr>
+      <td align="center">
+        <table width="560" cellpadding="0" cellspacing="0" style="background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.06); border: 1px solid rgba(204,0,0,0.1);">
 
-      <div style="padding: 24px;">
-        <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 16px; margin-bottom: 24px; text-align: center;">
-          <span style="font-size: 32px; font-weight: 700; color: #16a34a;">${formatPrice(order.total)}</span>
-        </div>
+          <!-- Header -->
+          <tr>
+            <td style="background: #CC0000; padding: 24px 40px; text-align: center;">
+              <h1 style="margin: 0 0 4px; color: #ffffff; font-size: 22px; font-weight: 900;">New Order Received!</h1>
+              <p style="margin: 0; color: rgba(255,255,255,0.85); font-size: 15px;">Order #${order.orderNumber}</p>
+            </td>
+          </tr>
 
-        <h3 style="color: #111827; font-size: 16px; margin: 0 0 12px 0; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px;">Customer Info</h3>
-        <table style="width: 100%; margin-bottom: 24px;">
           <tr>
-            <td style="padding: 4px 0; color: #6b7280; width: 100px;">Name</td>
-            <td style="padding: 4px 0; color: #111827; font-weight: 500;">${order.customerName}</td>
+            <td style="padding: 28px 40px 0;">
+
+              <!-- Total Banner -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="background: #FFF8F0; border: 1px solid rgba(204,0,0,0.15); border-radius: 12px; margin-bottom: 24px;">
+                <tr>
+                  <td style="padding: 20px; text-align: center;">
+                    <div style="font-size: 13px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;">Order Total</div>
+                    <div style="font-size: 36px; font-weight: 900; color: #CC0000;">${formatPrice(order.total)}</div>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Customer Info -->
+              <div style="font-size: 13px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 2px solid #F3E8DC;">Customer Info</div>
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 24px;">
+                <tr>
+                  <td style="padding: 5px 0; color: #6b7280; font-size: 14px; width: 80px;">Name</td>
+                  <td style="padding: 5px 0; color: #111827; font-weight: 600; font-size: 14px;">${order.customerName}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 5px 0; color: #6b7280; font-size: 14px;">Email</td>
+                  <td style="padding: 5px 0; color: #111827; font-size: 14px;">${order.customerEmail}</td>
+                </tr>
+                ${order.customerPhone ? `
+                <tr>
+                  <td style="padding: 5px 0; color: #6b7280; font-size: 14px;">Phone</td>
+                  <td style="padding: 5px 0; color: #111827; font-size: 14px;">${order.customerPhone}</td>
+                </tr>
+                ` : ''}
+              </table>
+
+              <!-- Items -->
+              <div style="font-size: 13px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 2px solid #F3E8DC;">Items Ordered</div>
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 24px;">
+                <thead>
+                  <tr style="background: #FFF8F0;">
+                    <th style="padding: 8px 12px; text-align: left; color: #6b7280; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Item</th>
+                    <th style="padding: 8px 12px; text-align: center; color: #6b7280; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Qty</th>
+                    <th style="padding: 8px 12px; text-align: right; color: #6b7280; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Price</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${itemsHtml}
+                </tbody>
+              </table>
+
+              <!-- Totals -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="background: #FFF8F0; border-radius: 10px; margin-bottom: 24px;">
+                <tr>
+                  <td style="padding: 16px 20px;">
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="padding: 4px 0; color: #6b7280; font-size: 14px;">Subtotal</td>
+                        <td style="padding: 4px 0; text-align: right; color: #111827; font-size: 14px;">${formatPrice(order.subtotal)}</td>
+                      </tr>
+                      ${order.discount && order.discount > 0 ? `
+                      <tr>
+                        <td style="padding: 4px 0; color: #16a34a; font-size: 14px;">Discount</td>
+                        <td style="padding: 4px 0; text-align: right; color: #16a34a; font-size: 14px;">-${formatPrice(order.discount)}</td>
+                      </tr>
+                      ` : ''}
+                      <tr>
+                        <td style="padding: 4px 0; color: #6b7280; font-size: 14px;">Shipping</td>
+                        <td style="padding: 4px 0; text-align: right; color: #111827; font-size: 14px;">${formatPrice(order.shipping)}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 10px 0 0; border-top: 1px solid #F3E8DC; color: #111827; font-size: 16px; font-weight: 800;">Total</td>
+                        <td style="padding: 10px 0 0; border-top: 1px solid #F3E8DC; text-align: right; color: #CC0000; font-size: 16px; font-weight: 800;">${formatPrice(order.total)}</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Ship To -->
+              <div style="font-size: 13px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 2px solid #F3E8DC;">Ship To</div>
+              <p style="color: #374151; font-size: 14px; line-height: 1.7; margin: 0 0 24px;">
+                ${order.customerName}<br>
+                ${order.shippingAddress.address_line_1}<br>
+                ${order.shippingAddress.address_line_2 ? `${order.shippingAddress.address_line_2}<br>` : ''}
+                ${order.shippingAddress.city}, ${order.shippingAddress.state} ${order.shippingAddress.postal_code}
+              </p>
+
+            </td>
           </tr>
+
+          <!-- Footer -->
           <tr>
-            <td style="padding: 4px 0; color: #6b7280;">Email</td>
-            <td style="padding: 4px 0; color: #111827;">${order.customerEmail}</td>
+            <td style="padding: 20px 40px; border-top: 1px solid #F3E8DC; text-align: center;">
+              <p style="margin: 0; font-size: 12px; color: #9ca3af;">
+                Automated notification from European Market.
+              </p>
+            </td>
           </tr>
-          ${order.customerPhone ? `
-          <tr>
-            <td style="padding: 4px 0; color: #6b7280;">Phone</td>
-            <td style="padding: 4px 0; color: #111827;">${order.customerPhone}</td>
-          </tr>
-          ` : ''}
+
         </table>
-
-        <h3 style="color: #111827; font-size: 16px; margin: 0 0 12px 0; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px;">Items Ordered</h3>
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px;">
-          <thead>
-            <tr style="background-color: #f9fafb;">
-              <th style="padding: 8px 12px; text-align: left; color: #6b7280; font-size: 12px; text-transform: uppercase;">Item</th>
-              <th style="padding: 8px 12px; text-align: center; color: #6b7280; font-size: 12px; text-transform: uppercase;">Qty</th>
-              <th style="padding: 8px 12px; text-align: right; color: #6b7280; font-size: 12px; text-transform: uppercase;">Price</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${itemsHtml}
-          </tbody>
-        </table>
-
-        <div style="background-color: #f9fafb; border-radius: 8px; padding: 16px; margin-bottom: 24px;">
-          <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-            <span style="color: #6b7280;">Subtotal</span>
-            <span style="color: #111827;">${formatPrice(order.subtotal)}</span>
-          </div>
-          ${order.discount && order.discount > 0 ? `
-          <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-            <span style="color: #16a34a;">Discount</span>
-            <span style="color: #16a34a;">-${formatPrice(order.discount)}</span>
-          </div>
-          ` : ''}
-          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-            <span style="color: #6b7280;">Shipping</span>
-            <span style="color: #111827;">${formatPrice(order.shipping)}</span>
-          </div>
-          <div style="display: flex; justify-content: space-between; padding-top: 8px; border-top: 1px solid #e5e7eb;">
-            <span style="color: #111827; font-weight: 700;">Total</span>
-            <span style="color: #16a34a; font-weight: 700;">${formatPrice(order.total)}</span>
-          </div>
-        </div>
-
-        <h3 style="color: #111827; font-size: 16px; margin: 0 0 12px 0; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px;">Ship To</h3>
-        <p style="color: #111827; margin: 0; line-height: 1.6;">
-          ${order.customerName}<br>
-          ${order.shippingAddress.address_line_1}<br>
-          ${order.shippingAddress.address_line_2 ? `${order.shippingAddress.address_line_2}<br>` : ''}
-          ${order.shippingAddress.city}, ${order.shippingAddress.state} ${order.shippingAddress.postal_code}
-        </p>
-      </div>
-    </div>
-
-    <p style="text-align: center; color: #9ca3af; font-size: 12px; margin-top: 16px;">
-      This is an automated notification from Genova's Merch.
-    </p>
-  </div>
+      </td>
+    </tr>
+  </table>
 </body>
 </html>`;
 };
@@ -140,8 +172,8 @@ const handler: Handler = async (event) => {
   }
 
   const resendApiKey = process.env.RESEND_API_KEY;
-  const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL || 'europeanmarketus@gmail.com';
-  const resendFromEmail = process.env.RESEND_FROM_EMAIL || "Genovas Merch <orders@resend.dev>";
+  const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL || process.env.ADMIN_EMAIL || 'europeanmarketus@gmail.com';
+  const resendFromEmail = process.env.RESEND_FROM_EMAIL || 'European Market <orders@europeanmarketus.com>';
 
   if (!resendApiKey) {
     console.error('[admin-notify] RESEND_API_KEY not configured');
@@ -164,7 +196,7 @@ const handler: Handler = async (event) => {
       body: JSON.stringify({
         from: resendFromEmail,
         to: [adminEmail],
-        subject: `New Order #${order.orderNumber} - ${order.customerName} (${order.items.reduce((sum, i) => sum + i.quantity, 0)} items, $${order.total.toFixed(2)})`,
+        subject: `New Order #${order.orderNumber} — ${order.customerName} (${order.items.reduce((sum, i) => sum + i.quantity, 0)} items, $${order.total.toFixed(2)})`,
         html: generateAdminEmailHtml(order),
       }),
     });

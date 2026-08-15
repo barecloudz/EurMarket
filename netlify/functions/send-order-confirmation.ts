@@ -31,19 +31,17 @@ interface OrderConfirmationRequest {
   shippingAddress: ShippingAddress;
 }
 
-const formatPrice = (dollars: number) => {
-  return `$${dollars.toFixed(2)}`;
-};
+const formatPrice = (dollars: number) => `$${dollars.toFixed(2)}`;
 
 const generateEmailHtml = (order: OrderConfirmationRequest) => {
   const itemsHtml = order.items.map(item => `
     <tr>
-      <td style="padding: 12px 0; border-bottom: 1px solid #2d2d2d;">
-        <div style="font-weight: 500; color: #f5f5f5;">${item.product_name}</div>
-        ${item.variant_name ? `<div style="font-size: 14px; color: #9ca3af;">${item.variant_name}</div>` : ''}
-        <div style="font-size: 14px; color: #9ca3af;">Qty: ${item.quantity}</div>
+      <td style="padding: 12px 0; border-bottom: 1px solid #F3E8DC;">
+        <div style="font-weight: 600; color: #1a1a1a;">${item.product_name}</div>
+        ${item.variant_name ? `<div style="font-size: 13px; color: #6b7280; margin-top: 2px;">${item.variant_name}</div>` : ''}
+        <div style="font-size: 13px; color: #9ca3af; margin-top: 2px;">Qty: ${item.quantity}</div>
       </td>
-      <td style="padding: 12px 0; border-bottom: 1px solid #2d2d2d; text-align: right; color: #f5f5f5;">
+      <td style="padding: 12px 0; border-bottom: 1px solid #F3E8DC; text-align: right; color: #1a1a1a; font-weight: 600;">
         ${formatPrice(item.total_price)}
       </td>
     </tr>
@@ -57,85 +55,122 @@ const generateEmailHtml = (order: OrderConfirmationRequest) => {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Order Confirmation</title>
 </head>
-<body style="margin: 0; padding: 0; background-color: #0a0a0a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-  <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
-    <!-- Header -->
-    <div style="text-align: center; margin-bottom: 40px;">
-      <h1 style="color: #00ff66; font-size: 28px; margin: 0 0 8px 0;">Genova's Merch</h1>
-      <p style="color: #9ca3af; margin: 0;">Custom 3D Printed Creations</p>
-    </div>
+<body style="margin: 0; padding: 0; background-color: #FFF8F0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #FFF8F0; padding: 40px 20px;">
+    <tr>
+      <td align="center">
+        <table width="560" cellpadding="0" cellspacing="0" style="background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.06); border: 1px solid rgba(204,0,0,0.1);">
 
-    <!-- Success Message -->
-    <div style="background-color: #1a1a1a; border-radius: 12px; padding: 32px; margin-bottom: 24px; border: 1px solid #2d2d2d;">
-      <div style="text-align: center; margin-bottom: 24px;">
-        <div style="width: 64px; height: 64px; background-color: rgba(34, 197, 94, 0.2); border-radius: 50%; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center;">
-          <span style="color: #22c55e; font-size: 32px;">&#10003;</span>
-        </div>
-        <h2 style="color: #f5f5f5; font-size: 24px; margin: 0 0 8px 0;">Thank you for your order!</h2>
-        <p style="color: #9ca3af; margin: 0;">Hi ${order.customerName}, we've received your order and are getting it ready.</p>
-      </div>
+          <!-- Header -->
+          <tr>
+            <td style="background: #CC0000; padding: 32px 40px; text-align: center;">
+              <h1 style="margin: 0 0 4px; color: #ffffff; font-size: 26px; font-weight: 900; letter-spacing: -0.5px;">European Market</h1>
+              <p style="margin: 0; color: rgba(255,255,255,0.8); font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase;">Order Confirmation</p>
+            </td>
+          </tr>
 
-      <div style="background-color: #0a0a0a; border-radius: 8px; padding: 16px; margin-bottom: 24px;">
-        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-          <span style="color: #9ca3af;">Order Number</span>
-          <span style="color: #00ff66; font-weight: 600;">#${order.orderNumber}</span>
-        </div>
-        <div style="display: flex; justify-content: space-between;">
-          <span style="color: #9ca3af;">Order Date</span>
-          <span style="color: #f5f5f5;">${new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
-        </div>
-      </div>
+          <!-- Success Banner -->
+          <tr>
+            <td style="padding: 32px 40px 0;">
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 20px 24px; text-align: center;">
+                    <div style="font-size: 32px; margin-bottom: 8px;">&#10003;</div>
+                    <div style="font-size: 20px; font-weight: 800; color: #111827; margin-bottom: 4px;">Thank you for your order!</div>
+                    <div style="font-size: 14px; color: #6b7280;">Hi ${order.customerName}, we've received your order and are getting it ready.</div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
 
-      <!-- Order Items -->
-      <h3 style="color: #f5f5f5; font-size: 16px; margin: 0 0 16px 0; padding-bottom: 12px; border-bottom: 1px solid #2d2d2d;">Order Details</h3>
-      <table style="width: 100%; border-collapse: collapse;">
-        ${itemsHtml}
-      </table>
+          <!-- Order Meta -->
+          <tr>
+            <td style="padding: 24px 40px 0;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="background: #FFF8F0; border-radius: 10px;">
+                <tr>
+                  <td style="padding: 16px 20px;">
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="color: #6b7280; font-size: 14px; padding-bottom: 8px;">Order Number</td>
+                        <td style="text-align: right; color: #CC0000; font-weight: 700; font-size: 14px; padding-bottom: 8px;">#${order.orderNumber}</td>
+                      </tr>
+                      <tr>
+                        <td style="color: #6b7280; font-size: 14px;">Order Date</td>
+                        <td style="text-align: right; color: #1a1a1a; font-size: 14px;">${new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
 
-      <!-- Totals -->
-      <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #2d2d2d;">
-        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-          <span style="color: #9ca3af;">Subtotal</span>
-          <span style="color: #f5f5f5;">${formatPrice(order.subtotal)}</span>
-        </div>
-        ${order.discount && order.discount > 0 ? `
-        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-          <span style="color: #22c55e;">Discount</span>
-          <span style="color: #22c55e;">-${formatPrice(order.discount)}</span>
-        </div>
-        ` : ''}
-        <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
-          <span style="color: #9ca3af;">Shipping</span>
-          <span style="color: #f5f5f5;">${formatPrice(order.shipping)}</span>
-        </div>
-        <div style="display: flex; justify-content: space-between; padding-top: 12px; border-top: 1px solid #2d2d2d;">
-          <span style="color: #f5f5f5; font-weight: 600; font-size: 18px;">Total</span>
-          <span style="color: #00ff66; font-weight: 600; font-size: 18px;">${formatPrice(order.total)}</span>
-        </div>
-      </div>
-    </div>
+          <!-- Order Items -->
+          <tr>
+            <td style="padding: 24px 40px 0;">
+              <div style="font-size: 13px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;">Order Details</div>
+              <table width="100%" cellpadding="0" cellspacing="0">
+                ${itemsHtml}
+              </table>
+            </td>
+          </tr>
 
-    <!-- Shipping Address -->
-    <div style="background-color: #1a1a1a; border-radius: 12px; padding: 24px; margin-bottom: 24px; border: 1px solid #2d2d2d;">
-      <h3 style="color: #f5f5f5; font-size: 16px; margin: 0 0 12px 0;">Shipping Address</h3>
-      <p style="color: #9ca3af; margin: 0; line-height: 1.6;">
-        ${order.customerName}<br>
-        ${order.shippingAddress.address_line_1}<br>
-        ${order.shippingAddress.address_line_2 ? `${order.shippingAddress.address_line_2}<br>` : ''}
-        ${order.shippingAddress.city}, ${order.shippingAddress.state} ${order.shippingAddress.postal_code}
-      </p>
-    </div>
+          <!-- Totals -->
+          <tr>
+            <td style="padding: 16px 40px 0;">
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="padding: 6px 0; color: #6b7280; font-size: 14px;">Subtotal</td>
+                  <td style="padding: 6px 0; text-align: right; color: #1a1a1a; font-size: 14px;">${formatPrice(order.subtotal)}</td>
+                </tr>
+                ${order.discount && order.discount > 0 ? `
+                <tr>
+                  <td style="padding: 6px 0; color: #16a34a; font-size: 14px;">Discount</td>
+                  <td style="padding: 6px 0; text-align: right; color: #16a34a; font-size: 14px;">-${formatPrice(order.discount)}</td>
+                </tr>
+                ` : ''}
+                <tr>
+                  <td style="padding: 6px 0; color: #6b7280; font-size: 14px;">Shipping</td>
+                  <td style="padding: 6px 0; text-align: right; color: #1a1a1a; font-size: 14px;">${formatPrice(order.shipping)}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 12px 0 0; border-top: 2px solid #F3E8DC; color: #1a1a1a; font-size: 18px; font-weight: 800;">Total</td>
+                  <td style="padding: 12px 0 0; border-top: 2px solid #F3E8DC; text-align: right; color: #CC0000; font-size: 18px; font-weight: 800;">${formatPrice(order.total)}</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
 
-    <!-- Footer -->
-    <div style="text-align: center; padding-top: 24px; border-top: 1px solid #2d2d2d;">
-      <p style="color: #9ca3af; font-size: 14px; margin: 0 0 8px 0;">
-        Questions about your order? Reply to this email or contact us.
-      </p>
-      <p style="color: #6b7280; font-size: 12px; margin: 0;">
-        &copy; ${new Date().getFullYear()} Genova's Merch. All rights reserved.
-      </p>
-    </div>
-  </div>
+          <!-- Shipping Address -->
+          <tr>
+            <td style="padding: 24px 40px 0;">
+              <div style="font-size: 13px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Shipping Address</div>
+              <table width="100%" cellpadding="0" cellspacing="0" style="background: #FFF8F0; border-radius: 10px;">
+                <tr>
+                  <td style="padding: 16px 20px; color: #374151; font-size: 14px; line-height: 1.7;">
+                    ${order.customerName}<br>
+                    ${order.shippingAddress.address_line_1}<br>
+                    ${order.shippingAddress.address_line_2 ? `${order.shippingAddress.address_line_2}<br>` : ''}
+                    ${order.shippingAddress.city}, ${order.shippingAddress.state} ${order.shippingAddress.postal_code}
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding: 32px 40px; text-align: center; border-top: 1px solid #F3E8DC; margin-top: 24px;">
+              <p style="margin: 0 0 6px; color: #6b7280; font-size: 14px;">Questions about your order? Reply to this email or contact us.</p>
+              <p style="margin: 0; color: #9ca3af; font-size: 12px;">&copy; ${new Date().getFullYear()} European Market. All rights reserved.</p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
 </body>
 </html>
   `;
@@ -145,32 +180,17 @@ const handler: Handler = async (event) => {
   const origin = getRequestOrigin(event.headers as Record<string, string>);
   const corsHeaders = getCorsHeaders(origin);
 
-  // Handle CORS preflight
   if (event.httpMethod === 'OPTIONS') {
-    return {
-      statusCode: 204,
-      headers: corsHeaders,
-      body: '',
-    };
+    return { statusCode: 204, headers: corsHeaders, body: '' };
   }
 
-  // Only allow POST
   if (event.httpMethod !== 'POST') {
-    return {
-      statusCode: 405,
-      headers: corsHeaders,
-      body: JSON.stringify({ error: 'Method not allowed' }),
-    };
+    return { statusCode: 405, headers: corsHeaders, body: JSON.stringify({ error: 'Method not allowed' }) };
   }
 
-  // Check for Resend API key
   if (!process.env.RESEND_API_KEY) {
     console.error('RESEND_API_KEY not configured');
-    return {
-      statusCode: 500,
-      headers: corsHeaders,
-      body: JSON.stringify({ error: 'Email service not configured' }),
-    };
+    return { statusCode: 500, headers: corsHeaders, body: JSON.stringify({ error: 'Email service not configured' }) };
   }
 
   const resend = new Resend(process.env.RESEND_API_KEY);
@@ -179,17 +199,13 @@ const handler: Handler = async (event) => {
     const orderData: OrderConfirmationRequest = JSON.parse(event.body || '{}');
 
     if (!orderData.customerEmail || !orderData.orderId) {
-      return {
-        statusCode: 400,
-        headers: corsHeaders,
-        body: JSON.stringify({ error: 'Missing required fields' }),
-      };
+      return { statusCode: 400, headers: corsHeaders, body: JSON.stringify({ error: 'Missing required fields' }) };
     }
 
     const { data, error } = await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL || "Genovas Merch <orders@resend.dev>",
+      from: process.env.RESEND_FROM_EMAIL || 'European Market <orders@europeanmarketus.com>',
       to: [orderData.customerEmail],
-      subject: `Order Confirmed - #${orderData.orderNumber}`,
+      subject: `Order Confirmed — #${orderData.orderNumber}`,
       html: generateEmailHtml(orderData),
     });
 
@@ -200,10 +216,7 @@ const handler: Handler = async (event) => {
 
     return {
       statusCode: 200,
-      headers: {
-        ...corsHeaders,
-        'Content-Type': 'application/json',
-      },
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       body: JSON.stringify({ success: true, emailId: data?.id }),
     };
   } catch (error: any) {
@@ -211,9 +224,7 @@ const handler: Handler = async (event) => {
     return {
       statusCode: 500,
       headers: corsHeaders,
-      body: JSON.stringify({
-        error: error.message || 'Failed to send confirmation email'
-      }),
+      body: JSON.stringify({ error: error.message || 'Failed to send confirmation email' }),
     };
   }
 };
