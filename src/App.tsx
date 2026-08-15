@@ -2,30 +2,29 @@ import { useEffect, useState, lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useAuthStore } from './store/authStore';
 import { useSettingsStore } from './store/settingsStore';
-import { useProductStore } from './store/productStore';
 
 // Layouts
 import MainLayout from './components/layout/MainLayout';
 import AdminLayout from './components/layout/AdminLayout';
 import SupplierLayout from './components/layout/SupplierLayout';
 
-// Public Pages
-import Home from './pages/Home';
-import Products from './pages/Products';
-import ProductDetail from './pages/ProductDetail';
-import Cart from './pages/Cart';
-import Checkout from './pages/Checkout';
-import OrderConfirmation from './pages/OrderConfirmation';
-import Wishlist from './pages/Wishlist';
-import ReturnPolicy from './pages/ReturnPolicy';
-import PrivacyPolicy from './pages/PrivacyPolicy';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Account from './pages/Account';
-import PreOrder from './pages/PreOrder';
-import NotFound from './pages/NotFound';
-import AuthCallback from './pages/AuthCallback';
-import ResetPassword from './pages/ResetPassword';
+// Public Pages — lazy loaded to reduce initial bundle size
+const Home              = lazy(() => import('./pages/Home'));
+const Products          = lazy(() => import('./pages/Products'));
+const ProductDetail     = lazy(() => import('./pages/ProductDetail'));
+const Cart              = lazy(() => import('./pages/Cart'));
+const Checkout          = lazy(() => import('./pages/Checkout'));
+const OrderConfirmation = lazy(() => import('./pages/OrderConfirmation'));
+const Wishlist          = lazy(() => import('./pages/Wishlist'));
+const ReturnPolicy      = lazy(() => import('./pages/ReturnPolicy'));
+const PrivacyPolicy     = lazy(() => import('./pages/PrivacyPolicy'));
+const Login             = lazy(() => import('./pages/Login'));
+const Register          = lazy(() => import('./pages/Register'));
+const Account           = lazy(() => import('./pages/Account'));
+const PreOrder          = lazy(() => import('./pages/PreOrder'));
+const NotFound          = lazy(() => import('./pages/NotFound'));
+const AuthCallback      = lazy(() => import('./pages/AuthCallback'));
+const ResetPassword     = lazy(() => import('./pages/ResetPassword'));
 
 // Admin Pages — lazy loaded so customers never download this code
 const AdminDashboard      = lazy(() => import('./pages/admin/Dashboard'));
@@ -65,7 +64,6 @@ import { ToastContainer } from './components/ui/Toast';
 function App() {
   const { initialize, isLoading, setLoading } = useAuthStore();
   const { fetchSettings } = useSettingsStore();
-  const { fetchProducts } = useProductStore();
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -77,8 +75,6 @@ function App() {
       setLoading(false);
     }
     fetchSettings();
-    // Pre-fetch products so they're ready when user navigates
-    fetchProducts();
 
     // Failsafe: proceed after 3 seconds even if auth hangs
     const timeout = setTimeout(() => {
@@ -87,7 +83,7 @@ function App() {
     }, 3000);
 
     return () => clearTimeout(timeout);
-  }, [initialize, fetchSettings, fetchProducts, setLoading]);
+  }, [initialize, fetchSettings, setLoading]);
 
   // Update ready state when loading finishes normally
   useEffect(() => {
@@ -99,14 +95,14 @@ function App() {
   // Show loading screen while auth initializes (max 3 seconds)
   if (!ready) {
     return (
-      <div className="min-h-screen bg-brand-black flex items-center justify-center">
+      <div className="min-h-screen bg-[#FFF8F0] flex items-center justify-center">
         <div className="text-center">
           <img
             src="/logo.jpg"
             alt="European Market"
-            className="w-48 h-48 object-contain mx-auto mb-6"
+            className="w-24 h-24 object-cover rounded-2xl mx-auto mb-5 shadow-md"
           />
-          <div className="w-10 h-10 border-4 border-brand-neon border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <div className="w-8 h-8 border-4 border-[#CC0000] border-t-transparent rounded-full animate-spin mx-auto"></div>
         </div>
       </div>
     );
@@ -117,7 +113,7 @@ function App() {
       <ScrollToTop />
       <Routes>
         {/* Public Routes */}
-        <Route path="/" element={<MainLayout />}>
+        <Route path="/" element={<Suspense fallback={<div className="min-h-screen bg-[#FFF8F0] flex items-center justify-center"><div className="w-8 h-8 border-4 border-[#CC0000] border-t-transparent rounded-full animate-spin" /></div>}><MainLayout /></Suspense>}>
           <Route index element={<Home />} />
           <Route path="products" element={<Products />} />
           <Route path="products/:slug" element={<ProductDetail />} />
