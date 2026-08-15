@@ -158,11 +158,16 @@ export default function PreOrder() {
   const [notifySubmitted, setNotifySubmitted] = useState(false);
 
   useEffect(() => {
-    supabase.from('preorder_settings').select('*').eq('id', 1).single()
-      .then(({ data }) => {
-        if (data) setSettings(data as PreorderSettings);
-      })
-      .then(() => setLoadingSettings(false), () => setLoadingSettings(false));
+    const timeout = setTimeout(() => setLoadingSettings(false), 5000);
+    fetch('/.netlify/functions/get-preorder-settings')
+      .then(res => res.json())
+      .then(data => { if (data) setSettings(data as PreorderSettings); })
+      .catch(() => {})
+      .finally(() => {
+        clearTimeout(timeout);
+        setLoadingSettings(false);
+      });
+    return () => clearTimeout(timeout);
   }, []);
 
   const makeKey = (id: string, size: string, flavor: string) =>
