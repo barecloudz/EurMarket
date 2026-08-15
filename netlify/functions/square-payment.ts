@@ -1,5 +1,5 @@
 import type { Handler } from '@netlify/functions';
-import { Client, Environment } from 'square';
+import { SquareClient, SquareEnvironment } from 'square';
 import { randomUUID } from 'crypto';
 import { getCorsHeaders, getRequestOrigin } from './cors-helper';
 
@@ -34,12 +34,11 @@ const handler: Handler = async (event) => {
     };
   }
 
-  const client = new Client({
-    accessToken,
-    environment:
-      process.env.SQUARE_ENVIRONMENT === 'production'
-        ? Environment.Production
-        : Environment.Sandbox,
+  const client = new SquareClient({
+    token: accessToken,
+    environment: process.env.SQUARE_ENVIRONMENT === 'production'
+      ? SquareEnvironment.Production
+      : SquareEnvironment.Sandbox,
   });
 
   try {
@@ -62,7 +61,7 @@ const handler: Handler = async (event) => {
       };
     }
 
-    const { result } = await client.paymentsApi.createPayment({
+    const response = await client.payments.create({
       sourceId,
       idempotencyKey: randomUUID(),
       amountMoney: {
@@ -74,14 +73,15 @@ const handler: Handler = async (event) => {
       buyerEmailAddress: customerEmail || undefined,
     });
 
-    console.log(`[square-payment] Payment created: ${result.payment?.id} for order ${orderId}`);
+    const payment = response.payment;
+    console.log(`[square-payment] Payment created: ${payment?.id} for order ${orderId}`);
 
     return {
       statusCode: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         success: true,
-        paymentId: result.payment?.id,
+        paymentId: payment?.id,
       }),
     };
   } catch (error: any) {
