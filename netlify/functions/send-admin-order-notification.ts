@@ -1,4 +1,5 @@
 import type { Handler } from '@netlify/functions';
+import { getCorsHeaders, getRequestOrigin } from './cors-helper';
 
 interface OrderItem {
   product_name: string;
@@ -167,8 +168,15 @@ const generateAdminEmailHtml = (order: AdminNotificationRequest) => {
 };
 
 const handler: Handler = async (event) => {
+  const origin = getRequestOrigin(event.headers as Record<string, string>);
+  const corsHeaders = getCorsHeaders(origin);
+
+  if (event.httpMethod === 'OPTIONS') {
+    return { statusCode: 204, headers: corsHeaders, body: '' };
+  }
+
   if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, body: JSON.stringify({ error: 'Method not allowed' }) };
+    return { statusCode: 405, headers: corsHeaders, body: JSON.stringify({ error: 'Method not allowed' }) };
   }
 
   const resendApiKey = process.env.RESEND_API_KEY;
@@ -177,14 +185,14 @@ const handler: Handler = async (event) => {
 
   if (!resendApiKey) {
     console.error('[admin-notify] RESEND_API_KEY not configured');
-    return { statusCode: 500, body: JSON.stringify({ error: 'Email service not configured' }) };
+    return { statusCode: 500, headers: corsHeaders, body: JSON.stringify({ error: 'Email service not configured' }) };
   }
 
   try {
     const order: AdminNotificationRequest = JSON.parse(event.body || '{}');
 
     if (!order.orderNumber || !order.customerEmail) {
-      return { statusCode: 400, body: JSON.stringify({ error: 'Missing required fields' }) };
+      return { statusCode: 400, headers: corsHeaders, body: JSON.stringify({ error: 'Missing required fields' }) };
     }
 
     const response = await fetch('https://api.resend.com/emails', {
@@ -196,22 +204,22 @@ const handler: Handler = async (event) => {
       body: JSON.stringify({
         from: resendFromEmail,
         to: [adminEmail],
-        subject: `New Order #${order.orderNumber} — ${order.customerName} (${order.items.reduce((sum, i) => sum + i.quantity, 0)} items, $${order.total.toFixed(2)})`,
+        subject: `New Order #${order.orderNumber} — ${order.customerName} (${(order.items ?? []).reduce((sum, i) => sum + i.quantity, 0)} items, $${order.total.toFixed(2)})`,
         html: generateAdminEmailHtml(order),
       }),
     });
 
     if (response.ok) {
       console.log('[admin-notify] Admin notification email sent');
-      return { statusCode: 200, body: JSON.stringify({ success: true }) };
+      return { statusCode: 200, headers: corsHeaders, body: JSON.stringify({ success: true }) };
     } else {
       const errText = await response.text();
       console.error('[admin-notify] Email send failed:', errText);
-      return { statusCode: 500, body: JSON.stringify({ error: 'Failed to send notification' }) };
+      return { statusCode: 500, headers: corsHeaders, body: JSON.stringify({ error: 'Failed to send notification' }) };
     }
   } catch (error: any) {
     console.error('[admin-notify] Error:', error);
-    return { statusCode: 500, body: JSON.stringify({ error: error.message || 'Failed to send admin notification' }) };
+    return { statusCode: 500, headers: corsHeaders, body: JSON.stringify({ error: error.message || 'Failed to send admin notification' }) };
   }
 };
 
