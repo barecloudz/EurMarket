@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
   Plus, Trash2, Package, Lightbulb, CheckCircle, XCircle,
-  Clock, MapPin, Calendar, ChevronDown, ChevronUp, HelpCircle,
+  Clock, MapPin, Calendar, ChevronDown, ChevronUp,
   Users, AlertTriangle, Printer, Download, Mail, X, Pencil,
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
@@ -12,6 +12,47 @@ const CITIES = [
   'Hendersonville, NC', 'Asheville, NC', 'Marshall, NC', 'Burnsville, NC',
   'Swannanoa, NC', 'Hickory, NC', 'Indian Land, NC', 'Lexington, SC',
   'Columbia, SC', 'Greenville, SC', 'Anderson, SC',
+];
+
+interface MenuSize { label: string; priceNote: string; }
+interface MenuItem { id: string; flag?: string; emoji: string; name: string; sizes: MenuSize[]; flavors: string[]; }
+
+const DEFAULT_MENU: MenuItem[] = [
+  {
+    id: 'paczki', flag: '🇵🇱', emoji: '🍩', name: 'Homemade Paczki — Polish Donuts',
+    sizes: [{ label: 'Medium', priceNote: '$5 each  ·  4 for $16' }, { label: 'Large', priceNote: '$6 each  ·  4 for $20' }],
+    flavors: ['Custard', 'Lemon', 'Cranberry', 'Strawberry', 'Blueberry', 'Lingonberry', 'Plum', 'Nutella', 'Dulce De Leche'],
+  },
+  {
+    id: 'pierogies', emoji: '🥟', name: 'Homemade Pierogies',
+    sizes: [{ label: '6 pieces', priceNote: '$10' }, { label: '12 pieces', priceNote: '$20' }],
+    flavors: ['Potato & Onion', 'Potato & Cheese', 'Potato & Cheddar Cheese', 'Sauerkraut', 'Sauerkraut & Mushroom', 'Spinach', 'Pork & Beef'],
+  },
+  {
+    id: 'sweet-pierogies', emoji: '🍓', name: 'Sweet Pierogies with Sour Cream Topping',
+    sizes: [{ label: '6 pieces', priceNote: '$12' }],
+    flavors: ['Strawberry', 'Cherry'],
+  },
+  {
+    id: 'pirozhki', emoji: '🥟', name: 'Ukrainian Pirozhki',
+    sizes: [{ label: 'Each', priceNote: '$3 each  ·  4 for $10' }],
+    flavors: ['Potato Filling', 'Cabbage'],
+  },
+  {
+    id: 'cabbage-rolls', emoji: '🥬', name: 'Homemade Cabbage Rolls',
+    sizes: [{ label: 'Small Container', priceNote: '$8–$10' }, { label: 'Medium Container', priceNote: '$13–$17' }, { label: 'Large Container', priceNote: '$24–$30' }],
+    flavors: [],
+  },
+  {
+    id: 'poppy-seed-rolls', emoji: '🍞', name: 'Homemade Poppy Seed Rolls',
+    sizes: [{ label: 'Small', priceNote: '$5–$6' }, { label: 'Medium', priceNote: '$7–$8' }, { label: 'Large', priceNote: '$10–$12' }],
+    flavors: [],
+  },
+  {
+    id: 'cheese-rolls', emoji: '🧀', name: 'Homemade Sweet Cheese Rolls',
+    sizes: [{ label: 'Small', priceNote: '$6–$7' }, { label: 'Medium', priceNote: '$8–$9' }, { label: 'Large', priceNote: '$10–$12' }],
+    flavors: ['With Raisins', 'Without Raisins'],
+  },
 ];
 
 interface DeliveryDate {
@@ -66,48 +107,6 @@ const STATUS_LABELS: Record<string, string> = {
   pending: '⏳ Pending', confirmed: '✅ Confirmed', ready: '🎉 Ready', completed: '✔️ Completed',
 };
 
-function HelpGuide() {
-  const [open, setOpen] = useState(false);
-  const steps = [
-    { icon: '🟢', title: 'Step 1 — Open or close orders', body: 'Tap the big green/red button to let customers order (or stop them). It saves automatically.' },
-    { icon: '⏰', title: 'Step 2 — Set a deadline (optional)', body: 'Pick a date & time for orders to close automatically. Leave blank to close manually.' },
-    { icon: '📅', title: 'Step 3 — Add a market date', body: 'Fill in the date, label (like "Saturday, August 15"), time, and pickup address. Pick cities, then tap "Add This Date".' },
-    { icon: '📦', title: 'Viewing orders', body: 'Click "Orders" to see all orders. Use the dropdown on each card to mark it Confirmed, Ready, or Completed.' },
-    { icon: '🖨️', title: 'Print / Export', body: 'In the Orders tab, use Print for a market-day checklist or Export CSV to open in Excel.' },
-    { icon: '💡', title: 'Customer suggestions', body: 'The "Ideas" tab shows what customers want to see — good for planning future markets.' },
-  ];
-  return (
-    <div className="bg-white rounded-2xl border border-blue-100 shadow-sm overflow-hidden mb-6">
-      <button onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center justify-between px-5 py-4 hover:bg-blue-50 transition-colors">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
-            <HelpCircle className="w-4 h-4 text-blue-600" />
-          </div>
-          <div className="text-left">
-            <p className="font-bold text-gray-900 text-sm">How to use this page</p>
-            <p className="text-xs text-gray-500">Step-by-step guide — tap to {open ? 'hide' : 'show'}</p>
-          </div>
-        </div>
-        {open ? <ChevronUp className="w-4 h-4 text-gray-400 flex-shrink-0" /> : <ChevronDown className="w-4 h-4 text-gray-400 flex-shrink-0" />}
-      </button>
-      {open && (
-        <div className="border-t border-blue-100 divide-y divide-blue-50">
-          {steps.map((step, i) => (
-            <div key={i} className="flex gap-4 px-5 py-4">
-              <span className="text-2xl flex-shrink-0 mt-0.5">{step.icon}</span>
-              <div>
-                <p className="font-bold text-gray-900 text-sm mb-1">{step.title}</p>
-                <p className="text-sm text-gray-600 leading-relaxed">{step.body}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
 /** Aggregates all items across orders into a totals map. */
 function buildSummary(orders: PreOrder[]) {
   const totals = new Map<string, number>();
@@ -156,7 +155,13 @@ export default function AdminPreOrders() {
   const [togglingOpen, setTogglingOpen] = useState(false);
   const [savingDates, setSavingDates] = useState(false);
   const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'settings' | 'orders' | 'suggestions'>('settings');
+  const [activeTab, setActiveTab] = useState<'settings' | 'orders' | 'menu' | 'suggestions'>('settings');
+
+  // Menu editor state
+  const [menu, setMenu] = useState<MenuItem[]>(DEFAULT_MENU);
+  const [savingMenu, setSavingMenu] = useState(false);
+  const [editingItemIdx, setEditingItemIdx] = useState<number | null>(null);
+  const [editItem, setEditItem] = useState<MenuItem | null>(null);
 
   // Confirmation modal
   const [confirmingOrder, setConfirmingOrder] = useState<PreOrder | null>(null);
@@ -172,6 +177,8 @@ export default function AdminPreOrders() {
   const [newTime, setNewTime] = useState('');
   const [newLocationAddress, setNewLocationAddress] = useState('');
 
+  const [showAddDate, setShowAddDate] = useState(false);
+
   // Inline editing state for existing dates
   const [editingIdx, setEditingIdx] = useState<number | null>(null);
   const [editDate, setEditDate] = useState('');
@@ -186,9 +193,10 @@ export default function AdminPreOrders() {
       supabase.from('pre_orders').select('*').order('created_at', { ascending: false }),
     ]).then(([{ data: s }, { data: o }]) => {
       if (s) {
-        const parsed = s as PreorderSettings;
+        const parsed = s as PreorderSettings & { menu?: MenuItem[] };
         setSettings(parsed);
         setDeadlineInput(parsed.order_deadline ? parsed.order_deadline.slice(0, 16) : '');
+        if (parsed.menu && parsed.menu.length > 0) setMenu(parsed.menu);
       }
       if (o) setOrders(o as PreOrder[]);
     }).finally(() => setLoading(false));
@@ -299,6 +307,17 @@ export default function AdminPreOrders() {
     await persistDatesAndDeadline(updated);
   };
 
+  const saveMenu = async (updated: MenuItem[]) => {
+    setSavingMenu(true);
+    const ok = await updatePreorderSettings({ menu: updated });
+    setSavingMenu(false);
+    if (!ok) {
+      addToast('Failed to save menu. Try again.', 'error');
+    } else {
+      addToast('Menu saved!', 'success');
+    }
+  };
+
   const updateOrderStatus = async (id: string, status: string) => {
     if (updatingStatus) return;
     setUpdatingStatus(id);
@@ -384,8 +403,6 @@ export default function AdminPreOrders() {
         </div>
       </div>
 
-      <HelpGuide />
-
       {/* Stats */}
       <div className="grid grid-cols-3 gap-3 mb-6">
         {[
@@ -408,6 +425,7 @@ export default function AdminPreOrders() {
         {[
           { key: 'settings', label: 'Settings' },
           { key: 'orders', label: `Orders${pendingOrders.length > 0 ? ` (${pendingOrders.length} new)` : ` (${orders.length})`}` },
+          { key: 'menu', label: 'Menu' },
           { key: 'suggestions', label: `Ideas (${suggestions.length})` },
         ].map(tab => (
           <button key={tab.key} onClick={() => setActiveTab(tab.key as typeof activeTab)}
@@ -515,9 +533,9 @@ export default function AdminPreOrders() {
                       </div>
                       <div>
                         <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-2">Cities</label>
-                        <div className="flex flex-wrap gap-2">
+                        <div className="flex flex-wrap gap-1.5">
                           <button type="button" onClick={() => setEditCities(['all'])}
-                            className={`px-3 py-1.5 rounded-full border-2 font-bold text-sm transition-colors ${editCities.includes('all') ? 'border-[#CC0000] bg-[#CC0000] text-white' : 'border-gray-200 text-gray-600'}`}>
+                            className={`px-2.5 py-1 rounded-full border font-bold text-xs transition-colors ${editCities.includes('all') ? 'border-[#CC0000] bg-[#CC0000] text-white' : 'border-gray-200 text-gray-600'}`}>
                             All Cities
                           </button>
                           {CITIES.map(c => (
@@ -527,7 +545,7 @@ export default function AdminPreOrders() {
                                 else if (editCities.includes(c)) setEditCities(editCities.filter(x => x !== c));
                                 else setEditCities([...editCities, c]);
                               }}
-                              className={`px-3 py-1.5 rounded-full border-2 font-bold text-sm transition-colors ${!editCities.includes('all') && editCities.includes(c) ? 'border-[#CC0000] bg-[#CC0000] text-white' : 'border-gray-200 text-gray-600'}`}>
+                              className={`px-2.5 py-1 rounded-full border font-semibold text-xs transition-colors ${!editCities.includes('all') && editCities.includes(c) ? 'border-[#CC0000] bg-[#CC0000] text-white' : 'border-gray-200 text-gray-600'}`}>
                               {c}
                             </button>
                           ))}
@@ -577,11 +595,17 @@ export default function AdminPreOrders() {
                 </div>
               )}
 
-              <div className="border-t-2 border-dashed border-gray-100 pt-5">
-                <p className="text-sm font-black text-gray-700 uppercase tracking-wider mb-4 flex items-center gap-2">
-                  <Plus className="w-4 h-4 text-[#CC0000]" /> Add a new market date
-                </p>
-                <div className="space-y-3">
+              <div className="border-t-2 border-dashed border-gray-100 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowAddDate(v => !v)}
+                  className="w-full flex items-center justify-between gap-2 bg-gray-50 hover:bg-gray-100 border-2 border-gray-200 rounded-xl px-4 py-3 transition-colors mb-3">
+                  <span className="flex items-center gap-2 font-bold text-gray-700 text-sm">
+                    <Plus className="w-4 h-4 text-[#CC0000]" /> Add a market date
+                  </span>
+                  {showAddDate ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
+                </button>
+                {showAddDate && <div className="space-y-3">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="sm:col-span-2">
                       <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1.5">Date <span className="text-red-500">*</span></label>
@@ -612,9 +636,9 @@ export default function AdminPreOrders() {
                   </div>
                   <div>
                     <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-2">Which cities can order for this date?</label>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-1.5">
                       <button type="button" onClick={() => setNewCities(['all'])}
-                        className={`px-3 py-1.5 rounded-full border-2 font-bold text-sm transition-colors ${newCities.includes('all') ? 'border-[#CC0000] bg-[#CC0000] text-white' : 'border-gray-200 text-gray-600 hover:border-[#CC0000]/50'}`}>
+                        className={`px-2.5 py-1 rounded-full border font-bold text-xs transition-colors ${newCities.includes('all') ? 'border-[#CC0000] bg-[#CC0000] text-white' : 'border-gray-200 text-gray-600 hover:border-[#CC0000]/50'}`}>
                         All Cities
                       </button>
                       {CITIES.map(c => (
@@ -624,7 +648,7 @@ export default function AdminPreOrders() {
                             else if (newCities.includes(c)) setNewCities(newCities.filter(x => x !== c));
                             else setNewCities([...newCities, c]);
                           }}
-                          className={`px-3 py-1.5 rounded-full border-2 font-bold text-sm transition-colors ${!newCities.includes('all') && newCities.includes(c) ? 'border-[#CC0000] bg-[#CC0000] text-white' : 'border-gray-200 text-gray-600 hover:border-[#CC0000]/50'}`}>
+                          className={`px-2.5 py-1 rounded-full border font-semibold text-xs transition-colors ${!newCities.includes('all') && newCities.includes(c) ? 'border-[#CC0000] bg-[#CC0000] text-white' : 'border-gray-200 text-gray-600 hover:border-[#CC0000]/50'}`}>
                           {c}
                         </button>
                       ))}
@@ -636,7 +660,7 @@ export default function AdminPreOrders() {
                     {savingDates ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Plus className="h-5 w-5" />}
                     {savingDates ? 'Saving...' : 'Add This Date'}
                   </button>
-                </div>
+                </div>}
               </div>
             </div>
           </div>
@@ -741,7 +765,7 @@ export default function AdminPreOrders() {
                 <button
                   onClick={() => openConfirmModal(order)}
                   className="mt-4 w-full flex items-center justify-center gap-2 bg-[#CC0000] hover:bg-[#AA0000] text-white font-bold text-sm px-4 py-3 rounded-xl transition-colors">
-                  <Mail className="w-4 h-4" /> Price &amp; Confirm Order
+                  <Mail className="w-4 h-4" /> Pack &amp; Set Prices
                 </button>
               )}
               {order.status === 'confirmed' && (
@@ -858,6 +882,149 @@ export default function AdminPreOrders() {
               )}
             </div>
           </div>
+        </div>
+      )}
+
+      {/* ── MENU TAB ── */}
+      {activeTab === 'menu' && (
+        <div className="space-y-3">
+          <p className="text-sm text-gray-500 mb-2">Edit item names, sizes, prices, and flavors. Changes go live on the customer order page immediately after saving.</p>
+
+          {menu.map((item, idx) => (
+            <div key={item.id} className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+              {editingItemIdx === idx && editItem ? (
+                <div className="p-5 space-y-4">
+                  {/* Item name + emoji */}
+                  <div className="flex gap-2">
+                    <div className="w-20 flex-shrink-0">
+                      <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Emoji</label>
+                      <input type="text" value={editItem.emoji} onChange={e => setEditItem({ ...editItem, emoji: e.target.value })}
+                        className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-center text-xl focus:outline-none focus:border-[#CC0000]" />
+                    </div>
+                    <div className="flex-1">
+                      <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Item Name</label>
+                      <input type="text" value={editItem.name} onChange={e => setEditItem({ ...editItem, name: e.target.value })}
+                        className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-gray-900 focus:outline-none focus:border-[#CC0000]" />
+                    </div>
+                  </div>
+
+                  {/* Sizes */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Sizes & Prices</label>
+                      <button type="button"
+                        onClick={() => setEditItem({ ...editItem, sizes: [...editItem.sizes, { label: '', priceNote: '' }] })}
+                        className="text-xs font-bold text-[#CC0000] hover:text-[#AA0000] flex items-center gap-1">
+                        <Plus className="w-3 h-3" /> Add size
+                      </button>
+                    </div>
+                    <div className="space-y-2">
+                      {editItem.sizes.map((size, si) => (
+                        <div key={si} className="flex gap-2 items-center">
+                          <input type="text" value={size.label} placeholder="Size label"
+                            onChange={e => {
+                              const sizes = editItem.sizes.map((s, i) => i === si ? { ...s, label: e.target.value } : s);
+                              setEditItem({ ...editItem, sizes });
+                            }}
+                            className="flex-1 border-2 border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-[#CC0000]" />
+                          <input type="text" value={size.priceNote} placeholder="Price (e.g. $10)"
+                            onChange={e => {
+                              const sizes = editItem.sizes.map((s, i) => i === si ? { ...s, priceNote: e.target.value } : s);
+                              setEditItem({ ...editItem, sizes });
+                            }}
+                            className="flex-1 border-2 border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-[#CC0000]" />
+                          <button type="button" onClick={() => setEditItem({ ...editItem, sizes: editItem.sizes.filter((_, i) => i !== si) })}
+                            className="p-2 text-red-400 hover:text-red-600 flex-shrink-0">
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Flavors */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Flavors <span className="text-gray-400 font-normal">(optional)</span></label>
+                      <button type="button"
+                        onClick={() => setEditItem({ ...editItem, flavors: [...editItem.flavors, ''] })}
+                        className="text-xs font-bold text-[#CC0000] hover:text-[#AA0000] flex items-center gap-1">
+                        <Plus className="w-3 h-3" /> Add flavor
+                      </button>
+                    </div>
+                    {editItem.flavors.length === 0 ? (
+                      <p className="text-xs text-gray-400 italic">No flavors — customers just pick a size</p>
+                    ) : (
+                      <div className="flex flex-wrap gap-2">
+                        {editItem.flavors.map((flavor, fi) => (
+                          <div key={fi} className="flex items-center gap-1 bg-gray-50 border border-gray-200 rounded-full px-3 py-1">
+                            <input type="text" value={flavor}
+                              onChange={e => {
+                                const flavors = editItem.flavors.map((f, i) => i === fi ? e.target.value : f);
+                                setEditItem({ ...editItem, flavors });
+                              }}
+                              className="text-sm text-gray-700 bg-transparent focus:outline-none w-24 min-w-0" />
+                            <button type="button" onClick={() => setEditItem({ ...editItem, flavors: editItem.flavors.filter((_, i) => i !== fi) })}
+                              className="text-red-400 hover:text-red-600 flex-shrink-0 ml-1">
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex gap-2 pt-1">
+                    <button
+                      onClick={async () => {
+                        const updated = menu.map((m, i) => i === idx ? editItem : m);
+                        setMenu(updated);
+                        setEditingItemIdx(null);
+                        await saveMenu(updated);
+                      }}
+                      disabled={savingMenu}
+                      className="flex-1 bg-[#CC0000] text-white font-bold py-2.5 rounded-xl hover:bg-[#AA0000] transition-colors disabled:opacity-50 text-sm">
+                      {savingMenu ? 'Saving...' : 'Save Item'}
+                    </button>
+                    <button onClick={() => setEditingItemIdx(null)}
+                      className="px-4 py-2.5 border-2 border-gray-200 rounded-xl text-gray-600 font-bold hover:border-gray-300 transition-colors text-sm">
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-3 px-4 py-4">
+                  <span className="text-2xl flex-shrink-0">{item.emoji}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-gray-900 text-sm leading-snug">{item.name}</p>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      {item.sizes.map(s => `${s.label}: ${s.priceNote}`).join(' · ')}
+                    </p>
+                    {item.flavors.length > 0 && (
+                      <p className="text-xs text-gray-400 mt-0.5">{item.flavors.length} flavors</p>
+                    )}
+                  </div>
+                  <button onClick={() => { setEditItem({ ...item }); setEditingItemIdx(idx); }}
+                    className="bg-blue-50 hover:bg-blue-100 text-blue-500 rounded-lg p-2 transition-colors border border-blue-200 flex-shrink-0">
+                    <Pencil className="h-4 w-4" />
+                  </button>
+                </div>
+              )}
+            </div>
+          ))}
+
+          <button
+            type="button"
+            onClick={() => {
+              const newItem: MenuItem = { id: `item-${Date.now()}`, emoji: '🍽️', name: '', sizes: [{ label: '', priceNote: '' }], flavors: [] };
+              const updated = [...menu, newItem];
+              setMenu(updated);
+              setEditItem(newItem);
+              setEditingItemIdx(updated.length - 1);
+            }}
+            className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-gray-200 rounded-2xl py-4 text-gray-500 font-bold text-sm hover:border-[#CC0000] hover:text-[#CC0000] transition-colors">
+            <Plus className="w-4 h-4" /> Add New Item
+          </button>
         </div>
       )}
 

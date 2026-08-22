@@ -70,12 +70,12 @@ export default function Footer() {
       <div className="bg-[#CC0000] text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div>
-            <p className="font-display font-bold text-lg leading-tight">Ready to order homemade goodies?</p>
+            <p className="font-display font-bold text-lg leading-tight">Love homemade European food?</p>
             <p className="text-white/80 text-sm">Pierogies · Paczki · Cabbage Rolls · Poppyseed Rolls &amp; more</p>
           </div>
           <Link to="/preorder"
             className="flex-shrink-0 bg-white text-[#CC0000] font-bold px-6 py-2.5 rounded-xl hover:bg-gray-50 transition-colors text-sm shadow-sm">
-            Place a Pre-Order →
+            Pre-Order Homemade Food →
           </Link>
         </div>
       </div>

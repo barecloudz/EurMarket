@@ -19,7 +19,7 @@ const handler: Handler = async (event) => {
 
   const { data, error } = await adminClient
     .from('preorder_settings')
-    .select('orders_open, order_deadline, delivery_dates')
+    .select('orders_open, order_deadline, delivery_dates, menu')
     .eq('id', 1)
     .single();
 
@@ -27,7 +27,7 @@ const handler: Handler = async (event) => {
     return {
       statusCode: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ orders_open: false, order_deadline: null, delivery_dates: [] }),
+      body: JSON.stringify({ orders_open: false, order_deadline: null, delivery_dates: [], menu: [] }),
     };
   }
 

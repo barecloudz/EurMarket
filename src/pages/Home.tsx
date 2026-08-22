@@ -507,7 +507,7 @@ export default function Home() {
                 </div>
                 <Link to="/preorder"
                   className="inline-flex items-center gap-2 bg-[#CC0000] text-white font-bold px-8 py-3.5 rounded-2xl hover:bg-[#AA0000] transition-colors btn-press shadow-lg text-base">
-                  Place a Pre-Order <ArrowRight className="h-5 w-5" />
+                  Pre-Order Homemade Food <ArrowRight className="h-5 w-5" />
                 </Link>
               </div>
             </div>
