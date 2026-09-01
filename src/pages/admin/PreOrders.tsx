@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   Plus, Trash2, Package, Lightbulb, CheckCircle, XCircle,
   Clock, MapPin, Calendar, ChevronDown, ChevronUp,
@@ -20,38 +21,48 @@ interface MenuItem { id: string; flag?: string; emoji: string; name: string; siz
 const DEFAULT_MENU: MenuItem[] = [
   {
     id: 'paczki', flag: '🇵🇱', emoji: '🍩', name: 'Homemade Paczki — Polish Donuts',
-    sizes: [{ label: 'Medium', priceNote: '$5 each  ·  4 for $16' }, { label: 'Large', priceNote: '$6 each  ·  4 for $20' }],
-    flavors: ['Custard', 'Lemon', 'Cranberry', 'Strawberry', 'Blueberry', 'Lingonberry', 'Plum', 'Nutella', 'Dulce De Leche'],
+    sizes: [{ label: 'Each', priceNote: '$6 each  ·  4 for $20' }],
+    flavors: ['Custard', 'Strawberry Custard', 'Blueberry', 'Lingonberry'],
   },
   {
     id: 'pierogies', emoji: '🥟', name: 'Homemade Pierogies',
     sizes: [{ label: '6 pieces', priceNote: '$10' }, { label: '12 pieces', priceNote: '$20' }],
-    flavors: ['Potato & Onion', 'Potato & Cheese', 'Potato & Cheddar Cheese', 'Sauerkraut', 'Sauerkraut & Mushroom', 'Spinach', 'Pork & Beef'],
+    flavors: ['Potato & Onion', 'Potato & Cheese', 'Potato & Cheddar', 'Sauerkraut', 'Kraut & Mushroom', 'Spinach & Cheese', 'Pork & Beef'],
   },
   {
-    id: 'sweet-pierogies', emoji: '🍓', name: 'Sweet Pierogies with Sour Cream Topping',
+    id: 'sweet-pierogies', emoji: '🍓', name: 'Sweet Pierogies',
     sizes: [{ label: '6 pieces', priceNote: '$12' }],
-    flavors: ['Strawberry', 'Cherry'],
+    flavors: ['Strawberry', 'Cherry', 'Sweet Cheese'],
   },
   {
-    id: 'pirozhki', emoji: '🥟', name: 'Ukrainian Pirozhki',
+    id: 'pirozhki', flag: '🇺🇦', emoji: '🥟', name: 'Ukrainian Pirozhki',
     sizes: [{ label: 'Each', priceNote: '$3 each  ·  4 for $10' }],
-    flavors: ['Potato Filling', 'Cabbage'],
+    flavors: ['Potato Filling'],
   },
   {
     id: 'cabbage-rolls', emoji: '🥬', name: 'Homemade Cabbage Rolls',
-    sizes: [{ label: 'Small Container', priceNote: '$8–$10' }, { label: 'Medium Container', priceNote: '$13–$17' }, { label: 'Large Container', priceNote: '$24–$30' }],
+    sizes: [{ label: 'Small', priceNote: '$8–$12' }, { label: 'Large', priceNote: '$17–$22' }],
     flavors: [],
   },
   {
-    id: 'poppy-seed-rolls', emoji: '🍞', name: 'Homemade Poppy Seed Rolls',
+    id: 'borscht', flag: '🇺🇦', emoji: '🍲', name: 'Ukrainian Borscht',
+    sizes: [{ label: 'Small', priceNote: '$8–$12' }],
+    flavors: [],
+  },
+  {
+    id: 'kapusta', emoji: '🥩', name: 'Kapusta with Pork',
+    sizes: [{ label: 'Small', priceNote: '$8–$12' }],
+    flavors: [],
+  },
+  {
+    id: 'poppy-seed-rolls', emoji: '🍞', name: 'Poppy Seed Rolls',
     sizes: [{ label: 'Small', priceNote: '$5–$6' }, { label: 'Medium', priceNote: '$7–$8' }, { label: 'Large', priceNote: '$10–$12' }],
     flavors: [],
   },
   {
-    id: 'cheese-rolls', emoji: '🧀', name: 'Homemade Sweet Cheese Rolls',
-    sizes: [{ label: 'Small', priceNote: '$6–$7' }, { label: 'Medium', priceNote: '$8–$9' }, { label: 'Large', priceNote: '$10–$12' }],
-    flavors: ['With Raisins', 'Without Raisins'],
+    id: 'cheese-rolls', emoji: '🧀', name: 'Sweet Cheese Rolls',
+    sizes: [{ label: 'Small', priceNote: '$5–$7' }, { label: 'Medium', priceNote: '$8–$9' }, { label: 'Large', priceNote: '$10–$12' }],
+    flavors: ['Plain', 'With Plum', 'With Raisins', 'With Apricot', 'With Blueberry'],
   },
 ];
 
@@ -107,6 +118,38 @@ const STATUS_LABELS: Record<string, string> = {
   pending: '⏳ Pending', confirmed: '✅ Confirmed', ready: '🎉 Ready', completed: '✔️ Completed',
 };
 
+function parsePriceNote(priceNote: string, qty: number): number {
+  // "4 for $20" bundle — use bundle price if qty matches exactly
+  const bundleMatch = priceNote.match(/(\d+)\s+for\s+\$(\d+(?:\.\d+)?)/i);
+  if (bundleMatch) {
+    const bundleQty = parseInt(bundleMatch[1]);
+    const bundlePrice = parseFloat(bundleMatch[2]);
+    if (qty === bundleQty) return bundlePrice;
+    // Fall through to unit price below
+    const unitMatch = priceNote.match(/\$(\d+(?:\.\d+)?)\s+each/i);
+    const unitPrice = unitMatch ? parseFloat(unitMatch[1]) : bundlePrice / bundleQty;
+    return unitPrice * qty;
+  }
+  // "$8–$12" range — use midpoint (container price, not per-unit)
+  const rangeMatch = priceNote.match(/\$(\d+(?:\.\d+)?)[\s\u2013\u2014\-]+\$?(\d+(?:\.\d+)?)/);
+  if (rangeMatch) {
+    const mid = (parseFloat(rangeMatch[1]) + parseFloat(rangeMatch[2])) / 2;
+    return mid * qty;
+  }
+  // Simple "$10"
+  const match = priceNote.match(/\$(\d+(?:\.\d+)?)/);
+  return match ? parseFloat(match[1]) * qty : 0;
+}
+
+/** Looks up the menu price for a given product + size + qty. */
+function inferPrice(menu: MenuItem[], product: string, size: string, qty: number): number {
+  const item = menu.find(m => m.name === product);
+  if (!item) return 0;
+  const sizeEntry = item.sizes.find(s => s.label === size);
+  if (!sizeEntry) return 0;
+  return parsePriceNote(sizeEntry.priceNote, qty);
+}
+
 /** Aggregates all items across orders into a totals map. */
 function buildSummary(orders: PreOrder[]) {
   const totals = new Map<string, number>();
@@ -145,6 +188,7 @@ function exportCSV(orders: PreOrder[]) {
 export default function AdminPreOrders() {
   const { addToast } = useToast();
   const { session } = useAuthStore();
+  const [searchParams] = useSearchParams();
   const [settings, setSettings] = useState<PreorderSettings>({
     orders_open: false,
     order_deadline: null,
@@ -155,7 +199,15 @@ export default function AdminPreOrders() {
   const [togglingOpen, setTogglingOpen] = useState(false);
   const [savingDates, setSavingDates] = useState(false);
   const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'settings' | 'orders' | 'menu' | 'suggestions'>('settings');
+  const [activeTab, setActiveTab] = useState<'settings' | 'orders' | 'menu' | 'suggestions'>(
+    (searchParams.get('tab') as 'settings' | 'orders' | 'menu' | 'suggestions') ?? 'settings'
+  );
+
+  // Sync tab from URL when navigating to this page while it's already mounted
+  useEffect(() => {
+    const tab = searchParams.get('tab') as 'settings' | 'orders' | 'menu' | 'suggestions' | null;
+    if (tab) setActiveTab(tab);
+  }, [searchParams]);
 
   // Menu editor state
   const [menu, setMenu] = useState<MenuItem[]>(DEFAULT_MENU);
@@ -178,6 +230,7 @@ export default function AdminPreOrders() {
   const [newLocationAddress, setNewLocationAddress] = useState('');
 
   const [showAddDate, setShowAddDate] = useState(false);
+  const [groupByCity, setGroupByCity] = useState(false);
 
   // Inline editing state for existing dates
   const [editingIdx, setEditingIdx] = useState<number | null>(null);
@@ -327,14 +380,16 @@ export default function AdminPreOrders() {
   };
 
   const openConfirmModal = (order: PreOrder) => {
-    const items: ConfirmItem[] = order.items.map(item => ({
+    const existingItems = order.confirmed_items;
+    const items: ConfirmItem[] = order.items.map((item, i) => ({
       product: item.product,
       size: item.size,
       flavor: item.flavor,
       qty: item.qty,
-      price: 0,
-      available: true,
-      substitution: '',
+      // Re-opening a confirmed order restores previous prices; new orders auto-populate from menu
+      price: existingItems?.[i]?.price ?? inferPrice(menu, item.product, item.size, item.qty),
+      available: existingItems?.[i]?.available ?? true,
+      substitution: existingItems?.[i]?.substitution ?? '',
     }));
     setEditItems(items);
     setConfirmingOrder(order);
@@ -513,7 +568,7 @@ export default function AdminPreOrders() {
                   <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Current dates</p>
                   {settings.delivery_dates.map((d, idx) => editingIdx === idx ? (
                     // ── Inline edit mode ──
-                    <div key={idx} className="rounded-xl border-2 border-[#CC0000] bg-white p-4 space-y-3">
+                    <div key={d.date + '|' + (d.time ?? '') + '|' + (d.location_address ?? '')} className="rounded-xl border-2 border-[#CC0000] bg-white p-4 space-y-3">
                       <div>
                         <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Date</label>
                         <input type="date" value={editDate} onChange={e => {
@@ -564,7 +619,7 @@ export default function AdminPreOrders() {
                     </div>
                   ) : (
                     // ── Display mode ──
-                    <div key={idx} className="flex items-start gap-3 bg-gradient-to-r from-gray-50 to-white rounded-xl px-4 py-4 border border-gray-200">
+                    <div key={d.date + '|' + (d.time ?? '') + '|' + (d.location_address ?? '')} className="flex items-start gap-3 bg-gradient-to-r from-gray-50 to-white rounded-xl px-4 py-4 border border-gray-200">
                       <div className="flex-1 min-w-0">
                         <p className="font-black text-gray-900">{d.label}</p>
                         <p className="text-sm text-gray-500 mt-0.5 flex items-center gap-1">
@@ -691,11 +746,17 @@ export default function AdminPreOrders() {
                 </div>
               </div>
 
-              {/* #5 — Print / Export */}
-              <div className="flex gap-2">
+              {/* Actions row */}
+              <div className="flex gap-2 flex-wrap">
+                <button onClick={() => setGroupByCity(v => !v)}
+                  className={`flex items-center justify-center gap-2 border-2 font-bold text-sm px-4 py-3 rounded-xl transition-colors ${
+                    groupByCity ? 'bg-[#CC0000] border-[#CC0000] text-white' : 'bg-white border-gray-200 hover:border-gray-300 text-gray-700'
+                  }`}>
+                  <MapPin className="w-4 h-4" /> Group by City
+                </button>
                 <button onClick={() => window.print()}
                   className="flex-1 flex items-center justify-center gap-2 bg-white border-2 border-gray-200 hover:border-gray-300 text-gray-700 font-bold text-sm px-4 py-3 rounded-xl transition-colors">
-                  <Printer className="w-4 h-4" /> Print Orders
+                  <Printer className="w-4 h-4" /> Print
                 </button>
                 <button onClick={() => exportCSV(orders)}
                   className="flex-1 flex items-center justify-center gap-2 bg-white border-2 border-gray-200 hover:border-gray-300 text-gray-700 font-bold text-sm px-4 py-3 rounded-xl transition-colors">
@@ -711,7 +772,30 @@ export default function AdminPreOrders() {
               <p className="text-lg font-bold">No orders yet</p>
               <p className="text-sm mt-1">Orders will appear here once customers submit them</p>
             </div>
-          ) : orders.map(order => (
+          ) : (() => {
+            type DisplayItem = { kind: 'city'; city: string } | { kind: 'order'; order: PreOrder };
+            let items: DisplayItem[];
+            if (groupByCity) {
+              const sorted = [...orders].sort((a, b) => a.pickup_city.localeCompare(b.pickup_city));
+              const seen = new Set<string>();
+              items = [];
+              for (const o of sorted) {
+                if (!seen.has(o.pickup_city)) { seen.add(o.pickup_city); items.push({ kind: 'city', city: o.pickup_city }); }
+                items.push({ kind: 'order', order: o });
+              }
+            } else {
+              items = orders.map(o => ({ kind: 'order', order: o }));
+            }
+            return items.map((item, idx) => item.kind === 'city' ? (
+              <div key={`city-${item.city}`} className={`flex items-center gap-2 py-2 px-1 mb-1 ${idx > 0 ? 'mt-3' : ''}`}>
+                <MapPin className="w-4 h-4 text-[#CC0000] flex-shrink-0" />
+                <p className="font-black text-gray-800 text-sm uppercase tracking-wider">{item.city}</p>
+                <span className="text-xs font-bold text-gray-400 bg-gray-100 rounded-full px-2 py-0.5">
+                  {orders.filter(o => o.pickup_city === item.city).length}
+                </span>
+              </div>
+            ) : (
+              (order => (
             <div key={order.id} className={`bg-white rounded-2xl border-2 shadow-sm p-5 ${order.status === 'pending' ? 'border-amber-300' : 'border-gray-100'}`}>
               <div className="flex items-start justify-between gap-4 mb-3">
                 <div>
@@ -776,7 +860,9 @@ export default function AdminPreOrders() {
                 </button>
               )}
             </div>
-          ))}
+              ))(item.order)
+            ));
+          })()}
         </div>
       )}
 
@@ -804,7 +890,7 @@ export default function AdminPreOrders() {
 
             {/* Items */}
             <div className="overflow-y-auto flex-1 px-5 py-4 space-y-4">
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Set price for each item — enter 0 or mark unavailable if you can't fill it</p>
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Prices are auto-filled from the menu — adjust if needed, then confirm</p>
               {editItems.map((item, idx) => {
                 const label = [item.product, item.size && `(${item.size})`, item.flavor && `— ${item.flavor}`].filter(Boolean).join(' ');
                 return (
@@ -816,7 +902,7 @@ export default function AdminPreOrders() {
                       </p>
                       <button
                         type="button"
-                        onClick={() => updateEditItem(idx, { available: !item.available, price: item.available ? 0 : item.price })}
+                        onClick={() => updateEditItem(idx, { available: !item.available })}
                         className={`flex-shrink-0 text-xs font-bold px-3 py-1.5 rounded-full border-2 transition-colors ${item.available
                           ? 'border-red-200 text-red-500 hover:bg-red-50'
                           : 'border-green-300 text-green-600 hover:bg-green-50'
@@ -870,14 +956,14 @@ export default function AdminPreOrders() {
               </div>
               <button
                 onClick={sendConfirmation}
-                disabled={sendingConf || confirmTotal === 0}
+                disabled={sendingConf || (confirmTotal === 0 && editItems.some(i => i.available))}
                 className="w-full flex items-center justify-center gap-2 bg-[#CC0000] hover:bg-[#AA0000] disabled:opacity-50 text-white font-black text-base px-4 py-4 rounded-2xl transition-colors">
                 {sendingConf
                   ? <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Sending...</>
                   : <><Mail className="w-4 h-4" /> {confirmingOrder.customer_email ? 'Confirm & Send Email' : 'Confirm Order (no email)'}</>
                 }
               </button>
-              {confirmTotal === 0 && (
+              {confirmTotal === 0 && editItems.some(i => i.available) && (
                 <p className="text-center text-xs text-red-400 mt-2">Enter at least one price to confirm</p>
               )}
             </div>
@@ -888,7 +974,20 @@ export default function AdminPreOrders() {
       {/* ── MENU TAB ── */}
       {activeTab === 'menu' && (
         <div className="space-y-3">
-          <p className="text-sm text-gray-500 mb-2">Edit item names, sizes, prices, and flavors. Changes go live on the customer order page immediately after saving.</p>
+          <div className="flex items-start justify-between gap-3 mb-2">
+            <p className="text-sm text-gray-500">Edit item names, sizes, prices, and flavors. Changes go live immediately after saving.</p>
+            <button
+              type="button"
+              onClick={async () => {
+                if (!confirm('Reset the entire menu back to the built-in defaults? This will overwrite any changes you made.')) return;
+                setMenu(DEFAULT_MENU);
+                await saveMenu(DEFAULT_MENU);
+              }}
+              disabled={savingMenu}
+              className="flex-shrink-0 text-xs font-bold text-gray-400 hover:text-[#CC0000] border border-gray-200 hover:border-[#CC0000]/40 rounded-lg px-3 py-1.5 transition-colors whitespace-nowrap">
+              ↩ Reset to defaults
+            </button>
+          </div>
 
           {menu.map((item, idx) => (
             <div key={item.id} className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
@@ -1001,7 +1100,7 @@ export default function AdminPreOrders() {
                       {item.sizes.map(s => `${s.label}: ${s.priceNote}`).join(' · ')}
                     </p>
                     {item.flavors.length > 0 && (
-                      <p className="text-xs text-gray-400 mt-0.5">{item.flavors.length} flavors</p>
+                      <p className="text-xs text-gray-400 mt-0.5">{item.flavors.length} {item.flavors.length === 1 ? 'flavor' : 'flavors'}</p>
                     )}
                   </div>
                   <button onClick={() => { setEditItem({ ...item }); setEditingItemIdx(idx); }}

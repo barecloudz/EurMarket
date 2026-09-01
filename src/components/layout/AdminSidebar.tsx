@@ -23,6 +23,7 @@ import {
   Layout,
   Wallet,
   ClipboardList,
+  MoreHorizontal,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
@@ -30,6 +31,7 @@ import { supabase } from '../../lib/supabase';
 // Top-level items (always visible)
 export const topNavItems = [
   { href: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
+  { href: '/admin/preorders', icon: ClipboardList, label: 'Pre-Orders' },
 ];
 
 // Store section
@@ -37,7 +39,6 @@ export const storeSubItems = [
   { href: '/admin/products', icon: Package, label: 'Products' },
   { href: '/admin/categories', icon: FolderOpen, label: 'Categories' },
   { href: '/admin/orders', icon: ShoppingBag, label: 'Orders' },
-  { href: '/admin/preorders', icon: ClipboardList, label: 'Pre-Orders' },
   { href: '/admin/payouts', icon: Wallet, label: 'Payouts' },
 ];
 
@@ -132,13 +133,17 @@ export default function AdminSidebar() {
   const [marketingOpen, setMarketingOpen] = useState(
     marketingSubItems.some(item => location.pathname.startsWith(item.href))
   );
+  const [moreOpen, setMoreOpen] = useState(
+    [...storeSubItems, ...customersSubItems, ...storefrontSubItems, ...marketingSubItems]
+      .some(item => location.pathname.startsWith(item.href))
+  );
 
   const isActive = (path: string) => {
     if (path === '/admin') return location.pathname === '/admin';
     return location.pathname.startsWith(path);
   };
 
-  const SidebarContent = ({ isMobile = false }: { isMobile?: boolean }) => (
+  const renderSidebarContent = (isMobile = false) => (
     <>
       {/* Logo */}
       <div className={`p-5 border-b ${isMobile ? 'border-gray-200 bg-white' : 'border-gray-200'}`}>
@@ -157,7 +162,7 @@ export default function AdminSidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-        {/* Dashboard */}
+        {/* Dashboard + Pre-Orders */}
         {topNavItems.map((item) => (
           <Link
             key={item.href}
@@ -170,164 +175,192 @@ export default function AdminSidebar() {
             }`}
           >
             <item.icon className={`h-5 w-5 ${isActive(item.href) ? 'text-[var(--color-primary)]' : ''}`} />
-            <span className="font-medium">{item.label}</span>
+            <span className="font-medium flex-1">{item.label}</span>
+            {item.href === '/admin/preorders' && pendingPreorderCount > 0 && (
+              <span className="bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center leading-tight">
+                {pendingPreorderCount}
+              </span>
+            )}
           </Link>
         ))}
 
-        {/* Store collapsible */}
+        {/* More collapsible (Store, Customers, Storefront, Marketing) */}
         <div>
           <button
-            onClick={() => setStoreOpen(!storeOpen)}
+            onClick={() => setMoreOpen(!moreOpen)}
             className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all ${
-              storeSubItems.some(item => isActive(item.href))
+              [...storeSubItems, ...customersSubItems, ...storefrontSubItems, ...marketingSubItems].some(item => isActive(item.href))
                 ? 'bg-[var(--color-primary)]/10 text-[var(--color-primary)] border border-[var(--color-primary)]/20'
                 : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 border border-transparent'
             }`}
           >
             <div className="flex items-center space-x-3">
-              <Store className={`h-5 w-5 ${storeSubItems.some(item => isActive(item.href)) ? 'text-[var(--color-primary)]' : ''}`} />
-              <span className="font-medium">Store</span>
+              <MoreHorizontal className={`h-5 w-5 ${[...storeSubItems, ...customersSubItems, ...storefrontSubItems, ...marketingSubItems].some(item => isActive(item.href)) ? 'text-[var(--color-primary)]' : ''}`} />
+              <span className="font-medium">More</span>
             </div>
-            {storeOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+            {moreOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
           </button>
-          {storeOpen && (
-            <div className="ml-4 mt-1 space-y-1">
-              {storeSubItems.map((item) => (
-                <Link
-                  key={item.href}
-                  to={item.href}
-                  onClick={() => setMobileOpen(false)}
-                  className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-all ${
-                    isActive(item.href)
-                      ? 'bg-[var(--color-primary)]/10 text-[var(--color-primary)]'
-                      : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-                  }`}
-                >
-                  <item.icon className={`h-4 w-4 ${isActive(item.href) ? 'text-[var(--color-primary)]' : ''}`} />
-                  <span className="text-sm flex-1">{item.label}</span>
-                  {item.href === '/admin/orders' && pendingCount > 0 && (
-                    <span className="bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center leading-tight">
-                      {pendingCount}
-                    </span>
-                  )}
-                  {item.href === '/admin/preorders' && pendingPreorderCount > 0 && (
-                    <span className="bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center leading-tight">
-                      {pendingPreorderCount}
-                    </span>
-                  )}
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
+          {moreOpen && (
+            <div className="ml-2 mt-1 space-y-1">
 
-        {/* Customers collapsible */}
-        <div>
-          <button
-            onClick={() => setCustomersOpen(!customersOpen)}
-            className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all ${
-              customersSubItems.some(item => isActive(item.href))
-                ? 'bg-[var(--color-primary)]/10 text-[var(--color-primary)] border border-[var(--color-primary)]/20'
-                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 border border-transparent'
-            }`}
-          >
-            <div className="flex items-center space-x-3">
-              <Users className={`h-5 w-5 ${customersSubItems.some(item => isActive(item.href)) ? 'text-[var(--color-primary)]' : ''}`} />
-              <span className="font-medium">Customers</span>
-            </div>
-            {customersOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-          </button>
-          {customersOpen && (
-            <div className="ml-4 mt-1 space-y-1">
-              {customersSubItems.map((item) => (
-                <Link
-                  key={item.href}
-                  to={item.href}
-                  onClick={() => setMobileOpen(false)}
-                  className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-all ${
-                    isActive(item.href)
-                      ? 'bg-[var(--color-primary)]/10 text-[var(--color-primary)]'
-                      : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+              {/* Store collapsible */}
+              <div>
+                <button
+                  onClick={() => setStoreOpen(!storeOpen)}
+                  className={`w-full flex items-center justify-between px-4 py-2.5 rounded-lg transition-all ${
+                    storeSubItems.some(item => isActive(item.href))
+                      ? 'bg-[var(--color-primary)]/10 text-[var(--color-primary)] border border-[var(--color-primary)]/20'
+                      : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 border border-transparent'
                   }`}
                 >
-                  <item.icon className={`h-4 w-4 ${isActive(item.href) ? 'text-[var(--color-primary)]' : ''}`} />
-                  <span className="text-sm">{item.label}</span>
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
+                  <div className="flex items-center space-x-3">
+                    <Store className={`h-4 w-4 ${storeSubItems.some(item => isActive(item.href)) ? 'text-[var(--color-primary)]' : ''}`} />
+                    <span className="text-sm font-medium">Store</span>
+                  </div>
+                  {storeOpen ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+                </button>
+                {storeOpen && (
+                  <div className="ml-4 mt-1 space-y-1">
+                    {storeSubItems.map((item) => (
+                      <Link
+                        key={item.href}
+                        to={item.href}
+                        onClick={() => setMobileOpen(false)}
+                        className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-all ${
+                          isActive(item.href)
+                            ? 'bg-[var(--color-primary)]/10 text-[var(--color-primary)]'
+                            : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                        }`}
+                      >
+                        <item.icon className={`h-4 w-4 ${isActive(item.href) ? 'text-[var(--color-primary)]' : ''}`} />
+                        <span className="text-sm flex-1">{item.label}</span>
+                        {item.href === '/admin/orders' && pendingCount > 0 && (
+                          <span className="bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center leading-tight">
+                            {pendingCount}
+                          </span>
+                        )}
+                        {item.href === '/admin/preorders' && pendingPreorderCount > 0 && (
+                          <span className="bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center leading-tight">
+                            {pendingPreorderCount}
+                          </span>
+                        )}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
 
-        {/* Storefront collapsible */}
-        <div>
-          <button
-            onClick={() => setStorefrontOpen(!storefrontOpen)}
-            className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all ${
-              storefrontSubItems.some(item => isActive(item.href))
-                ? 'bg-[var(--color-primary)]/10 text-[var(--color-primary)] border border-[var(--color-primary)]/20'
-                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 border border-transparent'
-            }`}
-          >
-            <div className="flex items-center space-x-3">
-              <Layout className={`h-5 w-5 ${storefrontSubItems.some(item => isActive(item.href)) ? 'text-[var(--color-primary)]' : ''}`} />
-              <span className="font-medium">Storefront</span>
-            </div>
-            {storefrontOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-          </button>
-          {storefrontOpen && (
-            <div className="ml-4 mt-1 space-y-1">
-              {storefrontSubItems.map((item) => (
-                <Link
-                  key={item.href}
-                  to={item.href}
-                  onClick={() => setMobileOpen(false)}
-                  className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-all ${
-                    isActive(item.href)
-                      ? 'bg-[var(--color-primary)]/10 text-[var(--color-primary)]'
-                      : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+              {/* Customers collapsible */}
+              <div>
+                <button
+                  onClick={() => setCustomersOpen(!customersOpen)}
+                  className={`w-full flex items-center justify-between px-4 py-2.5 rounded-lg transition-all ${
+                    customersSubItems.some(item => isActive(item.href))
+                      ? 'bg-[var(--color-primary)]/10 text-[var(--color-primary)] border border-[var(--color-primary)]/20'
+                      : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 border border-transparent'
                   }`}
                 >
-                  <item.icon className={`h-4 w-4 ${isActive(item.href) ? 'text-[var(--color-primary)]' : ''}`} />
-                  <span className="text-sm">{item.label}</span>
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
+                  <div className="flex items-center space-x-3">
+                    <Users className={`h-4 w-4 ${customersSubItems.some(item => isActive(item.href)) ? 'text-[var(--color-primary)]' : ''}`} />
+                    <span className="text-sm font-medium">Customers</span>
+                  </div>
+                  {customersOpen ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+                </button>
+                {customersOpen && (
+                  <div className="ml-4 mt-1 space-y-1">
+                    {customersSubItems.map((item) => (
+                      <Link
+                        key={item.href}
+                        to={item.href}
+                        onClick={() => setMobileOpen(false)}
+                        className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-all ${
+                          isActive(item.href)
+                            ? 'bg-[var(--color-primary)]/10 text-[var(--color-primary)]'
+                            : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                        }`}
+                      >
+                        <item.icon className={`h-4 w-4 ${isActive(item.href) ? 'text-[var(--color-primary)]' : ''}`} />
+                        <span className="text-sm">{item.label}</span>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
 
-        {/* Marketing collapsible */}
-        <div>
-          <button
-            onClick={() => setMarketingOpen(!marketingOpen)}
-            className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all ${
-              marketingSubItems.some(item => isActive(item.href))
-                ? 'bg-[var(--color-primary)]/10 text-[var(--color-primary)] border border-[var(--color-primary)]/20'
-                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 border border-transparent'
-            }`}
-          >
-            <div className="flex items-center space-x-3">
-              <Megaphone className={`h-5 w-5 ${marketingSubItems.some(item => isActive(item.href)) ? 'text-[var(--color-primary)]' : ''}`} />
-              <span className="font-medium">Marketing</span>
-            </div>
-            {marketingOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-          </button>
-          {marketingOpen && (
-            <div className="ml-4 mt-1 space-y-1">
-              {marketingSubItems.map((item) => (
-                <Link
-                  key={item.href}
-                  to={item.href}
-                  onClick={() => setMobileOpen(false)}
-                  className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-all ${
-                    isActive(item.href)
-                      ? 'bg-[var(--color-primary)]/10 text-[var(--color-primary)]'
-                      : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+              {/* Storefront collapsible */}
+              <div>
+                <button
+                  onClick={() => setStorefrontOpen(!storefrontOpen)}
+                  className={`w-full flex items-center justify-between px-4 py-2.5 rounded-lg transition-all ${
+                    storefrontSubItems.some(item => isActive(item.href))
+                      ? 'bg-[var(--color-primary)]/10 text-[var(--color-primary)] border border-[var(--color-primary)]/20'
+                      : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 border border-transparent'
                   }`}
                 >
-                  <item.icon className={`h-4 w-4 ${isActive(item.href) ? 'text-[var(--color-primary)]' : ''}`} />
-                  <span className="text-sm">{item.label}</span>
-                </Link>
-              ))}
+                  <div className="flex items-center space-x-3">
+                    <Layout className={`h-4 w-4 ${storefrontSubItems.some(item => isActive(item.href)) ? 'text-[var(--color-primary)]' : ''}`} />
+                    <span className="text-sm font-medium">Storefront</span>
+                  </div>
+                  {storefrontOpen ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+                </button>
+                {storefrontOpen && (
+                  <div className="ml-4 mt-1 space-y-1">
+                    {storefrontSubItems.map((item) => (
+                      <Link
+                        key={item.href}
+                        to={item.href}
+                        onClick={() => setMobileOpen(false)}
+                        className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-all ${
+                          isActive(item.href)
+                            ? 'bg-[var(--color-primary)]/10 text-[var(--color-primary)]'
+                            : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                        }`}
+                      >
+                        <item.icon className={`h-4 w-4 ${isActive(item.href) ? 'text-[var(--color-primary)]' : ''}`} />
+                        <span className="text-sm">{item.label}</span>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Marketing collapsible */}
+              <div>
+                <button
+                  onClick={() => setMarketingOpen(!marketingOpen)}
+                  className={`w-full flex items-center justify-between px-4 py-2.5 rounded-lg transition-all ${
+                    marketingSubItems.some(item => isActive(item.href))
+                      ? 'bg-[var(--color-primary)]/10 text-[var(--color-primary)] border border-[var(--color-primary)]/20'
+                      : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 border border-transparent'
+                  }`}
+                >
+                  <div className="flex items-center space-x-3">
+                    <Megaphone className={`h-4 w-4 ${marketingSubItems.some(item => isActive(item.href)) ? 'text-[var(--color-primary)]' : ''}`} />
+                    <span className="text-sm font-medium">Marketing</span>
+                  </div>
+                  {marketingOpen ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+                </button>
+                {marketingOpen && (
+                  <div className="ml-4 mt-1 space-y-1">
+                    {marketingSubItems.map((item) => (
+                      <Link
+                        key={item.href}
+                        to={item.href}
+                        onClick={() => setMobileOpen(false)}
+                        className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-all ${
+                          isActive(item.href)
+                            ? 'bg-[var(--color-primary)]/10 text-[var(--color-primary)]'
+                            : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                        }`}
+                      >
+                        <item.icon className={`h-4 w-4 ${isActive(item.href) ? 'text-[var(--color-primary)]' : ''}`} />
+                        <span className="text-sm">{item.label}</span>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+
             </div>
           )}
         </div>
@@ -395,12 +428,12 @@ export default function AdminSidebar() {
           mobileOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <SidebarContent isMobile={true} />
+        {renderSidebarContent(true)}
       </aside>
 
       {/* Desktop sidebar */}
       <aside className="hidden md:flex w-64 bg-white border-r border-gray-200 flex-col">
-        <SidebarContent isMobile={false} />
+        {renderSidebarContent(false)}
       </aside>
     </>
   );

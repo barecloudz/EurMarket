@@ -1,5 +1,6 @@
 import { Outlet } from 'react-router-dom';
 import AdminSidebar from './AdminSidebar';
+import AdminHelpWidget from '../admin/AdminHelpWidget';
 
 export default function AdminLayout() {
   return (
@@ -8,6 +9,7 @@ export default function AdminLayout() {
       <main className="flex-1 pt-[72px] md:pt-8 px-4 pb-6 md:px-8 overflow-auto">
         <Outlet />
       </main>
+      <AdminHelpWidget />
     </div>
   );
 }
