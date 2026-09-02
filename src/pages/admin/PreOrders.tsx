@@ -9,11 +9,6 @@ import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../store/authStore';
 import { useToast } from '../../components/ui/Toast';
 
-const CITIES = [
-  'Hendersonville, NC', 'Asheville, NC', 'Marshall, NC', 'Burnsville, NC',
-  'Swannanoa, NC', 'Hickory, NC', 'Indian Land, NC', 'Lexington, SC',
-  'Columbia, SC', 'Greenville, SC', 'Anderson, SC',
-];
 
 interface MenuSize { label: string; priceNote: string; }
 interface MenuItem { id: string; flag?: string; emoji: string; name: string; sizes: MenuSize[]; flavors: string[]; }
@@ -226,6 +221,7 @@ export default function AdminPreOrders() {
   const [newDate, setNewDate] = useState('');
   const [newLabel, setNewLabel] = useState('');
   const [newCities, setNewCities] = useState<string[]>(['all']);
+  const [newCityInput, setNewCityInput] = useState('');
   const [newTime, setNewTime] = useState('');
   const [newLocationAddress, setNewLocationAddress] = useState('');
 
@@ -239,6 +235,7 @@ export default function AdminPreOrders() {
   const [editTime, setEditTime] = useState('');
   const [editAddress, setEditAddress] = useState('');
   const [editCities, setEditCities] = useState<string[]>(['all']);
+  const [editCityInput, setEditCityInput] = useState('');
 
   useEffect(() => {
     Promise.all([
@@ -334,6 +331,7 @@ export default function AdminPreOrders() {
     setEditTime(d.time || '');
     setEditAddress(d.location_address || '');
     setEditCities(d.cities);
+    setEditCityInput('');
   };
 
   const saveEditDate = async () => {
@@ -588,23 +586,46 @@ export default function AdminPreOrders() {
                       </div>
                       <div>
                         <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-2">Cities</label>
-                        <div className="flex flex-wrap gap-1.5">
+                        <div className="flex flex-wrap gap-1.5 mb-2">
                           <button type="button" onClick={() => setEditCities(['all'])}
                             className={`px-2.5 py-1 rounded-full border font-bold text-xs transition-colors ${editCities.includes('all') ? 'border-[#CC0000] bg-[#CC0000] text-white' : 'border-gray-200 text-gray-600'}`}>
                             All Cities
                           </button>
-                          {CITIES.map(c => (
-                            <button key={c} type="button"
-                              onClick={() => {
-                                if (editCities.includes('all')) setEditCities([c]);
-                                else if (editCities.includes(c)) setEditCities(editCities.filter(x => x !== c));
-                                else setEditCities([...editCities, c]);
-                              }}
-                              className={`px-2.5 py-1 rounded-full border font-semibold text-xs transition-colors ${!editCities.includes('all') && editCities.includes(c) ? 'border-[#CC0000] bg-[#CC0000] text-white' : 'border-gray-200 text-gray-600'}`}>
+                          {!editCities.includes('all') && editCities.map(c => (
+                            <span key={c} className="flex items-center gap-1 px-2.5 py-1 rounded-full border border-[#CC0000] bg-[#CC0000] text-white text-xs font-semibold">
                               {c}
-                            </button>
+                              <button type="button" onClick={() => setEditCities(editCities.filter(x => x !== c))} className="hover:opacity-75 leading-none">×</button>
+                            </span>
                           ))}
                         </div>
+                        {!editCities.includes('all') && (
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              value={editCityInput}
+                              onChange={e => setEditCityInput(e.target.value)}
+                              onKeyDown={e => {
+                                if (e.key === 'Enter' && editCityInput.trim()) {
+                                  e.preventDefault();
+                                  const city = editCityInput.trim();
+                                  if (!editCities.includes(city)) setEditCities([...editCities, city]);
+                                  setEditCityInput('');
+                                }
+                              }}
+                              placeholder="Type a city and press Enter"
+                              className="flex-1 border-2 border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-[#CC0000] transition-colors"
+                            />
+                            <button type="button"
+                              onClick={() => {
+                                const city = editCityInput.trim();
+                                if (city && !editCities.includes(city)) setEditCities([...editCities, city]);
+                                setEditCityInput('');
+                              }}
+                              className="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-xl text-sm font-bold text-gray-700 transition-colors">
+                              Add
+                            </button>
+                          </div>
+                        )}
                       </div>
                       <div className="flex gap-2 pt-1">
                         <button onClick={saveEditDate} disabled={savingDates}
@@ -691,23 +712,46 @@ export default function AdminPreOrders() {
                   </div>
                   <div>
                     <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-2">Which cities can order for this date?</label>
-                    <div className="flex flex-wrap gap-1.5">
+                    <div className="flex flex-wrap gap-1.5 mb-2">
                       <button type="button" onClick={() => setNewCities(['all'])}
                         className={`px-2.5 py-1 rounded-full border font-bold text-xs transition-colors ${newCities.includes('all') ? 'border-[#CC0000] bg-[#CC0000] text-white' : 'border-gray-200 text-gray-600 hover:border-[#CC0000]/50'}`}>
                         All Cities
                       </button>
-                      {CITIES.map(c => (
-                        <button key={c} type="button"
-                          onClick={() => {
-                            if (newCities.includes('all')) setNewCities([c]);
-                            else if (newCities.includes(c)) setNewCities(newCities.filter(x => x !== c));
-                            else setNewCities([...newCities, c]);
-                          }}
-                          className={`px-2.5 py-1 rounded-full border font-semibold text-xs transition-colors ${!newCities.includes('all') && newCities.includes(c) ? 'border-[#CC0000] bg-[#CC0000] text-white' : 'border-gray-200 text-gray-600 hover:border-[#CC0000]/50'}`}>
+                      {!newCities.includes('all') && newCities.map(c => (
+                        <span key={c} className="flex items-center gap-1 px-2.5 py-1 rounded-full border border-[#CC0000] bg-[#CC0000] text-white text-xs font-semibold">
                           {c}
-                        </button>
+                          <button type="button" onClick={() => setNewCities(newCities.filter(x => x !== c))} className="hover:opacity-75 leading-none">×</button>
+                        </span>
                       ))}
                     </div>
+                    {!newCities.includes('all') && (
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={newCityInput}
+                          onChange={e => setNewCityInput(e.target.value)}
+                          onKeyDown={e => {
+                            if (e.key === 'Enter' && newCityInput.trim()) {
+                              e.preventDefault();
+                              const city = newCityInput.trim();
+                              if (!newCities.includes(city)) setNewCities([...newCities, city]);
+                              setNewCityInput('');
+                            }
+                          }}
+                          placeholder="Type a city and press Enter"
+                          className="flex-1 border-2 border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-[#CC0000] transition-colors"
+                        />
+                        <button type="button"
+                          onClick={() => {
+                            const city = newCityInput.trim();
+                            if (city && !newCities.includes(city)) setNewCities([...newCities, city]);
+                            setNewCityInput('');
+                          }}
+                          className="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-xl text-sm font-bold text-gray-700 transition-colors">
+                          Add
+                        </button>
+                      </div>
+                    )}
                   </div>
                   <button type="button" onClick={addDeliveryDate}
                     disabled={!newDate || savingDates}
