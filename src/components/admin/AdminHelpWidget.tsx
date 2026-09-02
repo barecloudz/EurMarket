@@ -108,21 +108,23 @@ export default function AdminHelpWidget() {
     <>
       {/* First-visit welcome popup */}
       {showWelcome && (
-        <div className="fixed bottom-5 left-5 z-40 w-72 bg-white rounded-2xl shadow-2xl border border-gray-200 p-4">
+        <div className="fixed bottom-20 left-3 right-16 z-40 sm:bottom-5 sm:left-5 sm:right-auto sm:w-72 bg-white rounded-2xl shadow-2xl border border-gray-200 p-3 sm:p-4 flex items-center gap-3 sm:block">
           <button
             onClick={dismissWelcome}
-            className="absolute top-3 right-3 text-gray-400 hover:text-gray-600">
+            className="absolute top-2 right-2 text-gray-400 hover:text-gray-600">
             <X className="w-4 h-4" />
           </button>
-          <p className="text-2xl mb-1">👋</p>
-          <p className="font-black text-gray-900 text-sm mb-1">Need help?</p>
-          <p className="text-sm text-gray-500 leading-relaxed mb-3">
-            Tap the <strong className="text-[#CC0000]">?</strong> button in the bottom-right corner any time to see step-by-step guides for everything in the admin.
-          </p>
+          <span className="text-xl flex-shrink-0 sm:text-2xl sm:block sm:mb-1">👋</span>
+          <div className="flex-1 min-w-0">
+            <p className="font-black text-gray-900 text-sm sm:mb-1">Need help?</p>
+            <p className="hidden sm:block text-sm text-gray-500 leading-relaxed sm:mb-3">
+              Tap the <strong className="text-[#CC0000]">?</strong> button in the bottom-right corner any time to see step-by-step guides for everything in the admin.
+            </p>
+          </div>
           <button
             onClick={openHelp}
-            className="w-full bg-[#CC0000] text-white font-bold text-sm py-2.5 rounded-xl hover:bg-[#AA0000] transition-colors">
-            Show me the guides
+            className="flex-shrink-0 sm:w-full bg-[#CC0000] text-white font-bold text-xs sm:text-sm px-3 py-2 sm:py-2.5 rounded-xl hover:bg-[#AA0000] transition-colors whitespace-nowrap">
+            Show guides
           </button>
         </div>
       )}

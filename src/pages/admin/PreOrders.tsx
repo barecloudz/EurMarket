@@ -459,30 +459,30 @@ export default function AdminPreOrders() {
       {/* Stats */}
       <div className="grid grid-cols-3 gap-3 mb-6">
         {[
-          { label: 'Total Orders', value: orders.length, icon: Package, color: 'text-gray-700', bg: 'bg-gray-50 border-gray-200' },
+          { label: 'Orders', value: orders.length, icon: Package, color: 'text-gray-700', bg: 'bg-gray-50 border-gray-200' },
           { label: 'Pending', value: pendingOrders.length, icon: AlertTriangle, color: pendingOrders.length > 0 ? 'text-amber-600' : 'text-gray-400', bg: pendingOrders.length > 0 ? 'bg-amber-50 border-amber-200' : 'bg-gray-50 border-gray-200' },
-          { label: 'Market Dates', value: settings.delivery_dates.length, icon: Calendar, color: 'text-blue-600', bg: 'bg-blue-50 border-blue-200' },
+          { label: 'Dates', value: settings.delivery_dates.length, icon: Calendar, color: 'text-blue-600', bg: 'bg-blue-50 border-blue-200' },
         ].map(({ label, value, icon: Icon, color, bg }) => (
-          <div key={label} className={`rounded-2xl border p-4 ${bg}`}>
+          <div key={label} className={`rounded-2xl border p-3 sm:p-4 ${bg}`}>
             <div className="flex items-center justify-between mb-1">
-              <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">{label}</p>
-              <Icon className={`w-4 h-4 ${color}`} />
+              <p className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider leading-tight">{label}</p>
+              <Icon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${color} flex-shrink-0`} />
             </div>
-            <p className={`text-3xl font-black ${color}`}>{value}</p>
+            <p className={`text-2xl sm:text-3xl font-black ${color}`}>{value}</p>
           </div>
         ))}
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-gray-100 rounded-xl p-1 mb-5">
+      <div className="flex gap-1 bg-gray-100 rounded-xl p-1 mb-5 overflow-x-auto">
         {[
           { key: 'settings', label: 'Settings' },
-          { key: 'orders', label: `Orders${pendingOrders.length > 0 ? ` (${pendingOrders.length} new)` : ` (${orders.length})`}` },
+          { key: 'orders', label: `Orders${pendingOrders.length > 0 ? ` (${pendingOrders.length})` : ` (${orders.length})`}` },
           { key: 'menu', label: 'Menu' },
           { key: 'suggestions', label: `Ideas (${suggestions.length})` },
         ].map(tab => (
           <button key={tab.key} onClick={() => setActiveTab(tab.key as typeof activeTab)}
-            className={`flex-1 py-2.5 text-sm font-bold rounded-lg transition-colors ${
+            className={`flex-shrink-0 flex-1 py-2.5 text-sm font-bold rounded-lg transition-colors whitespace-nowrap px-3 ${
               activeTab === tab.key ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
             }`}>
             {tab.label}

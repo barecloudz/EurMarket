@@ -125,15 +125,15 @@ export default function AdminDashboard() {
         {([
           { label: 'Pending', value: pending.length, color: pending.length > 0 ? 'text-amber-600' : 'text-gray-400', bg: pending.length > 0 ? 'bg-amber-50 border-amber-200' : 'bg-gray-50 border-gray-200', icon: AlertTriangle },
           { label: 'Confirmed', value: confirmed.length, color: 'text-green-600', bg: 'bg-green-50 border-green-200', icon: CheckCircle },
-          { label: 'Total Active', value: active.length, color: 'text-blue-600', bg: 'bg-blue-50 border-blue-200', icon: Package },
+          { label: 'Active', value: active.length, color: 'text-blue-600', bg: 'bg-blue-50 border-blue-200', icon: Package },
         ] as const).map(({ label, value, color, bg, icon: Icon }) => (
           <Link key={label} to="/admin/preorders?tab=orders">
-            <div className={`rounded-2xl border p-4 ${bg} hover:shadow-sm transition-all`}>
+            <div className={`rounded-2xl border p-3 sm:p-4 ${bg} hover:shadow-sm transition-all`}>
               <div className="flex items-center justify-between mb-1">
-                <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">{label}</p>
-                <Icon className={`w-4 h-4 ${color}`} />
+                <p className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider leading-tight">{label}</p>
+                <Icon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${color} flex-shrink-0`} />
               </div>
-              <p className={`text-3xl font-black ${color}`}>{value}</p>
+              <p className={`text-2xl sm:text-3xl font-black ${color}`}>{value}</p>
             </div>
           </Link>
         ))}
