@@ -171,7 +171,15 @@ export const handler: Handler = async (event) => {
           : '4921 Ooltewah Ringgold Rd, Ooltewah, TN 37363',
         emailAddress: config.emailAddress,
         phoneNumber: config.pageSlug === 'columbus-nc' ? '+1 864-590-6760' : '+1 423-899-3099',
-        hoursOfOperation: [],
+        hoursOfOperation: config.pageSlug === 'columbus-nc' ? [
+          'Monday: 11:00 AM – 6:00 PM',
+          'Tuesday: 11:00 AM – 6:00 PM',
+          'Wednesday: Closed',
+          'Thursday: 11:00 AM – 6:00 PM',
+          'Friday: 11:00 AM – 3:00 PM',
+          'Saturday: 5:00 PM – 7:00 PM',
+          'Sunday: Closed',
+        ] : [],
         coordinates: { latitude: 0, longitude: 0 },
       };
       return {
