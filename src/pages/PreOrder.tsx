@@ -484,6 +484,7 @@ export default function PreOrder() {
                   <button
                     type="button"
                     onClick={() => isDone ? goToStep(stepNum) : undefined}
+                    aria-label={`Step ${stepNum}: ${label}${isDone ? ' (completed)' : isActive ? ' (current)' : ''}`}
                     className={`flex flex-col items-center gap-0.5 flex-shrink-0 ${isDone ? 'cursor-pointer' : 'cursor-default'}`}
                   >
                     <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-black transition-colors ${
@@ -518,15 +519,16 @@ export default function PreOrder() {
 
             {/* City cards */}
             <div className="grid grid-cols-2 gap-3 mb-6">
-              {availableCities.map(c => {
+              {availableCities.map((c, idx) => {
                 const { cityName, state } = parseCityParts(c);
                 const isSelected = city === c;
+                const isLastOdd = idx === availableCities.length - 1 && availableCities.length % 2 !== 0;
                 return (
                   <button
                     key={c}
                     type="button"
                     onClick={() => { setCity(c); setSelectedDateIdx(''); }}
-                    className={`rounded-2xl border-2 p-4 text-left transition-all active:scale-95 ${
+                    className={`rounded-2xl border-2 p-4 text-left transition-all active:scale-95 ${isLastOdd ? 'col-span-2 max-w-[calc(50%-6px)]' : ''} ${
                       isSelected
                         ? 'border-[#CC0000] bg-[#CC0000]/5 shadow-md'
                         : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'
@@ -824,8 +826,8 @@ export default function PreOrder() {
         )}
       </div>
 
-      {/* Sticky bottom action bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 shadow-2xl">
+      {/* Sticky bottom action bar — z-50 to sit above BottomNav (z-40) */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-2xl">
         <div className="max-w-lg mx-auto px-4 py-3" style={{ paddingBottom: 'max(12px, env(safe-area-inset-bottom))' }}>
           {step === 1 && (
             <button
