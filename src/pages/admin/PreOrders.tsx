@@ -1,199 +1,42 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import {
-  Plus, Trash2, Package, Lightbulb, CheckCircle, XCircle,
-  Clock, MapPin, Calendar, ChevronDown, ChevronUp,
-  Users, AlertTriangle, Printer, Download, Mail, X, Pencil,
-} from 'lucide-react';
+import { Package, AlertTriangle, Calendar } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../store/authStore';
 import { useToast } from '../../components/ui/Toast';
+import type {
+  PreorderSettings, PreOrder, MenuItem, ConfirmItem, DeliveryDate,
+} from './preorders/types';
+import { DEFAULT_MENU } from './preorders/types';
+import { SettingsTab } from './preorders/SettingsTab';
+import { OrdersTab } from './preorders/OrdersTab';
+import { MenuTab } from './preorders/MenuTab';
+import { SuggestionsTab } from './preorders/SuggestionsTab';
 
-
-interface MenuSize { label: string; priceNote: string; }
-interface MenuItem { id: string; flag?: string; emoji: string; name: string; sizes: MenuSize[]; flavors: string[]; }
-
-const DEFAULT_MENU: MenuItem[] = [
-  {
-    id: 'paczki', flag: '🇵🇱', emoji: '🍩', name: 'Homemade Paczki — Polish Donuts',
-    sizes: [{ label: 'Each', priceNote: '$6 each  ·  4 for $20' }],
-    flavors: ['Custard', 'Strawberry Custard', 'Blueberry', 'Lingonberry'],
-  },
-  {
-    id: 'pierogies', emoji: '🥟', name: 'Homemade Pierogies',
-    sizes: [{ label: '6 pieces', priceNote: '$10' }, { label: '12 pieces', priceNote: '$20' }],
-    flavors: ['Potato & Onion', 'Potato & Cheese', 'Potato & Cheddar', 'Sauerkraut', 'Kraut & Mushroom', 'Spinach & Cheese', 'Pork & Beef'],
-  },
-  {
-    id: 'sweet-pierogies', emoji: '🍓', name: 'Sweet Pierogies',
-    sizes: [{ label: '6 pieces', priceNote: '$12' }],
-    flavors: ['Strawberry', 'Cherry', 'Sweet Cheese'],
-  },
-  {
-    id: 'pirozhki', flag: '🇺🇦', emoji: '🥟', name: 'Ukrainian Pirozhki',
-    sizes: [{ label: 'Each', priceNote: '$3 each  ·  4 for $10' }],
-    flavors: ['Potato Filling'],
-  },
-  {
-    id: 'cabbage-rolls', emoji: '🥬', name: 'Homemade Cabbage Rolls',
-    sizes: [{ label: 'Small', priceNote: '$8–$12' }, { label: 'Large', priceNote: '$17–$22' }],
-    flavors: [],
-  },
-  {
-    id: 'borscht', flag: '🇺🇦', emoji: '🍲', name: 'Ukrainian Borscht',
-    sizes: [{ label: 'Small', priceNote: '$8–$12' }],
-    flavors: [],
-  },
-  {
-    id: 'kapusta', emoji: '🥩', name: 'Kapusta with Pork',
-    sizes: [{ label: 'Small', priceNote: '$8–$12' }],
-    flavors: [],
-  },
-  {
-    id: 'poppy-seed-rolls', emoji: '🍞', name: 'Poppy Seed Rolls',
-    sizes: [{ label: 'Small', priceNote: '$5–$6' }, { label: 'Medium', priceNote: '$7–$8' }, { label: 'Large', priceNote: '$10–$12' }],
-    flavors: [],
-  },
-  {
-    id: 'cheese-rolls', emoji: '🧀', name: 'Sweet Cheese Rolls',
-    sizes: [{ label: 'Small', priceNote: '$5–$7' }, { label: 'Medium', priceNote: '$8–$9' }, { label: 'Large', priceNote: '$10–$12' }],
-    flavors: ['Plain', 'With Plum', 'With Raisins', 'With Apricot', 'With Blueberry'],
-  },
-];
-
-interface DeliveryDate {
-  date: string;
-  label: string;
-  cities: string[];
-  time?: string;
-  location_address?: string;
-}
-
-interface PreorderSettings {
-  orders_open: boolean;
-  order_deadline: string | null;
-  delivery_dates: DeliveryDate[];
-}
-
-interface ConfirmItem {
-  product: string;
-  size: string;
-  flavor: string;
-  qty: number;
-  price: number;
-  available: boolean;
-  substitution: string;
-}
-
-interface PreOrder {
-  id: string;
-  customer_name: string;
-  customer_phone: string;
-  customer_email: string | null;
-  pickup_city: string;
-  delivery_date: string;
-  items: { product: string; size: string; flavor: string; qty: number }[];
-  notes: string | null;
-  suggestions: string | null;
-  status: string;
-  created_at: string;
-  confirmed_items: ConfirmItem[] | null;
-  confirmed_total: number | null;
-  payment_method: string | null;
-  confirmation_sent_at: string | null;
-}
-
-const STATUS_STYLES: Record<string, string> = {
-  pending:   'border-amber-300  text-amber-700  bg-amber-50',
-  confirmed: 'border-green-400  text-green-700  bg-green-50',
-  ready:     'border-blue-400   text-blue-700   bg-blue-50',
-  completed: 'border-gray-300   text-gray-500   bg-gray-50',
-};
-const STATUS_LABELS: Record<string, string> = {
-  pending: '⏳ Pending', confirmed: '✅ Confirmed', ready: '🎉 Ready', completed: '✔️ Completed',
-};
-
-function parsePriceNote(priceNote: string, qty: number): number {
-  // "4 for $20" bundle — use bundle price if qty matches exactly
-  const bundleMatch = priceNote.match(/(\d+)\s+for\s+\$(\d+(?:\.\d+)?)/i);
-  if (bundleMatch) {
-    const bundleQty = parseInt(bundleMatch[1]);
-    const bundlePrice = parseFloat(bundleMatch[2]);
-    if (qty === bundleQty) return bundlePrice;
-    // Fall through to unit price below
-    const unitMatch = priceNote.match(/\$(\d+(?:\.\d+)?)\s+each/i);
-    const unitPrice = unitMatch ? parseFloat(unitMatch[1]) : bundlePrice / bundleQty;
-    return unitPrice * qty;
-  }
-  // "$8–$12" range — use midpoint (container price, not per-unit)
-  const rangeMatch = priceNote.match(/\$(\d+(?:\.\d+)?)[\s\u2013\u2014\-]+\$?(\d+(?:\.\d+)?)/);
-  if (rangeMatch) {
-    const mid = (parseFloat(rangeMatch[1]) + parseFloat(rangeMatch[2])) / 2;
-    return mid * qty;
-  }
-  // Simple "$10"
-  const match = priceNote.match(/\$(\d+(?:\.\d+)?)/);
-  return match ? parseFloat(match[1]) * qty : 0;
-}
-
-/** Looks up the menu price for a given product + size + qty. */
-function inferPrice(menu: MenuItem[], product: string, size: string, qty: number): number {
-  const item = menu.find(m => m.name === product);
-  if (!item) return 0;
-  const sizeEntry = item.sizes.find(s => s.label === size);
-  if (!sizeEntry) return 0;
-  return parsePriceNote(sizeEntry.priceNote, qty);
-}
-
-/** Aggregates all items across orders into a totals map. */
-function buildSummary(orders: PreOrder[]) {
-  const totals = new Map<string, number>();
-  for (const order of orders) {
-    if (order.status === 'completed') continue; // exclude already-done
-    for (const item of order.items) {
-      const key = [item.product, item.size, item.flavor].filter(Boolean).join(' · ');
-      totals.set(key, (totals.get(key) ?? 0) + item.qty);
-    }
-  }
-  return [...totals.entries()].sort((a, b) => b[1] - a[1]);
-}
-
-function exportCSV(orders: PreOrder[]) {
-  const rows = [
-    ['Name', 'Phone', 'City', 'Date', 'Status', 'Product', 'Size', 'Flavor', 'Qty', 'Notes'],
-  ];
-  for (const o of orders) {
-    for (const item of o.items) {
-      rows.push([
-        o.customer_name, o.customer_phone, o.pickup_city, o.delivery_date, o.status,
-        item.product, item.size ?? '', item.flavor ?? '', String(item.qty), o.notes ?? '',
-      ]);
-    }
-  }
-  const csv = rows.map(r => r.map(c => `"${c.replace(/"/g, '""').replace(/[\n\r]+/g, ' ')}"`).join(',')).join('\n');
-  const blob = new Blob([csv], { type: 'text/csv' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `preorders-${new Date().toISOString().slice(0, 10)}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
-}
+const POLL_INTERVAL = 60_000;
 
 export default function AdminPreOrders() {
   const { addToast } = useToast();
   const { session } = useAuthStore();
   const [searchParams] = useSearchParams();
+
   const [settings, setSettings] = useState<PreorderSettings>({
     orders_open: false,
     order_deadline: null,
     delivery_dates: [],
+    served_cities: [],
   });
   const [orders, setOrders] = useState<PreOrder[]>([]);
+  const [menu, setMenu] = useState<MenuItem[]>(DEFAULT_MENU);
   const [loading, setLoading] = useState(true);
+
+  // Loading states
   const [togglingOpen, setTogglingOpen] = useState(false);
   const [savingDates, setSavingDates] = useState(false);
+  const [savingMenu, setSavingMenu] = useState(false);
   const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
+  const [sendingConf, setSendingConf] = useState(false);
+
   const [activeTab, setActiveTab] = useState<'settings' | 'orders' | 'menu' | 'suggestions'>(
     (searchParams.get('tab') as 'settings' | 'orders' | 'menu' | 'suggestions') ?? 'settings'
   );
@@ -204,59 +47,48 @@ export default function AdminPreOrders() {
     if (tab) setActiveTab(tab);
   }, [searchParams]);
 
-  // Menu editor state
-  const [menu, setMenu] = useState<MenuItem[]>(DEFAULT_MENU);
-  const [savingMenu, setSavingMenu] = useState(false);
-  const [editingItemIdx, setEditingItemIdx] = useState<number | null>(null);
-  const [editItem, setEditItem] = useState<MenuItem | null>(null);
+  // ── Data fetching ──────────────────────────────────────────────────────────
 
-  // Confirmation modal
-  const [confirmingOrder, setConfirmingOrder] = useState<PreOrder | null>(null);
-  const [editItems, setEditItems] = useState<ConfirmItem[]>([]);
-  const [sendingConf, setSendingConf] = useState(false);
-
-  // Controlled deadline input — separate from settings so it only saves on blur
-  const [deadlineInput, setDeadlineInput] = useState('');
-
-  const [newDate, setNewDate] = useState('');
-  const [newLabel, setNewLabel] = useState('');
-  const [newCities, setNewCities] = useState<string[]>(['all']);
-  const [newCityInput, setNewCityInput] = useState('');
-  const [newTime, setNewTime] = useState('');
-  const [newLocationAddress, setNewLocationAddress] = useState('');
-
-  const [showAddDate, setShowAddDate] = useState(false);
-  const [groupByCity, setGroupByCity] = useState(false);
-
-  // Inline editing state for existing dates
-  const [editingIdx, setEditingIdx] = useState<number | null>(null);
-  const [editDate, setEditDate] = useState('');
-  const [editLabel, setEditLabel] = useState('');
-  const [editTime, setEditTime] = useState('');
-  const [editAddress, setEditAddress] = useState('');
-  const [editCities, setEditCities] = useState<string[]>(['all']);
-  const [editCityInput, setEditCityInput] = useState('');
-
-  // Unique past times and addresses for suggestion chips
-  const pastTimes = [...new Set((settings?.delivery_dates ?? []).map(d => d.time).filter(Boolean))] as string[];
-  const pastAddresses = [...new Set((settings?.delivery_dates ?? []).map(d => d.location_address).filter(Boolean))] as string[];
-
-  useEffect(() => {
-    Promise.all([
+  const fetchAll = useCallback(async () => {
+    const [{ data: s }, { data: o }] = await Promise.all([
       supabase.from('preorder_settings').select('*').eq('id', 1).single(),
       supabase.from('pre_orders').select('*').order('created_at', { ascending: false }),
-    ]).then(([{ data: s }, { data: o }]) => {
-      if (s) {
-        const parsed = s as PreorderSettings & { menu?: MenuItem[] };
-        setSettings(parsed);
-        setDeadlineInput(parsed.order_deadline ? parsed.order_deadline.slice(0, 16) : '');
-        if (parsed.menu && parsed.menu.length > 0) setMenu(parsed.menu);
+    ]);
+
+    if (s) {
+      const parsed = s as PreorderSettings & { menu?: MenuItem[] };
+
+      // Seed served_cities from existing delivery_dates on first load if empty
+      let seededCities: string[] = parsed.served_cities ?? [];
+      if (seededCities.length === 0 && parsed.delivery_dates?.length > 0) {
+        const unique = Array.from(new Set(
+          parsed.delivery_dates.flatMap(d => d.cities).filter(c => c !== 'all')
+        ));
+        if (unique.length > 0) {
+          await supabase.from('preorder_settings').update({ served_cities: unique }).eq('id', 1);
+          seededCities = unique;
+        }
       }
-      if (o) setOrders(o as PreOrder[]);
-    }).finally(() => setLoading(false));
+
+      const fullSettings: PreorderSettings = { ...parsed, served_cities: seededCities };
+      setSettings(fullSettings);
+
+      if (parsed.menu && parsed.menu.length > 0) setMenu(parsed.menu);
+    }
+
+    if (o) setOrders(o as PreOrder[]);
+    setLoading(false);
   }, []);
 
-  const updatePreorderSettings = async (patch: object): Promise<boolean> => {
+  useEffect(() => {
+    fetchAll();
+    const interval = setInterval(fetchAll, POLL_INTERVAL);
+    return () => clearInterval(interval);
+  }, [fetchAll]);
+
+  // ── Settings mutations (via Netlify function) ──────────────────────────────
+
+  const updatePreorderSettings = useCallback(async (patch: object): Promise<boolean> => {
     const res = await fetch('/.netlify/functions/update-preorder-settings', {
       method: 'POST',
       headers: {
@@ -266,9 +98,11 @@ export default function AdminPreOrders() {
       body: JSON.stringify(patch),
     });
     return res.ok;
-  };
+  }, [session]);
 
-  const toggleOrdersOpen = async () => {
+  // ── Settings tab handlers ──────────────────────────────────────────────────
+
+  const handleToggleOpen = async () => {
     const newValue = !settings.orders_open;
     setSettings(prev => ({ ...prev, orders_open: newValue }));
     setTogglingOpen(true);
@@ -282,87 +116,132 @@ export default function AdminPreOrders() {
     }
   };
 
-  const persistDatesAndDeadline = useCallback(async (updated: PreorderSettings) => {
+  const handleDeadlineBlur = async (value: string) => {
+    const iso = value ? new Date(value).toISOString() : null;
+    setSettings(prev => ({ ...prev, order_deadline: iso }));
+    setSavingDates(true);
+    const ok = await updatePreorderSettings({ order_deadline: iso, delivery_dates: settings.delivery_dates });
+    setSavingDates(false);
+    if (!ok) addToast('Failed to save. Try again.', 'error');
+  };
+
+  const handleClearDeadline = async () => {
+    setSettings(prev => ({ ...prev, order_deadline: null }));
+    setSavingDates(true);
+    const ok = await updatePreorderSettings({ order_deadline: null, delivery_dates: settings.delivery_dates });
+    setSavingDates(false);
+    if (!ok) addToast('Failed to save. Try again.', 'error');
+  };
+
+  const handleAddDate = async (date: DeliveryDate) => {
+    const updatedDates = [...settings.delivery_dates, date];
+    setSettings(prev => ({ ...prev, delivery_dates: updatedDates }));
     setSavingDates(true);
     const ok = await updatePreorderSettings({
-      order_deadline: updated.order_deadline,
-      delivery_dates: updated.delivery_dates,
+      order_deadline: settings.order_deadline,
+      delivery_dates: updatedDates,
     });
     setSavingDates(false);
     if (!ok) {
+      setSettings(prev => ({ ...prev, delivery_dates: settings.delivery_dates }));
       addToast('Failed to save. Try again.', 'error');
     } else {
       addToast('Saved!', 'success');
     }
-  }, [session]);
-
-  // Fix #3: only saves when user leaves the field
-  const handleDeadlineBlur = async () => {
-    const iso = deadlineInput ? new Date(deadlineInput).toISOString() : null;
-    const updated = { ...settings, order_deadline: iso };
-    setSettings(updated);
-    await persistDatesAndDeadline(updated);
   };
 
-  const clearDeadline = async () => {
-    setDeadlineInput('');
-    const updated = { ...settings, order_deadline: null };
-    setSettings(updated);
-    await persistDatesAndDeadline(updated);
+  const handleEditDate = async (idx: number, date: DeliveryDate) => {
+    const updatedDates = settings.delivery_dates.map((d, i) => i === idx ? date : d);
+    setSettings(prev => ({ ...prev, delivery_dates: updatedDates }));
+    setSavingDates(true);
+    const ok = await updatePreorderSettings({
+      order_deadline: settings.order_deadline,
+      delivery_dates: updatedDates,
+    });
+    setSavingDates(false);
+    if (!ok) {
+      setSettings(prev => ({ ...prev, delivery_dates: settings.delivery_dates }));
+      addToast('Failed to save. Try again.', 'error');
+    } else {
+      addToast('Saved!', 'success');
+    }
   };
 
-  const addDeliveryDate = async () => {
-    if (!newDate) return;
-    const label = newLabel || new Date(newDate + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
-    const updated: PreorderSettings = {
-      ...settings,
-      delivery_dates: [...settings.delivery_dates, {
-        date: newDate, label, cities: newCities,
-        time: newTime.trim() || undefined,
-        location_address: newLocationAddress.trim() || undefined,
-      }],
-    };
-    setSettings(updated);
-    setNewDate(''); setNewLabel(''); setNewCities(['all']); setNewTime(''); setNewLocationAddress('');
-    await persistDatesAndDeadline(updated);
+  const handleDeleteDate = async (idx: number) => {
+    const updatedDates = settings.delivery_dates.filter((_, i) => i !== idx);
+    setSettings(prev => ({ ...prev, delivery_dates: updatedDates }));
+    setSavingDates(true);
+    const ok = await updatePreorderSettings({
+      order_deadline: settings.order_deadline,
+      delivery_dates: updatedDates,
+    });
+    setSavingDates(false);
+    if (!ok) {
+      setSettings(prev => ({ ...prev, delivery_dates: settings.delivery_dates }));
+      addToast('Failed to save. Try again.', 'error');
+    }
   };
 
-  const openEditDate = (idx: number) => {
-    const d = settings.delivery_dates[idx];
-    setEditingIdx(idx);
-    setEditDate(d.date);
-    setEditLabel(d.label);
-    setEditTime(d.time || '');
-    setEditAddress(d.location_address || '');
-    setEditCities(d.cities);
-    setEditCityInput('');
+  const handleAddCity = async (city: string) => {
+    const updatedCities = [...settings.served_cities, city];
+    setSettings(prev => ({ ...prev, served_cities: updatedCities }));
+    const ok = await updatePreorderSettings({ served_cities: updatedCities });
+    if (!ok) {
+      setSettings(prev => ({ ...prev, served_cities: settings.served_cities }));
+      addToast('Failed to save city. Try again.', 'error');
+    }
   };
 
-  const saveEditDate = async () => {
-    if (editingIdx === null || !editDate) return;
-    const label = editLabel || new Date(editDate + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
-    const updated: PreorderSettings = {
-      ...settings,
-      delivery_dates: settings.delivery_dates.map((d, i) => i === editingIdx
-        ? { date: editDate, label, cities: editCities, time: editTime.trim() || undefined, location_address: editAddress.trim() || undefined }
-        : d
-      ),
-    };
-    setSettings(updated);
-    setEditingIdx(null);
-    await persistDatesAndDeadline(updated);
+  const handleRemoveCity = async (city: string) => {
+    const updatedCities = settings.served_cities.filter(c => c !== city);
+    setSettings(prev => ({ ...prev, served_cities: updatedCities }));
+    const ok = await updatePreorderSettings({ served_cities: updatedCities });
+    if (!ok) {
+      setSettings(prev => ({ ...prev, served_cities: settings.served_cities }));
+      addToast('Failed to remove city. Try again.', 'error');
+    }
   };
 
-  const removeDeliveryDate = async (idx: number) => {
-    const updated: PreorderSettings = {
-      ...settings,
-      delivery_dates: settings.delivery_dates.filter((_, i) => i !== idx),
-    };
-    setSettings(updated);
-    await persistDatesAndDeadline(updated);
+  // ── Orders tab handlers ────────────────────────────────────────────────────
+
+  const handleUpdateStatus = async (id: string, status: string) => {
+    if (updatingStatus) return;
+    setUpdatingStatus(id);
+    await supabase.from('pre_orders').update({ status }).eq('id', id);
+    setOrders(prev => prev.map(o => o.id === id ? { ...o, status } : o));
+    setUpdatingStatus(null);
   };
 
-  const saveMenu = async (updated: MenuItem[]) => {
+  const handleSendConfirmation = async (order: PreOrder, items: ConfirmItem[]) => {
+    setSendingConf(true);
+    try {
+      const res = await fetch('/.netlify/functions/confirm-preorder', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`,
+        },
+        body: JSON.stringify({ orderId: order.id, confirmedItems: items }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed');
+      const confirmTotal = items.filter(i => i.available).reduce((sum, i) => sum + i.price, 0);
+      setOrders(prev => prev.map(o => o.id === order.id
+        ? { ...o, status: 'confirmed', confirmed_items: items, confirmed_total: confirmTotal }
+        : o
+      ));
+      addToast(data.emailSent ? '✅ Order confirmed & email sent!' : '✅ Order confirmed (no email on file)', 'success');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to send confirmation';
+      addToast(msg, 'error');
+    } finally {
+      setSendingConf(false);
+    }
+  };
+
+  // ── Menu tab handlers ──────────────────────────────────────────────────────
+
+  const handleSaveMenu = async (updated: MenuItem[]) => {
     setSavingMenu(true);
     const ok = await updatePreorderSettings({ menu: updated });
     setSavingMenu(false);
@@ -373,67 +252,7 @@ export default function AdminPreOrders() {
     }
   };
 
-  const updateOrderStatus = async (id: string, status: string) => {
-    if (updatingStatus) return;
-    setUpdatingStatus(id);
-    await supabase.from('pre_orders').update({ status }).eq('id', id);
-    setOrders(prev => prev.map(o => o.id === id ? { ...o, status } : o));
-    setUpdatingStatus(null);
-  };
-
-  const openConfirmModal = (order: PreOrder) => {
-    const existingItems = order.confirmed_items;
-    const items: ConfirmItem[] = order.items.map((item, i) => ({
-      product: item.product,
-      size: item.size,
-      flavor: item.flavor,
-      qty: item.qty,
-      // Re-opening a confirmed order restores previous prices; new orders auto-populate from menu
-      price: existingItems?.[i]?.price ?? inferPrice(menu, item.product, item.size, item.qty),
-      available: existingItems?.[i]?.available ?? true,
-      substitution: existingItems?.[i]?.substitution ?? '',
-    }));
-    setEditItems(items);
-    setConfirmingOrder(order);
-  };
-
-  const updateEditItem = (idx: number, patch: Partial<ConfirmItem>) => {
-    setEditItems(prev => prev.map((item, i) => i === idx ? { ...item, ...patch } : item));
-  };
-
-  const confirmTotal = editItems.filter(i => i.available).reduce((sum, i) => sum + i.price, 0);
-  const cardTotal = confirmTotal * 1.035;
-
-  const sendConfirmation = async () => {
-    if (!confirmingOrder) return;
-    setSendingConf(true);
-    try {
-      const res = await fetch('/.netlify/functions/confirm-preorder', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session?.access_token}`,
-        },
-        body: JSON.stringify({ orderId: confirmingOrder.id, confirmedItems: editItems }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed');
-      setOrders(prev => prev.map(o => o.id === confirmingOrder.id
-        ? { ...o, status: 'confirmed', confirmed_items: editItems, confirmed_total: confirmTotal }
-        : o
-      ));
-      addToast(data.emailSent ? '✅ Order confirmed & email sent!' : '✅ Order confirmed (no email on file)', 'success');
-      setConfirmingOrder(null);
-    } catch (err: any) {
-      addToast(err.message || 'Failed to send confirmation', 'error');
-    } finally {
-      setSendingConf(false);
-    }
-  };
-
-  const suggestions = orders.filter(o => o.suggestions?.trim());
-  const pendingOrders = orders.filter(o => o.status === 'pending');
-  const summary = buildSummary(orders);
+  // ── Loading ────────────────────────────────────────────────────────────────
 
   if (loading) {
     return (
@@ -443,6 +262,11 @@ export default function AdminPreOrders() {
     );
   }
 
+  const pendingOrders = orders.filter(o => o.status === 'pending');
+  const suggestions = orders.filter(o => o.suggestions?.trim());
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+
   return (
     <div className="max-w-3xl mx-auto">
 
@@ -450,7 +274,7 @@ export default function AdminPreOrders() {
       <div className="flex items-start justify-between mb-6">
         <div>
           <h1 className="text-2xl font-black text-gray-900">Pre-Orders</h1>
-          <p className="text-gray-500 text-sm mt-0.5">Manage market dates, open/close orders, view customer orders</p>
+          <p className="text-gray-500 text-sm mt-0.5">{greeting}! Manage market dates, open/close orders, view customer orders</p>
         </div>
         <div className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold border-2 flex-shrink-0 ${
           settings.orders_open ? 'bg-green-50 text-green-700 border-green-300' : 'bg-gray-50 text-gray-500 border-gray-200'
@@ -494,752 +318,47 @@ export default function AdminPreOrders() {
         ))}
       </div>
 
-      {/* ── SETTINGS TAB ── */}
+      {/* Tab content */}
       {activeTab === 'settings' && (
-        <div className="space-y-4">
-
-          {/* Step 1 */}
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-            <div className="flex items-center gap-2 bg-gradient-to-r from-gray-50 to-white px-5 py-3 border-b border-gray-100">
-              <span className="w-6 h-6 rounded-full bg-[#CC0000] text-white text-xs font-black flex items-center justify-center flex-shrink-0">1</span>
-              <p className="font-bold text-gray-700 text-sm">Open or close orders</p>
-            </div>
-            <div className="p-5">
-              <button onClick={toggleOrdersOpen} disabled={togglingOpen}
-                className={`w-full rounded-2xl border-2 p-5 transition-all text-left flex items-center gap-5 active:scale-[0.99] ${
-                  settings.orders_open ? 'bg-green-50 border-green-400 hover:bg-green-100' : 'bg-red-50 border-red-300 hover:bg-red-100'
-                } disabled:opacity-60 disabled:cursor-not-allowed`}>
-                {togglingOpen
-                  ? <div className="w-12 h-12 border-4 border-gray-400 border-t-transparent rounded-full animate-spin flex-shrink-0" />
-                  : settings.orders_open
-                    ? <CheckCircle className="w-12 h-12 text-green-500 flex-shrink-0" />
-                    : <XCircle className="w-12 h-12 text-red-400 flex-shrink-0" />
-                }
-                <div>
-                  <p className={`text-xl font-black ${settings.orders_open ? 'text-green-700' : 'text-red-600'}`}>
-                    {settings.orders_open ? 'ORDERS ARE OPEN' : 'ORDERS ARE CLOSED'}
-                  </p>
-                  <p className="text-sm text-gray-500 mt-0.5">
-                    {settings.orders_open ? 'Customers CAN order right now. Tap here to CLOSE.' : 'Customers CANNOT order. Tap here to OPEN orders.'}
-                  </p>
-                  <p className="text-xs text-gray-400 mt-1.5 font-semibold">Saves automatically when tapped</p>
-                </div>
-              </button>
-            </div>
-          </div>
-
-          {/* Step 2 */}
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-            <div className="flex items-center gap-2 bg-gradient-to-r from-gray-50 to-white px-5 py-3 border-b border-gray-100">
-              <span className="w-6 h-6 rounded-full bg-[#CC0000] text-white text-xs font-black flex items-center justify-center flex-shrink-0">2</span>
-              <p className="font-bold text-gray-700 text-sm">Order deadline <span className="text-gray-400 font-normal">(optional)</span></p>
-            </div>
-            <div className="p-5">
-              <p className="text-sm text-gray-500 mb-3">Orders close automatically at this time. Leave blank to close manually.</p>
-              <input
-                type="datetime-local"
-                value={deadlineInput}
-                onChange={e => setDeadlineInput(e.target.value)}
-                onBlur={handleDeadlineBlur}
-                className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-gray-900 text-base focus:outline-none focus:border-[#CC0000] transition-colors"
-              />
-              {settings.order_deadline && (
-                <div className="mt-3 flex items-center justify-between bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
-                  <p className="text-sm font-semibold text-amber-800">
-                    ⏰ Auto-closes: {new Date(settings.order_deadline).toLocaleString('en-US', {
-                      weekday: 'long', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit',
-                    })}
-                  </p>
-                  <button onClick={clearDeadline} className="text-sm text-red-500 font-bold hover:text-red-700 ml-4 flex-shrink-0">
-                    Remove
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Step 3 */}
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-            <div className="flex items-center gap-2 bg-gradient-to-r from-gray-50 to-white px-5 py-3 border-b border-gray-100">
-              <span className="w-6 h-6 rounded-full bg-[#CC0000] text-white text-xs font-black flex items-center justify-center flex-shrink-0">3</span>
-              <p className="font-bold text-gray-700 text-sm">Market dates</p>
-            </div>
-            <div className="p-5">
-              {settings.delivery_dates.length > 0 ? (
-                <div className="space-y-2 mb-6">
-                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Current dates</p>
-                  {settings.delivery_dates.map((d, idx) => editingIdx === idx ? (
-                    // ── Inline edit mode ──
-                    <div key={d.date + '|' + (d.time ?? '') + '|' + (d.location_address ?? '')} className="rounded-xl border-2 border-[#CC0000] bg-white p-4 space-y-3">
-                      <div>
-                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Date</label>
-                        <input type="date" value={editDate} onChange={e => {
-                          setEditDate(e.target.value);
-                          setEditLabel(new Date(e.target.value + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }));
-                        }} className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-gray-900 focus:outline-none focus:border-[#CC0000] transition-colors" />
-                      </div>
-                      <div>
-                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">🕐 Time</label>
-                        <input type="text" value={editTime} onChange={e => setEditTime(e.target.value)} placeholder="e.g. 10:00 AM – 2:00 PM"
-                          className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-gray-900 focus:outline-none focus:border-[#CC0000] transition-colors" />
-                        {pastTimes.length > 0 && (
-                          <div className="flex flex-wrap gap-1.5 mt-2">
-                            {pastTimes.map(t => (
-                              <button key={t} type="button" onClick={() => setEditTime(t)}
-                                className={`px-2.5 py-1 rounded-full text-xs font-semibold border transition-colors ${editTime === t ? 'bg-[#CC0000] border-[#CC0000] text-white' : 'bg-gray-50 border-gray-200 text-gray-600 hover:border-[#CC0000]/50'}`}>
-                                {t}
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                      <div>
-                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">📍 Pickup Address</label>
-                        <input type="text" value={editAddress} onChange={e => setEditAddress(e.target.value)} placeholder="e.g. 123 Main St, Marshall, NC"
-                          className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-gray-900 focus:outline-none focus:border-[#CC0000] transition-colors" />
-                        {pastAddresses.length > 0 && (
-                          <div className="flex flex-wrap gap-1.5 mt-2">
-                            {pastAddresses.map(a => (
-                              <button key={a} type="button" onClick={() => setEditAddress(a)}
-                                className={`px-2.5 py-1 rounded-full text-xs font-semibold border transition-colors ${editAddress === a ? 'bg-[#CC0000] border-[#CC0000] text-white' : 'bg-gray-50 border-gray-200 text-gray-600 hover:border-[#CC0000]/50'}`}>
-                                {a}
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                      <div>
-                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-2">Cities</label>
-                        <div className="flex flex-wrap gap-1.5 mb-2">
-                          <button type="button" onClick={() => setEditCities(['all'])}
-                            className={`px-2.5 py-1 rounded-full border font-bold text-xs transition-colors ${editCities.includes('all') ? 'border-[#CC0000] bg-[#CC0000] text-white' : 'border-gray-200 text-gray-600'}`}>
-                            All Cities
-                          </button>
-                          {!editCities.includes('all') && editCities.map(c => (
-                            <span key={c} className="flex items-center gap-1 px-2.5 py-1 rounded-full border border-[#CC0000] bg-[#CC0000] text-white text-xs font-semibold">
-                              {c}
-                              <button type="button" onClick={() => setEditCities(editCities.filter(x => x !== c))} className="hover:opacity-75 leading-none">×</button>
-                            </span>
-                          ))}
-                        </div>
-                        {!editCities.includes('all') && (
-                          <div className="flex gap-2">
-                            <input
-                              type="text"
-                              value={editCityInput}
-                              onChange={e => setEditCityInput(e.target.value)}
-                              onKeyDown={e => {
-                                if (e.key === 'Enter' && editCityInput.trim()) {
-                                  e.preventDefault();
-                                  const city = editCityInput.trim();
-                                  if (!editCities.includes(city)) setEditCities([...editCities, city]);
-                                  setEditCityInput('');
-                                }
-                              }}
-                              placeholder="Type a city and press Enter"
-                              className="flex-1 border-2 border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-[#CC0000] transition-colors"
-                            />
-                            <button type="button"
-                              onClick={() => {
-                                const city = editCityInput.trim();
-                                if (city && !editCities.includes(city)) setEditCities([...editCities, city]);
-                                setEditCityInput('');
-                              }}
-                              className="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-xl text-sm font-bold text-gray-700 transition-colors">
-                              Add
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex gap-2 pt-1">
-                        <button onClick={saveEditDate} disabled={savingDates}
-                          className="flex-1 bg-[#CC0000] text-white font-bold py-2.5 rounded-xl hover:bg-[#AA0000] transition-colors disabled:opacity-50">
-                          {savingDates ? 'Saving...' : 'Save Changes'}
-                        </button>
-                        <button onClick={() => setEditingIdx(null)}
-                          className="px-4 py-2.5 border-2 border-gray-200 rounded-xl text-gray-600 font-bold hover:border-gray-300 transition-colors">
-                          Cancel
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    // ── Display mode ──
-                    <div key={d.date + '|' + (d.time ?? '') + '|' + (d.location_address ?? '')} className="flex items-start gap-3 bg-gradient-to-r from-gray-50 to-white rounded-xl px-4 py-4 border border-gray-200">
-                      <div className="flex-1 min-w-0">
-                        <p className="font-black text-gray-900">{d.label}</p>
-                        <p className="text-sm text-gray-500 mt-0.5 flex items-center gap-1">
-                          <Users className="w-3.5 h-3.5 flex-shrink-0" />
-                          {d.cities.includes('all') ? 'All cities' : d.cities.join(', ')}
-                        </p>
-                        {d.time && <p className="text-sm text-gray-600 mt-1 flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 flex-shrink-0 text-[#CC0000]" />{d.time}</p>}
-                        {d.location_address && <p className="text-sm text-gray-600 mt-0.5 flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 flex-shrink-0 text-[#CC0000]" />{d.location_address}</p>}
-                      </div>
-                      <div className="flex gap-1 flex-shrink-0">
-                        <button onClick={() => openEditDate(idx)}
-                          className="bg-blue-50 hover:bg-blue-100 text-blue-500 rounded-lg p-2 transition-colors border border-blue-200">
-                          <Pencil className="h-4 w-4" />
-                        </button>
-                        <button onClick={() => removeDeliveryDate(idx)}
-                          className="bg-red-50 hover:bg-red-100 text-red-500 hover:text-red-700 rounded-lg p-2 transition-colors border border-red-200">
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8 mb-6 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
-                  <Calendar className="w-10 h-10 text-gray-300 mx-auto mb-2" />
-                  <p className="text-gray-500 font-bold">No market dates yet</p>
-                  <p className="text-gray-400 text-sm">Add one below</p>
-                </div>
-              )}
-
-              <div className="border-t-2 border-dashed border-gray-100 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setShowAddDate(v => !v)}
-                  className="w-full flex items-center justify-between gap-2 bg-gray-50 hover:bg-gray-100 border-2 border-gray-200 rounded-xl px-4 py-3 transition-colors mb-3">
-                  <span className="flex items-center gap-2 font-bold text-gray-700 text-sm">
-                    <Plus className="w-4 h-4 text-[#CC0000]" /> Add a market date
-                  </span>
-                  {showAddDate ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
-                </button>
-                {showAddDate && <div className="space-y-3">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="sm:col-span-2">
-                      <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1.5">Date <span className="text-red-500">*</span></label>
-                      <input type="date" value={newDate} onChange={e => {
-                        const d = e.target.value;
-                        setNewDate(d);
-                        if (d) {
-                          // Auto-generate a nice label e.g. "Saturday, August 23, 2026"
-                          const formatted = new Date(d + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
-                          setNewLabel(formatted);
-                        }
-                      }}
-                        className="w-full border-2 border-gray-200 rounded-xl px-3 py-3 text-gray-900 focus:outline-none focus:border-[#CC0000] transition-colors" />
-                      {newLabel && <p className="text-sm text-gray-500 mt-1.5">Customers will see: <strong>{newLabel}</strong></p>}
-                    </div>
-                    <div>
-                      <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1.5">🕐 Time</label>
-                      <input type="text" value={newTime} onChange={e => setNewTime(e.target.value)}
-                        placeholder="e.g. 10:00 AM – 2:00 PM"
-                        className="w-full border-2 border-gray-200 rounded-xl px-3 py-3 text-gray-900 focus:outline-none focus:border-[#CC0000] transition-colors" />
-                      {pastTimes.length > 0 && (
-                        <div className="flex flex-wrap gap-1.5 mt-2">
-                          {pastTimes.map(t => (
-                            <button key={t} type="button" onClick={() => setNewTime(t)}
-                              className={`px-2.5 py-1 rounded-full text-xs font-semibold border transition-colors ${newTime === t ? 'bg-[#CC0000] border-[#CC0000] text-white' : 'bg-gray-50 border-gray-200 text-gray-600 hover:border-[#CC0000]/50'}`}>
-                              {t}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                    <div>
-                      <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1.5">📍 Pickup Address</label>
-                      <input type="text" value={newLocationAddress} onChange={e => setNewLocationAddress(e.target.value)}
-                        placeholder="e.g. 123 Main St, Swannanoa, NC"
-                        className="w-full border-2 border-gray-200 rounded-xl px-3 py-3 text-gray-900 focus:outline-none focus:border-[#CC0000] transition-colors" />
-                      {pastAddresses.length > 0 && (
-                        <div className="flex flex-wrap gap-1.5 mt-2">
-                          {pastAddresses.map(a => (
-                            <button key={a} type="button" onClick={() => setNewLocationAddress(a)}
-                              className={`px-2.5 py-1 rounded-full text-xs font-semibold border transition-colors ${newLocationAddress === a ? 'bg-[#CC0000] border-[#CC0000] text-white' : 'bg-gray-50 border-gray-200 text-gray-600 hover:border-[#CC0000]/50'}`}>
-                              {a}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-2">Which cities can order for this date?</label>
-                    <div className="flex flex-wrap gap-1.5 mb-2">
-                      <button type="button" onClick={() => setNewCities(['all'])}
-                        className={`px-2.5 py-1 rounded-full border font-bold text-xs transition-colors ${newCities.includes('all') ? 'border-[#CC0000] bg-[#CC0000] text-white' : 'border-gray-200 text-gray-600 hover:border-[#CC0000]/50'}`}>
-                        All Cities
-                      </button>
-                      {!newCities.includes('all') && newCities.map(c => (
-                        <span key={c} className="flex items-center gap-1 px-2.5 py-1 rounded-full border border-[#CC0000] bg-[#CC0000] text-white text-xs font-semibold">
-                          {c}
-                          <button type="button" onClick={() => setNewCities(newCities.filter(x => x !== c))} className="hover:opacity-75 leading-none">×</button>
-                        </span>
-                      ))}
-                    </div>
-                    {!newCities.includes('all') && (
-                      <div className="flex gap-2">
-                        <input
-                          type="text"
-                          value={newCityInput}
-                          onChange={e => setNewCityInput(e.target.value)}
-                          onKeyDown={e => {
-                            if (e.key === 'Enter' && newCityInput.trim()) {
-                              e.preventDefault();
-                              const city = newCityInput.trim();
-                              if (!newCities.includes(city)) setNewCities([...newCities, city]);
-                              setNewCityInput('');
-                            }
-                          }}
-                          placeholder="Type a city and press Enter"
-                          className="flex-1 border-2 border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-[#CC0000] transition-colors"
-                        />
-                        <button type="button"
-                          onClick={() => {
-                            const city = newCityInput.trim();
-                            if (city && !newCities.includes(city)) setNewCities([...newCities, city]);
-                            setNewCityInput('');
-                          }}
-                          className="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-xl text-sm font-bold text-gray-700 transition-colors">
-                          Add
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                  <button type="button" onClick={addDeliveryDate}
-                    disabled={!newDate || savingDates}
-                    className="w-full flex items-center justify-center gap-2 bg-[#CC0000] text-white font-black text-base px-4 py-4 rounded-xl hover:bg-[#AA0000] disabled:opacity-40 transition-colors shadow-sm active:scale-[0.99]">
-                    {savingDates ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Plus className="h-5 w-5" />}
-                    {savingDates ? 'Saving...' : 'Add This Date'}
-                  </button>
-                </div>}
-              </div>
-            </div>
-          </div>
-        </div>
+        <SettingsTab
+          settings={settings}
+          togglingOpen={togglingOpen}
+          savingDates={savingDates}
+          onToggleOpen={handleToggleOpen}
+          onDeadlineBlur={handleDeadlineBlur}
+          onClearDeadline={handleClearDeadline}
+          onAddDate={handleAddDate}
+          onEditDate={handleEditDate}
+          onDeleteDate={handleDeleteDate}
+          onAddCity={handleAddCity}
+          onRemoveCity={handleRemoveCity}
+        />
       )}
 
-      {/* ── ORDERS TAB ── */}
       {activeTab === 'orders' && (
-        <div className="space-y-4">
-
-          {orders.length > 0 && (
-            <>
-              {/* #2 — Production summary */}
-              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-                <div className="flex items-center justify-between px-5 py-3 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
-                  <p className="font-black text-gray-800 text-sm uppercase tracking-wider">📋 Production Summary</p>
-                  <p className="text-xs text-gray-400">Excludes completed orders</p>
-                </div>
-                <div className="p-4 divide-y divide-gray-50">
-                  {summary.length === 0 ? (
-                    <p className="text-sm text-gray-400 text-center py-3">All orders completed</p>
-                  ) : summary.map(([key, qty]) => (
-                    <div key={key} className="flex items-center justify-between py-2.5">
-                      <p className="text-sm text-gray-700 leading-snug">{key}</p>
-                      <span className="text-lg font-black text-[#CC0000] ml-4 flex-shrink-0">×{qty}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Actions row */}
-              <div className="flex gap-2 flex-wrap">
-                <button onClick={() => setGroupByCity(v => !v)}
-                  className={`flex items-center justify-center gap-2 border-2 font-bold text-sm px-4 py-3 rounded-xl transition-colors ${
-                    groupByCity ? 'bg-[#CC0000] border-[#CC0000] text-white' : 'bg-white border-gray-200 hover:border-gray-300 text-gray-700'
-                  }`}>
-                  <MapPin className="w-4 h-4" /> Group by City
-                </button>
-                <button onClick={() => window.print()}
-                  className="flex-1 flex items-center justify-center gap-2 bg-white border-2 border-gray-200 hover:border-gray-300 text-gray-700 font-bold text-sm px-4 py-3 rounded-xl transition-colors">
-                  <Printer className="w-4 h-4" /> Print
-                </button>
-                <button onClick={() => exportCSV(orders)}
-                  className="flex-1 flex items-center justify-center gap-2 bg-white border-2 border-gray-200 hover:border-gray-300 text-gray-700 font-bold text-sm px-4 py-3 rounded-xl transition-colors">
-                  <Download className="w-4 h-4" /> Export CSV
-                </button>
-              </div>
-            </>
-          )}
-
-          {orders.length === 0 ? (
-            <div className="text-center py-20 text-gray-400 bg-white rounded-2xl border border-gray-200">
-              <Package className="h-14 w-14 mx-auto mb-3 opacity-30" />
-              <p className="text-lg font-bold">No orders yet</p>
-              <p className="text-sm mt-1">Orders will appear here once customers submit them</p>
-            </div>
-          ) : (() => {
-            type DisplayItem = { kind: 'city'; city: string } | { kind: 'order'; order: PreOrder };
-            let items: DisplayItem[];
-            if (groupByCity) {
-              const sorted = [...orders].sort((a, b) => a.pickup_city.localeCompare(b.pickup_city));
-              const seen = new Set<string>();
-              items = [];
-              for (const o of sorted) {
-                if (!seen.has(o.pickup_city)) { seen.add(o.pickup_city); items.push({ kind: 'city', city: o.pickup_city }); }
-                items.push({ kind: 'order', order: o });
-              }
-            } else {
-              items = orders.map(o => ({ kind: 'order', order: o }));
-            }
-            return items.map((item, idx) => item.kind === 'city' ? (
-              <div key={`city-${item.city}`} className={`flex items-center gap-2 py-2 px-1 mb-1 ${idx > 0 ? 'mt-3' : ''}`}>
-                <MapPin className="w-4 h-4 text-[#CC0000] flex-shrink-0" />
-                <p className="font-black text-gray-800 text-sm uppercase tracking-wider">{item.city}</p>
-                <span className="text-xs font-bold text-gray-400 bg-gray-100 rounded-full px-2 py-0.5">
-                  {orders.filter(o => o.pickup_city === item.city).length}
-                </span>
-              </div>
-            ) : (
-              (order => (
-            <div key={order.id} className={`bg-white rounded-2xl border-2 shadow-sm p-5 ${order.status === 'pending' ? 'border-amber-300' : 'border-gray-100'}`}>
-              <div className="flex items-start justify-between gap-4 mb-3">
-                <div>
-                  <p className="text-lg font-black text-gray-900">{order.customer_name}</p>
-                  <p className="text-sm text-gray-500 mt-0.5">📱 {order.customer_phone}</p>
-                  <p className="text-sm text-gray-500">📍 {order.pickup_city}</p>
-                  <p className="text-sm text-gray-500">📅 {order.delivery_date}</p>
-                  <p className="text-xs text-gray-400 mt-1">{new Date(order.created_at).toLocaleString()}</p>
-                </div>
-                <div className="flex-shrink-0 text-right">
-                  <label className="text-xs font-bold text-gray-400 block mb-1">Update status</label>
-                  <select value={order.status} onChange={e => updateOrderStatus(order.id, e.target.value)}
-                    disabled={updatingStatus === order.id}
-                    className={`text-sm font-bold px-3 py-2 rounded-xl border-2 focus:outline-none cursor-pointer disabled:opacity-60 ${STATUS_STYLES[order.status] ?? STATUS_STYLES.pending}`}>
-                    {Object.entries(STATUS_LABELS).map(([val, label]) => (
-                      <option key={val} value={val}>{label}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-              <div className="border-t border-gray-100 pt-3 space-y-1">
-                {order.items.map((item, i) => (
-                  <p key={i} className="text-sm text-gray-700">
-                    <span className="font-black text-[#CC0000]">×{item.qty}</span> {item.product}
-                    {item.size ? <span className="text-gray-500"> ({item.size})</span> : null}
-                    {item.flavor ? <span className="text-gray-500"> — {item.flavor}</span> : null}
-                  </p>
-                ))}
-              </div>
-              {order.notes && (
-                <p className="mt-3 text-sm text-gray-600 bg-gray-50 rounded-lg px-3 py-2 border border-gray-100">
-                  <span className="font-bold">📝 Notes:</span> {order.notes}
-                </p>
-              )}
-              {order.suggestions && (
-                <p className="mt-2 text-sm text-amber-700 bg-amber-50 rounded-lg px-3 py-2 border border-amber-100">
-                  <span className="font-bold">💡 Suggestion:</span> {order.suggestions}
-                </p>
-              )}
-              {/* Payment method */}
-              {order.payment_method && (
-                <p className="mt-3 text-sm font-bold bg-green-50 border border-green-200 text-green-700 rounded-lg px-3 py-2">
-                  {{ cash: '💵 Paying with Cash', zelle: '💜 Paying with Zelle', card: '💳 Paying with Card (+3.5%)' }[order.payment_method] ?? order.payment_method}
-                </p>
-              )}
-              {order.status === 'confirmed' && !order.payment_method && (
-                <p className="mt-3 text-sm text-gray-400 italic">⏳ Awaiting customer payment choice</p>
-              )}
-              {/* Confirm button */}
-              {order.status === 'pending' && (
-                <button
-                  onClick={() => openConfirmModal(order)}
-                  className="mt-4 w-full flex items-center justify-center gap-2 bg-[#CC0000] hover:bg-[#AA0000] text-white font-bold text-sm px-4 py-3 rounded-xl transition-colors">
-                  <Mail className="w-4 h-4" /> Pack &amp; Set Prices
-                </button>
-              )}
-              {order.status === 'confirmed' && (
-                <button
-                  onClick={() => openConfirmModal(order)}
-                  className="mt-4 w-full flex items-center justify-center gap-2 bg-white border-2 border-[#CC0000]/30 hover:border-[#CC0000] text-[#CC0000] font-bold text-sm px-4 py-3 rounded-xl transition-colors">
-                  <Mail className="w-4 h-4" /> Resend Confirmation
-                </button>
-              )}
-            </div>
-              ))(item.order)
-            ));
-          })()}
-        </div>
+        <OrdersTab
+          settings={settings}
+          orders={orders}
+          menu={menu}
+          updatingStatus={updatingStatus}
+          sendingConf={sendingConf}
+          onUpdateStatus={handleUpdateStatus}
+          onSendConfirmation={handleSendConfirmation}
+        />
       )}
 
-      {/* ── CONFIRMATION MODAL ── */}
-      {confirmingOrder && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => !sendingConf && setConfirmingOrder(null)} />
-          <div className="relative w-full sm:max-w-lg bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl max-h-[90vh] flex flex-col">
-
-            {/* Modal header */}
-            <div className="flex items-start justify-between px-5 pt-5 pb-4 border-b border-gray-100 flex-shrink-0">
-              <div>
-                <h2 className="text-lg font-black text-gray-900">{confirmingOrder.customer_name}</h2>
-                <p className="text-sm text-gray-500 mt-0.5">📍 {confirmingOrder.pickup_city} · 📅 {confirmingOrder.delivery_date}</p>
-                <p className="text-sm text-gray-500">📱 {confirmingOrder.customer_phone}</p>
-                {confirmingOrder.customer_email
-                  ? <p className="text-sm text-green-600 font-medium mt-0.5">✉️ {confirmingOrder.customer_email}</p>
-                  : <p className="text-sm text-red-500 font-medium mt-0.5">⚠️ No email — customer won't receive email</p>
-                }
-              </div>
-              <button onClick={() => !sendingConf && setConfirmingOrder(null)} className="p-1 text-gray-400 hover:text-gray-700">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Items */}
-            <div className="overflow-y-auto flex-1 px-5 py-4 space-y-4">
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Prices are auto-filled from the menu — adjust if needed, then confirm</p>
-              {editItems.map((item, idx) => {
-                const label = [item.product, item.size && `(${item.size})`, item.flavor && `— ${item.flavor}`].filter(Boolean).join(' ');
-                return (
-                  <div key={idx} className={`rounded-2xl border-2 p-4 transition-colors ${item.available ? 'border-gray-200 bg-white' : 'border-red-200 bg-red-50'}`}>
-                    <div className="flex items-start justify-between gap-3 mb-3">
-                      <p className={`text-sm font-bold leading-snug ${item.available ? 'text-gray-900' : 'text-red-500 line-through'}`}>
-                        {item.available ? '✅' : '❌'} {label}
-                        {item.qty > 1 && <span className="font-normal text-gray-500"> × {item.qty}</span>}
-                      </p>
-                      <button
-                        type="button"
-                        onClick={() => updateEditItem(idx, { available: !item.available })}
-                        className={`flex-shrink-0 text-xs font-bold px-3 py-1.5 rounded-full border-2 transition-colors ${item.available
-                          ? 'border-red-200 text-red-500 hover:bg-red-50'
-                          : 'border-green-300 text-green-600 hover:bg-green-50'
-                        }`}>
-                        {item.available ? 'Mark unavailable' : 'Mark available'}
-                      </button>
-                    </div>
-
-                    {item.available ? (
-                      <div>
-                        <label className="text-xs font-bold text-gray-500 block mb-1.5">Total price for this item</label>
-                        <div className="relative">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-bold">$</span>
-                          <input
-                            type="number"
-                            min="0"
-                            step="0.50"
-                            value={item.price || ''}
-                            onChange={e => updateEditItem(idx, { price: parseFloat(e.target.value) || 0 })}
-                            placeholder="0.00"
-                            className="w-full border-2 border-gray-200 rounded-xl pl-7 pr-3 py-2.5 text-gray-900 font-bold text-base focus:outline-none focus:border-[#CC0000] transition-colors"
-                          />
-                        </div>
-                      </div>
-                    ) : (
-                      <div>
-                        <label className="text-xs font-bold text-gray-500 block mb-1.5">Substitution (optional)</label>
-                        <input
-                          type="text"
-                          value={item.substitution}
-                          onChange={e => updateEditItem(idx, { substitution: e.target.value })}
-                          placeholder="e.g. Sweet Cheese Roll Medium ($8)"
-                          className="w-full border-2 border-red-200 rounded-xl px-3 py-2.5 text-gray-900 text-sm focus:outline-none focus:border-red-400 transition-colors bg-white"
-                        />
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Totals + send button */}
-            <div className="px-5 pb-5 pt-3 border-t border-gray-100 flex-shrink-0 bg-white rounded-b-3xl">
-              <div className="flex justify-between items-baseline mb-1">
-                <span className="text-sm text-gray-500">Order Total</span>
-                <span className="text-xl font-black text-gray-900">${confirmTotal.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between items-baseline mb-4">
-                <span className="text-xs text-gray-400">Card total (+3.5%)</span>
-                <span className="text-sm text-gray-400">${cardTotal.toFixed(2)}</span>
-              </div>
-              <button
-                onClick={sendConfirmation}
-                disabled={sendingConf || (confirmTotal === 0 && editItems.some(i => i.available))}
-                className="w-full flex items-center justify-center gap-2 bg-[#CC0000] hover:bg-[#AA0000] disabled:opacity-50 text-white font-black text-base px-4 py-4 rounded-2xl transition-colors">
-                {sendingConf
-                  ? <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Sending...</>
-                  : <><Mail className="w-4 h-4" /> {confirmingOrder.customer_email ? 'Confirm & Send Email' : 'Confirm Order (no email)'}</>
-                }
-              </button>
-              {confirmTotal === 0 && editItems.some(i => i.available) && (
-                <p className="text-center text-xs text-red-400 mt-2">Enter at least one price to confirm</p>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── MENU TAB ── */}
       {activeTab === 'menu' && (
-        <div className="space-y-3">
-          <div className="flex items-start justify-between gap-3 mb-2">
-            <p className="text-sm text-gray-500">Edit item names, sizes, prices, and flavors. Changes go live immediately after saving.</p>
-            <button
-              type="button"
-              onClick={async () => {
-                if (!confirm('Reset the entire menu back to the built-in defaults? This will overwrite any changes you made.')) return;
-                setMenu(DEFAULT_MENU);
-                await saveMenu(DEFAULT_MENU);
-              }}
-              disabled={savingMenu}
-              className="flex-shrink-0 text-xs font-bold text-gray-400 hover:text-[#CC0000] border border-gray-200 hover:border-[#CC0000]/40 rounded-lg px-3 py-1.5 transition-colors whitespace-nowrap">
-              ↩ Reset to defaults
-            </button>
-          </div>
-
-          {menu.map((item, idx) => (
-            <div key={item.id} className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-              {editingItemIdx === idx && editItem ? (
-                <div className="p-5 space-y-4">
-                  {/* Item name + emoji */}
-                  <div className="flex gap-2">
-                    <div className="w-20 flex-shrink-0">
-                      <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Emoji</label>
-                      <input type="text" value={editItem.emoji} onChange={e => setEditItem({ ...editItem, emoji: e.target.value })}
-                        className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-center text-xl focus:outline-none focus:border-[#CC0000]" />
-                    </div>
-                    <div className="flex-1">
-                      <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Item Name</label>
-                      <input type="text" value={editItem.name} onChange={e => setEditItem({ ...editItem, name: e.target.value })}
-                        className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-gray-900 focus:outline-none focus:border-[#CC0000]" />
-                    </div>
-                  </div>
-
-                  {/* Sizes */}
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Sizes & Prices</label>
-                      <button type="button"
-                        onClick={() => setEditItem({ ...editItem, sizes: [...editItem.sizes, { label: '', priceNote: '' }] })}
-                        className="text-xs font-bold text-[#CC0000] hover:text-[#AA0000] flex items-center gap-1">
-                        <Plus className="w-3 h-3" /> Add size
-                      </button>
-                    </div>
-                    <div className="space-y-2">
-                      {editItem.sizes.map((size, si) => (
-                        <div key={si} className="flex gap-2 items-center">
-                          <input type="text" value={size.label} placeholder="Size label"
-                            onChange={e => {
-                              const sizes = editItem.sizes.map((s, i) => i === si ? { ...s, label: e.target.value } : s);
-                              setEditItem({ ...editItem, sizes });
-                            }}
-                            className="flex-1 border-2 border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-[#CC0000]" />
-                          <input type="text" value={size.priceNote} placeholder="Price (e.g. $10)"
-                            onChange={e => {
-                              const sizes = editItem.sizes.map((s, i) => i === si ? { ...s, priceNote: e.target.value } : s);
-                              setEditItem({ ...editItem, sizes });
-                            }}
-                            className="flex-1 border-2 border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-[#CC0000]" />
-                          <button type="button" onClick={() => setEditItem({ ...editItem, sizes: editItem.sizes.filter((_, i) => i !== si) })}
-                            className="p-2 text-red-400 hover:text-red-600 flex-shrink-0">
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Flavors */}
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Flavors <span className="text-gray-400 font-normal">(optional)</span></label>
-                      <button type="button"
-                        onClick={() => setEditItem({ ...editItem, flavors: [...editItem.flavors, ''] })}
-                        className="text-xs font-bold text-[#CC0000] hover:text-[#AA0000] flex items-center gap-1">
-                        <Plus className="w-3 h-3" /> Add flavor
-                      </button>
-                    </div>
-                    {editItem.flavors.length === 0 ? (
-                      <p className="text-xs text-gray-400 italic">No flavors — customers just pick a size</p>
-                    ) : (
-                      <div className="flex flex-wrap gap-2">
-                        {editItem.flavors.map((flavor, fi) => (
-                          <div key={fi} className="flex items-center gap-1 bg-gray-50 border border-gray-200 rounded-full px-3 py-1">
-                            <input type="text" value={flavor}
-                              onChange={e => {
-                                const flavors = editItem.flavors.map((f, i) => i === fi ? e.target.value : f);
-                                setEditItem({ ...editItem, flavors });
-                              }}
-                              className="text-sm text-gray-700 bg-transparent focus:outline-none w-24 min-w-0" />
-                            <button type="button" onClick={() => setEditItem({ ...editItem, flavors: editItem.flavors.filter((_, i) => i !== fi) })}
-                              className="text-red-400 hover:text-red-600 flex-shrink-0 ml-1">
-                              <X className="w-3 h-3" />
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex gap-2 pt-1">
-                    <button
-                      onClick={async () => {
-                        const updated = menu.map((m, i) => i === idx ? editItem : m);
-                        setMenu(updated);
-                        setEditingItemIdx(null);
-                        await saveMenu(updated);
-                      }}
-                      disabled={savingMenu}
-                      className="flex-1 bg-[#CC0000] text-white font-bold py-2.5 rounded-xl hover:bg-[#AA0000] transition-colors disabled:opacity-50 text-sm">
-                      {savingMenu ? 'Saving...' : 'Save Item'}
-                    </button>
-                    <button onClick={() => setEditingItemIdx(null)}
-                      className="px-4 py-2.5 border-2 border-gray-200 rounded-xl text-gray-600 font-bold hover:border-gray-300 transition-colors text-sm">
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex items-center gap-3 px-4 py-4">
-                  <span className="text-2xl flex-shrink-0">{item.emoji}</span>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-bold text-gray-900 text-sm leading-snug">{item.name}</p>
-                    <p className="text-xs text-gray-500 mt-0.5">
-                      {item.sizes.map(s => `${s.label}: ${s.priceNote}`).join(' · ')}
-                    </p>
-                    {item.flavors.length > 0 && (
-                      <p className="text-xs text-gray-400 mt-0.5">{item.flavors.length} {item.flavors.length === 1 ? 'flavor' : 'flavors'}</p>
-                    )}
-                  </div>
-                  <button onClick={() => { setEditItem({ ...item }); setEditingItemIdx(idx); }}
-                    className="bg-blue-50 hover:bg-blue-100 text-blue-500 rounded-lg p-2 transition-colors border border-blue-200 flex-shrink-0">
-                    <Pencil className="h-4 w-4" />
-                  </button>
-                </div>
-              )}
-            </div>
-          ))}
-
-          <button
-            type="button"
-            onClick={() => {
-              const newItem: MenuItem = { id: `item-${Date.now()}`, emoji: '🍽️', name: '', sizes: [{ label: '', priceNote: '' }], flavors: [] };
-              const updated = [...menu, newItem];
-              setMenu(updated);
-              setEditItem(newItem);
-              setEditingItemIdx(updated.length - 1);
-            }}
-            className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-gray-200 rounded-2xl py-4 text-gray-500 font-bold text-sm hover:border-[#CC0000] hover:text-[#CC0000] transition-colors">
-            <Plus className="w-4 h-4" /> Add New Item
-          </button>
-        </div>
+        <MenuTab
+          settings={settings}
+          menu={menu}
+          savingMenu={savingMenu}
+          onMenuChange={setMenu}
+          onSaveMenu={handleSaveMenu}
+        />
       )}
 
-      {/* ── SUGGESTIONS TAB ── */}
       {activeTab === 'suggestions' && (
-        <div>
-          <p className="text-sm text-gray-500 mb-4">Products customers are asking for — great for planning future markets.</p>
-          {suggestions.length === 0 ? (
-            <div className="text-center py-20 text-gray-400 bg-white rounded-2xl border border-gray-200">
-              <Lightbulb className="h-14 w-14 mx-auto mb-3 opacity-30" />
-              <p className="text-lg font-bold">No suggestions yet</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {suggestions.map(order => (
-                <div key={order.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
-                  <p className="font-bold text-gray-900 mb-1">
-                    {order.customer_name}<span className="font-normal text-gray-500 text-sm"> · {order.pickup_city}</span>
-                  </p>
-                  <p className="text-gray-700 text-base leading-relaxed bg-amber-50 rounded-xl px-4 py-3 border border-amber-100">
-                    💡 {order.suggestions}
-                  </p>
-                  <p className="text-xs text-gray-400 mt-2">{new Date(order.created_at).toLocaleDateString()}</p>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        <SuggestionsTab orders={orders} />
       )}
     </div>
   );

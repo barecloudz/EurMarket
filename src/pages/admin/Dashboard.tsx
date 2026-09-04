@@ -88,7 +88,7 @@ export default function AdminDashboard() {
 
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-black text-gray-900">Good morning 👋</h1>
+        <h1 className="text-2xl font-black text-gray-900">{(() => { const h = new Date().getHours(); return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening'; })()} 👋</h1>
         <p className="text-gray-500 text-sm mt-0.5">Here's what's happening with your pre-orders.</p>
       </div>
 

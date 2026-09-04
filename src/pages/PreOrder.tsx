@@ -2,21 +2,6 @@ import { useState, useEffect, useMemo } from 'react';
 import { CheckCircle, Phone, MapPin, Clock, AlertCircle, ChevronLeft, Calendar } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
-// Fallback city list shown if no specific cities found in delivery_dates
-const CITIES_FALLBACK = [
-  'Hendersonville, NC',
-  'Asheville, NC',
-  'Marshall, NC',
-  'Burnsville, NC',
-  'Swannanoa, NC',
-  'Hickory, NC',
-  'Indian Land, NC',
-  'Lexington, SC',
-  'Columbia, SC',
-  'Greenville, SC',
-  'Anderson, SC',
-];
-
 interface DeliveryDate {
   date: string;
   label: string;
@@ -30,6 +15,7 @@ interface PreorderSettings {
   order_deadline: string | null;
   delivery_dates: DeliveryDate[];
   menu: MenuItem[] | null;
+  served_cities: string[];
 }
 
 interface MenuItem {
@@ -228,17 +214,8 @@ export default function PreOrder() {
 
   const activeMenu = (settings?.menu && settings.menu.length > 0) ? settings.menu : MENU;
 
-  // Derive unique cities from delivery_dates; fall back to hardcoded list if none
-  const availableCities = useMemo(() => {
-    const cities = new Set<string>();
-    for (const d of settings?.delivery_dates ?? []) {
-      for (const c of d.cities) {
-        if (c !== 'all') cities.add(c);
-      }
-    }
-    const result = [...cities].sort();
-    return result.length > 0 ? result : CITIES_FALLBACK;
-  }, [settings?.delivery_dates]);
+  // Read cities directly from served_cities (first-class admin concept)
+  const availableCities: string[] = settings?.served_cities ?? [];
 
   const goToStep = (s: Step) => {
     setError('');
@@ -518,36 +495,43 @@ export default function PreOrder() {
             <p className="text-gray-500 text-sm mb-5">Select your city, then choose a date</p>
 
             {/* City cards */}
-            <div className="grid grid-cols-2 gap-3 mb-6">
-              {availableCities.map((c, idx) => {
-                const { cityName, state } = parseCityParts(c);
-                const isSelected = city === c;
-                const isLastOdd = idx === availableCities.length - 1 && availableCities.length % 2 !== 0;
-                return (
-                  <button
-                    key={c}
-                    type="button"
-                    onClick={() => { setCity(c); setSelectedDateIdx(''); }}
-                    className={`rounded-2xl border-2 p-4 text-left transition-all active:scale-95 ${isLastOdd ? 'col-span-2 max-w-[calc(50%-6px)]' : ''} ${
-                      isSelected
-                        ? 'border-[#CC0000] bg-[#CC0000]/5 shadow-md'
-                        : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <MapPin className={`w-4 h-4 ${isSelected ? 'text-[#CC0000]' : 'text-gray-400'}`} />
-                      {isSelected && (
-                        <div className="w-5 h-5 rounded-full bg-[#CC0000] flex items-center justify-center">
-                          <span className="text-white text-[9px] font-black">✓</span>
-                        </div>
-                      )}
-                    </div>
-                    <p className={`font-black text-base leading-tight ${isSelected ? 'text-[#CC0000]' : 'text-gray-800'}`}>{cityName}</p>
-                    <p className={`text-xs mt-0.5 ${isSelected ? 'text-[#CC0000]/70' : 'text-gray-400'}`}>{state}</p>
-                  </button>
-                );
-              })}
-            </div>
+            {availableCities.length === 0 ? (
+              <div className="text-center py-12 mb-6 bg-white border-2 border-gray-100 rounded-2xl shadow-sm">
+                <p className="text-lg font-black text-gray-700">No cities set up yet</p>
+                <p className="text-sm text-gray-400 mt-1">Check back soon — we're adding locations!</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-3 mb-6">
+                {availableCities.map((c, idx) => {
+                  const { cityName, state } = parseCityParts(c);
+                  const isSelected = city === c;
+                  const isLastOdd = idx === availableCities.length - 1 && availableCities.length % 2 !== 0;
+                  return (
+                    <button
+                      key={c}
+                      type="button"
+                      onClick={() => { setCity(c); setSelectedDateIdx(''); }}
+                      className={`rounded-2xl border-2 p-4 text-left transition-all active:scale-95 ${isLastOdd ? 'col-span-2 max-w-[calc(50%-6px)]' : ''} ${
+                        isSelected
+                          ? 'border-[#CC0000] bg-[#CC0000]/5 shadow-md'
+                          : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <MapPin className={`w-4 h-4 ${isSelected ? 'text-[#CC0000]' : 'text-gray-400'}`} />
+                        {isSelected && (
+                          <div className="w-5 h-5 rounded-full bg-[#CC0000] flex items-center justify-center">
+                            <span className="text-white text-[9px] font-black">✓</span>
+                          </div>
+                        )}
+                      </div>
+                      <p className={`font-black text-base leading-tight ${isSelected ? 'text-[#CC0000]' : 'text-gray-800'}`}>{cityName}</p>
+                      <p className={`text-xs mt-0.5 ${isSelected ? 'text-[#CC0000]/70' : 'text-gray-400'}`}>{state}</p>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
 
             {/* Date slot cards — appears after city selected */}
             {city && (
