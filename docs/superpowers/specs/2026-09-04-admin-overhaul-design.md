@@ -109,6 +109,50 @@ const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Go
 
 ---
 
+## Subsystem E — Cities (first-class concept)
+
+### Problem
+Cities are currently a side effect of delivery date setup. There is no standalone city list. When a delivery date expires, its cities silently vanish from the customer wizard. The admin has no way to see, add, or remove cities independently. She cannot understand why a customer suddenly can't find their city.
+
+### Solution: "Cities we serve" in Settings
+
+A dedicated section in the Settings tab — above market dates — with a simple managed list:
+
+```
+Cities we serve
+───────────────
+[Hendersonville, NC  ×]  [Hickory, NC  ×]  [Arden, NC  ×]
+[+ Add a city ____________] [Add]
+```
+
+- Adding a city → appears immediately as a card on the customer wizard
+- Removing a city × → disappears from the customer wizard
+- Cities persist permanently regardless of whether a future date exists for them
+- Auto-saves on every add/delete (no Save button)
+
+### Impact on delivery date city picker
+The city picker inside "Add / Edit a market date" changes from a free-text input to a multi-select from the `served_cities` list, plus an "All Cities" toggle. No more typos creating phantom cities. No more "Hickory NC" vs "Hickory, NC" mismatch.
+
+### Impact on customer wizard
+`availableCities` in `PreOrder.tsx` reads from `settings.served_cities` directly. CITIES_FALLBACK is removed. If `served_cities` is empty, Step 1 shows a friendly "No cities set up yet — check back soon" message instead of cards.
+
+### Database Migration
+
+```sql
+ALTER TABLE preorder_settings
+  ADD COLUMN IF NOT EXISTS served_cities JSONB NOT NULL DEFAULT '[]';
+```
+
+On first load after migration, the Settings tab auto-seeds `served_cities` from unique city values in existing `delivery_dates` (excluding "all") so the admin doesn't start with a blank list.
+
+### New Type (types.ts addition)
+```typescript
+// PreorderSettings gains:
+served_cities: string[];
+```
+
+---
+
 ## Subsystem C — "Use Again" Quick-Add
 
 ### Problem
@@ -157,9 +201,10 @@ No separate Customers tab. No new Supabase tables. Derived entirely from the `pr
 Each step is independently shippable:
 
 1. **A — Split the file** (invisible to admin, unblocks everything else)
-2. **B — Order flow** (highest daily-use impact)
-3. **C — "Use Again" cards** (saves weekly repetition on date setup)
-4. **D — Returning badge + slide-over** (low effort, high delight for the admin)
+2. **E — Cities** (fix the broken mental model before anything else touches delivery dates)
+3. **B — Order flow** (highest daily-use impact)
+4. **C — "Use Again" cards** (saves weekly repetition on date setup)
+5. **D — Returning badge + slide-over** (low effort, high delight for the admin)
 
 ---
 
@@ -178,7 +223,9 @@ Each step is independently shippable:
 ## Success Criteria
 
 After this ships, the admin should be able to:
+- Add and remove a city from one place and immediately see it reflected on the customer wizard
 - Open orders, add a market date, and confirm 5 orders without consulting the help guide
 - See what she needs to make without scrolling
 - Recognize a returning customer from the order list
 - Set up a recurring weekly market date in under 30 seconds
+- Never lose a city because a past market date expired
