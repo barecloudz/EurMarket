@@ -237,6 +237,10 @@ export default function AdminPreOrders() {
   const [editCities, setEditCities] = useState<string[]>(['all']);
   const [editCityInput, setEditCityInput] = useState('');
 
+  // Unique past times and addresses for suggestion chips
+  const pastTimes = [...new Set((settings?.delivery_dates ?? []).map(d => d.time).filter(Boolean))] as string[];
+  const pastAddresses = [...new Set((settings?.delivery_dates ?? []).map(d => d.location_address).filter(Boolean))] as string[];
+
   useEffect(() => {
     Promise.all([
       supabase.from('preorder_settings').select('*').eq('id', 1).single(),
@@ -578,11 +582,31 @@ export default function AdminPreOrders() {
                         <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">🕐 Time</label>
                         <input type="text" value={editTime} onChange={e => setEditTime(e.target.value)} placeholder="e.g. 10:00 AM – 2:00 PM"
                           className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-gray-900 focus:outline-none focus:border-[#CC0000] transition-colors" />
+                        {pastTimes.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 mt-2">
+                            {pastTimes.map(t => (
+                              <button key={t} type="button" onClick={() => setEditTime(t)}
+                                className={`px-2.5 py-1 rounded-full text-xs font-semibold border transition-colors ${editTime === t ? 'bg-[#CC0000] border-[#CC0000] text-white' : 'bg-gray-50 border-gray-200 text-gray-600 hover:border-[#CC0000]/50'}`}>
+                                {t}
+                              </button>
+                            ))}
+                          </div>
+                        )}
                       </div>
                       <div>
                         <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">📍 Pickup Address</label>
                         <input type="text" value={editAddress} onChange={e => setEditAddress(e.target.value)} placeholder="e.g. 123 Main St, Marshall, NC"
                           className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-gray-900 focus:outline-none focus:border-[#CC0000] transition-colors" />
+                        {pastAddresses.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 mt-2">
+                            {pastAddresses.map(a => (
+                              <button key={a} type="button" onClick={() => setEditAddress(a)}
+                                className={`px-2.5 py-1 rounded-full text-xs font-semibold border transition-colors ${editAddress === a ? 'bg-[#CC0000] border-[#CC0000] text-white' : 'bg-gray-50 border-gray-200 text-gray-600 hover:border-[#CC0000]/50'}`}>
+                                {a}
+                              </button>
+                            ))}
+                          </div>
+                        )}
                       </div>
                       <div>
                         <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-2">Cities</label>
@@ -702,12 +726,32 @@ export default function AdminPreOrders() {
                       <input type="text" value={newTime} onChange={e => setNewTime(e.target.value)}
                         placeholder="e.g. 10:00 AM – 2:00 PM"
                         className="w-full border-2 border-gray-200 rounded-xl px-3 py-3 text-gray-900 focus:outline-none focus:border-[#CC0000] transition-colors" />
+                      {pastTimes.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 mt-2">
+                          {pastTimes.map(t => (
+                            <button key={t} type="button" onClick={() => setNewTime(t)}
+                              className={`px-2.5 py-1 rounded-full text-xs font-semibold border transition-colors ${newTime === t ? 'bg-[#CC0000] border-[#CC0000] text-white' : 'bg-gray-50 border-gray-200 text-gray-600 hover:border-[#CC0000]/50'}`}>
+                              {t}
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
                     <div>
                       <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1.5">📍 Pickup Address</label>
                       <input type="text" value={newLocationAddress} onChange={e => setNewLocationAddress(e.target.value)}
                         placeholder="e.g. 123 Main St, Swannanoa, NC"
                         className="w-full border-2 border-gray-200 rounded-xl px-3 py-3 text-gray-900 focus:outline-none focus:border-[#CC0000] transition-colors" />
+                      {pastAddresses.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 mt-2">
+                          {pastAddresses.map(a => (
+                            <button key={a} type="button" onClick={() => setNewLocationAddress(a)}
+                              className={`px-2.5 py-1 rounded-full text-xs font-semibold border transition-colors ${newLocationAddress === a ? 'bg-[#CC0000] border-[#CC0000] text-white' : 'bg-gray-50 border-gray-200 text-gray-600 hover:border-[#CC0000]/50'}`}>
+                              {a}
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                   <div>
