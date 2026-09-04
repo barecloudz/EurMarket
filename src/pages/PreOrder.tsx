@@ -147,7 +147,7 @@ export default function PreOrder() {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [city, setCity] = useState('');
-  const [deliveryDate, setDeliveryDate] = useState('');
+  const [selectedDateIdx, setSelectedDateIdx] = useState('');
   const [email, setEmail] = useState('');
   const [notes, setNotes] = useState('');
   const [suggestions, setSuggestions] = useState('');
@@ -196,7 +196,9 @@ export default function PreOrder() {
     d.cities.includes('all') || d.cities.includes(city)
   ) ?? [];
 
-  const pickedDate = availableDates.find(d => d.date === deliveryDate);
+  const selectedIdx = selectedDateIdx !== '' ? parseInt(selectedDateIdx) : -1;
+  const pickedDate = selectedIdx >= 0 ? availableDates[selectedIdx] : undefined;
+  const deliveryDate = pickedDate?.date ?? '';
 
   // Use DB menu if configured, otherwise fall back to hardcoded defaults
   const activeMenu = (settings?.menu && settings.menu.length > 0) ? settings.menu : MENU;
@@ -488,7 +490,7 @@ export default function PreOrder() {
               <div>
                 <label className="block text-xl font-bold text-gray-800 mb-2">Pickup City <span className="text-[#CC0000]">*</span></label>
                 <div className="relative">
-                  <select value={city} onChange={(e) => { setCity(e.target.value); setDeliveryDate(''); }} style={tnr}
+                  <select value={city} onChange={(e) => { setCity(e.target.value); setSelectedDateIdx(''); }} style={tnr}
                     className="w-full text-xl border-2 border-gray-300 rounded-xl px-4 py-3.5 focus:outline-none focus:border-[#CC0000] bg-white transition-colors appearance-none pr-10">
                     <option value="">— Select your city —</option>
                     {CITIES.map((c) => <option key={c} value={c}>{c}</option>)}
@@ -508,13 +510,14 @@ export default function PreOrder() {
                   ) : (
                     <>
                       <div className="relative">
-                        <select value={deliveryDate} onChange={(e) => setDeliveryDate(e.target.value)} style={tnr}
+                        <select value={selectedDateIdx} onChange={(e) => setSelectedDateIdx(e.target.value)} style={tnr}
                           className="w-full text-xl border-2 border-gray-300 rounded-xl px-4 py-3.5 focus:outline-none focus:border-[#CC0000] bg-white transition-colors appearance-none pr-10">
                           <option value="">— Select a date —</option>
-                          {availableDates.map((d) => {
+                          {availableDates.map((d, i) => {
                             const dateStr = new Date(d.date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
-                            const label = d.label && d.label !== dateStr ? `${dateStr} — ${d.label}` : dateStr;
-                            return <option key={d.date} value={d.date}>{label}</option>;
+                            const timeStr = d.time ? ` · ${d.time}` : '';
+                            const locationStr = d.location_address ? ` · ${d.location_address}` : '';
+                            return <option key={i} value={String(i)}>{dateStr}{timeStr}{locationStr}</option>;
                           })}
                         </select>
                         <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
