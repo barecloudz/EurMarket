@@ -161,6 +161,7 @@ export default function PreOrder() {
   const [settings, setSettings] = useState<PreorderSettings | null>(null);
   const [loadingSettings, setLoadingSettings] = useState(true);
   const [step, setStep] = useState<Step>(1);
+  const [stepDir, setStepDir] = useState<'fwd' | 'back'>('fwd');
 
   // Step 1: Where & When
   const [city, setCity] = useState('');
@@ -241,6 +242,7 @@ export default function PreOrder() {
 
   const goToStep = (s: Step) => {
     setError('');
+    setStepDir(s > step ? 'fwd' : 'back');
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setStep(s);
   };
@@ -510,7 +512,7 @@ export default function PreOrder() {
 
         {/* ── Step 1: Where & When ── */}
         {step === 1 && (
-          <div>
+          <div className={stepDir === 'fwd' ? 'animate-step-in-fwd' : 'animate-step-in-back'}>
             <h2 className="text-2xl font-black text-gray-900 mb-0.5">Where are you picking up?</h2>
             <p className="text-gray-500 text-sm mb-5">Select your city, then choose a date</p>
 
@@ -609,7 +611,7 @@ export default function PreOrder() {
 
         {/* ── Step 2: Menu ── */}
         {step === 2 && (
-          <div>
+          <div className={stepDir === 'fwd' ? 'animate-step-in-fwd' : 'animate-step-in-back'}>
             <button type="button" onClick={() => goToStep(1)}
               className="flex items-center gap-1 text-gray-500 hover:text-gray-700 mb-4 text-sm font-bold">
               <ChevronLeft className="w-4 h-4" /> Back
@@ -670,7 +672,7 @@ export default function PreOrder() {
 
         {/* ── Step 3: Your Info ── */}
         {step === 3 && (
-          <div>
+          <div className={stepDir === 'fwd' ? 'animate-step-in-fwd' : 'animate-step-in-back'}>
             <button type="button" onClick={() => goToStep(2)}
               className="flex items-center gap-1 text-gray-500 hover:text-gray-700 mb-4 text-sm font-bold">
               <ChevronLeft className="w-4 h-4" /> Back
@@ -732,7 +734,7 @@ export default function PreOrder() {
 
         {/* ── Step 4: Review & Submit ── */}
         {step === 4 && (
-          <div>
+          <div className={stepDir === 'fwd' ? 'animate-step-in-fwd' : 'animate-step-in-back'}>
             <button type="button" onClick={() => goToStep(3)}
               className="flex items-center gap-1 text-gray-500 hover:text-gray-700 mb-4 text-sm font-bold">
               <ChevronLeft className="w-4 h-4" /> Back
@@ -824,7 +826,7 @@ export default function PreOrder() {
 
       {/* Sticky bottom action bar */}
       <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 shadow-2xl">
-        <div className="max-w-lg mx-auto px-4 py-3 safe-area-bottom">
+        <div className="max-w-lg mx-auto px-4 py-3" style={{ paddingBottom: 'max(12px, env(safe-area-inset-bottom))' }}>
           {step === 1 && (
             <button
               type="button"

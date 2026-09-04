@@ -37,6 +37,20 @@ export default {
         'crimson-lg': '0 0 30px rgba(139, 0, 0, 0.35)',
         'warm':       '0 4px 20px rgba(139, 0, 0, 0.08)',
       },
+      keyframes: {
+        'step-in-fwd': {
+          '0%':   { opacity: '0', transform: 'translateX(28px)' },
+          '100%': { opacity: '1', transform: 'translateX(0)' },
+        },
+        'step-in-back': {
+          '0%':   { opacity: '0', transform: 'translateX(-28px)' },
+          '100%': { opacity: '1', transform: 'translateX(0)' },
+        },
+      },
+      animation: {
+        'step-in-fwd':  'step-in-fwd  0.22s ease-out',
+        'step-in-back': 'step-in-back 0.22s ease-out',
+      },
     },
   },
   plugins: [],
