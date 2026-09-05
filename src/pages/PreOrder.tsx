@@ -135,7 +135,8 @@ export default function PreOrder() {
   const pickedDate = selectedIdx >= 0 ? availableDates[selectedIdx] : undefined;
   const deliveryDate = pickedDate?.date ?? '';
 
-  const activeMenu = (settings?.menu && settings.menu.length > 0) ? settings.menu : DEFAULT_MENU;
+  const activeMenu = ((settings?.menu && settings.menu.length > 0) ? settings.menu : DEFAULT_MENU)
+    .filter(item => item.active !== false);
 
   // Read cities directly from served_cities (first-class admin concept)
   const availableCities: string[] = settings?.served_cities ?? [];

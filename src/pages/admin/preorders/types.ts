@@ -14,6 +14,7 @@ export interface MenuItem {
   category?: string;
   sizes: MenuSize[];
   flavors: string[];
+  active?: boolean; // undefined/true = visible to customers, false = hidden
 }
 
 export interface DeliveryDate {

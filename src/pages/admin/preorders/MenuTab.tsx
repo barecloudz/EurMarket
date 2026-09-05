@@ -22,7 +22,7 @@ export function MenuTab({ menu, savingMenu, onMenuChange, onSaveMenu }: Props) {
         <button
           type="button"
           onClick={async () => {
-            if (!confirm('Reset the entire menu back to the built-in defaults? This will overwrite any changes you made.')) return;
+            if (!confirm('Reset to built-in defaults?\n\nThis will PERMANENTLY overwrite ALL your custom prices, including any British Meats prices you entered. This cannot be undone.')) return;
             onMenuChange(DEFAULT_MENU);
             await onSaveMenu(DEFAULT_MENU);
           }}
@@ -153,7 +153,7 @@ export function MenuTab({ menu, savingMenu, onMenuChange, onSaveMenu }: Props) {
               </div>
             </div>
           ) : (
-            <div className="flex items-center gap-3 px-4 py-4">
+            <div className={`flex items-center gap-3 px-4 py-4 ${item.active === false ? 'opacity-50' : ''}`}>
               <span className="text-2xl flex-shrink-0">{item.emoji}</span>
               <div className="flex-1 min-w-0">
                 {item.category && <p className="text-xs font-bold text-[#CC0000] mb-0.5 uppercase tracking-wide">{item.category}</p>}
@@ -164,11 +164,28 @@ export function MenuTab({ menu, savingMenu, onMenuChange, onSaveMenu }: Props) {
                 {item.flavors.length > 0 && (
                   <p className="text-xs text-gray-400 mt-0.5">{item.flavors.length} {item.flavors.length === 1 ? 'flavor' : 'flavors'}</p>
                 )}
+                {item.active === false && (
+                  <p className="text-xs font-bold text-gray-400 mt-0.5">Hidden from customers</p>
+                )}
               </div>
-              <button onClick={() => { setEditItem({ ...item }); setEditingItemIdx(idx); }}
-                className="bg-blue-50 hover:bg-blue-100 text-blue-500 rounded-lg p-2 transition-colors border border-blue-200 flex-shrink-0">
-                <Pencil className="h-4 w-4" />
-              </button>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <button
+                  type="button"
+                  title={item.active === false ? 'Show to customers' : 'Hide from customers'}
+                  onClick={async () => {
+                    const updated = menu.map((m, i) => i === idx ? { ...m, active: m.active === false ? true : false } : m);
+                    onMenuChange(updated);
+                    await onSaveMenu(updated);
+                  }}
+                  disabled={savingMenu}
+                  className={`relative w-10 h-6 rounded-full transition-colors flex-shrink-0 ${item.active === false ? 'bg-gray-200' : 'bg-green-500'}`}>
+                  <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${item.active === false ? 'left-1' : 'left-5'}`} />
+                </button>
+                <button onClick={() => { setEditItem({ ...item }); setEditingItemIdx(idx); }}
+                  className="bg-blue-50 hover:bg-blue-100 text-blue-500 rounded-lg p-2 transition-colors border border-blue-200 flex-shrink-0">
+                  <Pencil className="h-4 w-4" />
+                </button>
+              </div>
             </div>
           )}
         </div>
