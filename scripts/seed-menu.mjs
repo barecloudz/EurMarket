@@ -1,168 +1,45 @@
-// src/pages/admin/preorders/types.ts
-// Real types matching the actual DB schema and existing PreOrders.tsx interfaces.
+/**
+ * seed-menu.mjs
+ * Seeds the preorder_settings menu column in Supabase with the full DEFAULT_MENU.
+ *
+ * Usage:
+ *   node scripts/seed-menu.mjs           # safe — skips if menu already exists
+ *   node scripts/seed-menu.mjs --force   # overwrites existing menu
+ *
+ * Reads VITE_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY from .env.local automatically.
+ */
 
-export interface MenuSize {
-  label: string;
-  priceNote: string;
+import { readFileSync } from 'fs';
+import { resolve, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+// Parse .env.local manually (no dotenv dependency needed)
+const envPath = resolve(__dirname, '../.env.local');
+const envVars = {};
+readFileSync(envPath, 'utf8').split('\n').forEach(line => {
+  const match = line.match(/^([^#=]+)=(.*)$/);
+  if (match) envVars[match[1].trim()] = match[2].trim();
+});
+
+const SUPABASE_URL = envVars['VITE_SUPABASE_URL'];
+const SERVICE_KEY = envVars['SUPABASE_SERVICE_ROLE_KEY'];
+
+if (!SUPABASE_URL || !SERVICE_KEY) {
+  console.error('Missing VITE_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in .env.local');
+  process.exit(1);
 }
 
-export interface MenuItem {
-  id: string;
-  flag?: string;
-  emoji: string;
-  name: string;
-  category?: string;
-  sizes: MenuSize[];
-  flavors: string[];
-}
-
-export interface DeliveryDate {
-  date: string;
-  label: string;
-  cities: string[];
-  time?: string;
-  location_address?: string;
-}
-
-export interface PreorderSettings {
-  orders_open: boolean;
-  order_deadline: string | null;
-  delivery_dates: DeliveryDate[];
-  menu?: MenuItem[];
-  served_cities: string[];
-}
-
-export interface ConfirmItem {
-  product: string;
-  size: string;
-  flavor: string;
-  qty: number;
-  price: number;
-  available: boolean;
-  substitution: string;
-}
-
-export interface PreOrder {
-  id: string;
-  customer_name: string;
-  customer_phone: string;
-  customer_email: string | null;
-  pickup_city: string;
-  delivery_date: string;
-  items: { product: string; size: string; flavor: string; qty: number }[];
-  notes: string | null;
-  suggestions: string | null;
-  status: string;
-  created_at: string;
-  confirmed_items: ConfirmItem[] | null;
-  confirmed_total: number | null;
-  payment_method: string | null;
-  confirmation_sent_at: string | null;
-}
-
-export const STATUS_STYLES: Record<string, string> = {
-  pending:   'border-amber-300  text-amber-700  bg-amber-50',
-  confirmed: 'border-green-400  text-green-700  bg-green-50',
-  ready:     'border-blue-400   text-blue-700   bg-blue-50',
-  completed: 'border-gray-300   text-gray-500   bg-gray-50',
-};
-
-export const STATUS_LABELS: Record<string, string> = {
-  pending:   '⏳ Pending',
-  confirmed: '✅ Confirmed',
-  ready:     '🎉 Ready',
-  completed: '✔️ Completed',
-};
-
-/** Parses a priceNote string and returns the total price for the given qty. */
-export function parsePriceNote(priceNote: string, qty: number): number {
-  // "4 for $20" bundle — use bundle price if qty matches exactly
-  const bundleMatch = priceNote.match(/(\d+)\s+for\s+\$(\d+(?:\.\d+)?)/i);
-  if (bundleMatch) {
-    const bundleQty = parseInt(bundleMatch[1]);
-    const bundlePrice = parseFloat(bundleMatch[2]);
-    if (qty === bundleQty) return bundlePrice;
-    const unitMatch = priceNote.match(/\$(\d+(?:\.\d+)?)\s+each/i);
-    const unitPrice = unitMatch ? parseFloat(unitMatch[1]) : bundlePrice / bundleQty;
-    return unitPrice * qty;
-  }
-  // "$8–$12" range — use midpoint (container price, not per-unit)
-  const rangeMatch = priceNote.match(/\$(\d+(?:\.\d+)?)[\s\u2013\u2014\-]+\$?(\d+(?:\.\d+)?)/);
-  if (rangeMatch) {
-    const mid = (parseFloat(rangeMatch[1]) + parseFloat(rangeMatch[2])) / 2;
-    return mid * qty;
-  }
-  // Simple "$10"
-  const match = priceNote.match(/\$(\d+(?:\.\d+)?)/);
-  return match ? parseFloat(match[1]) * qty : 0;
-}
-
-/** Looks up the menu price for a given product + size + qty. */
-export function inferPrice(menu: MenuItem[], product: string, size: string, qty: number): number {
-  const item = menu.find(m => m.name === product);
-  if (!item) return 0;
-  const sizeEntry = item.sizes.find(s => s.label === size);
-  if (!sizeEntry) return 0;
-  return parsePriceNote(sizeEntry.priceNote, qty);
-}
-
-/** Aggregates all items across non-completed orders into a sorted totals array. */
-export function buildSummary(orders: PreOrder[]): [string, number][] {
-  const totals = new Map<string, number>();
-  for (const order of orders) {
-    if (order.status === 'completed') continue;
-    for (const item of order.items) {
-      const key = [item.product, item.size, item.flavor].filter(Boolean).join(' · ');
-      totals.set(key, (totals.get(key) ?? 0) + item.qty);
-    }
-  }
-  return [...totals.entries()].sort((a, b) => b[1] - a[1]);
-}
-
-export const DEFAULT_MENU: MenuItem[] = [
+const MENU = [
   // ── Homemade ──────────────────────────────────────────────────────────────
-  {
-    id: 'paczki', flag: '🇵🇱', emoji: '🍩', category: 'Preorder Homemade',
-    name: 'Homemade Paczki — Polish Donuts',
-    sizes: [{ label: 'Medium', priceNote: '$5 each  ·  4 for $16' }, { label: 'Large', priceNote: '$6 each  ·  4 for $20' }],
-    flavors: ['Custard', 'Lemon', 'Cranberry', 'Strawberry', 'Blueberry', 'Lingonberry', 'Plum', 'Nutella', 'Dulce De Leche'],
-  },
-  {
-    id: 'pierogies', emoji: '🥟', category: 'Preorder Homemade',
-    name: 'Homemade Pierogies',
-    sizes: [{ label: '6 pieces', priceNote: '$10' }, { label: '12 pieces', priceNote: '$20' }],
-    flavors: ['Potato & Onion', 'Potato & Cheese', 'Potato & Cheddar Cheese', 'Sauerkraut', 'Sauerkraut & Mushroom', 'Spinach', 'Pork & Beef'],
-  },
-  {
-    id: 'sweet-pierogies', emoji: '🍓', category: 'Preorder Homemade',
-    name: 'Sweet Pierogies with Sour Cream Topping',
-    sizes: [{ label: '6 pieces', priceNote: '$12' }],
-    flavors: ['Strawberry', 'Cherry'],
-  },
-  {
-    id: 'pirozhki', emoji: '🥟', category: 'Preorder Homemade',
-    name: 'Ukrainian Pirozhki',
-    sizes: [{ label: 'Each', priceNote: '$3 each  ·  4 for $10' }],
-    flavors: ['Potato Filling', 'Cabbage'],
-  },
-  {
-    id: 'cabbage-rolls', emoji: '🥬', category: 'Preorder Homemade',
-    name: 'Homemade Cabbage Rolls',
-    sizes: [{ label: 'Small Container', priceNote: '$8–$10' }, { label: 'Medium Container', priceNote: '$13–$17' }, { label: 'Large Container', priceNote: '$24–$30' }],
-    flavors: [],
-  },
-  {
-    id: 'poppy-seed-rolls', emoji: '🍞', category: 'Preorder Homemade',
-    name: 'Homemade Poppy Seed Rolls',
-    sizes: [{ label: 'Small', priceNote: '$5–$6' }, { label: 'Medium', priceNote: '$7–$8' }, { label: 'Large', priceNote: '$10–$12' }],
-    flavors: [],
-  },
-  {
-    id: 'cheese-rolls', emoji: '🧀', category: 'Preorder Homemade',
-    name: 'Homemade Sweet Cheese Rolls',
-    sizes: [{ label: 'Small', priceNote: '$6–$7' }, { label: 'Medium', priceNote: '$8–$9' }, { label: 'Large', priceNote: '$10–$12' }],
-    flavors: ['With Raisins', 'Without Raisins'],
-  },
+  { id: 'paczki', flag: '🇵🇱', emoji: '🍩', category: 'Preorder Homemade', name: 'Homemade Paczki — Polish Donuts', sizes: [{ label: 'Medium', priceNote: '$5 each  ·  4 for $16' }, { label: 'Large', priceNote: '$6 each  ·  4 for $20' }], flavors: ['Custard', 'Lemon', 'Cranberry', 'Strawberry', 'Blueberry', 'Lingonberry', 'Plum', 'Nutella', 'Dulce De Leche'] },
+  { id: 'pierogies', emoji: '🥟', category: 'Preorder Homemade', name: 'Homemade Pierogies', sizes: [{ label: '6 pieces', priceNote: '$10' }, { label: '12 pieces', priceNote: '$20' }], flavors: ['Potato & Onion', 'Potato & Cheese', 'Potato & Cheddar Cheese', 'Sauerkraut', 'Sauerkraut & Mushroom', 'Spinach', 'Pork & Beef'] },
+  { id: 'sweet-pierogies', emoji: '🍓', category: 'Preorder Homemade', name: 'Sweet Pierogies with Sour Cream Topping', sizes: [{ label: '6 pieces', priceNote: '$12' }], flavors: ['Strawberry', 'Cherry'] },
+  { id: 'pirozhki', emoji: '🥟', category: 'Preorder Homemade', name: 'Ukrainian Pirozhki', sizes: [{ label: 'Each', priceNote: '$3 each  ·  4 for $10' }], flavors: ['Potato Filling', 'Cabbage'] },
+  { id: 'cabbage-rolls', emoji: '🥬', category: 'Preorder Homemade', name: 'Homemade Cabbage Rolls', sizes: [{ label: 'Small Container', priceNote: '$8–$10' }, { label: 'Medium Container', priceNote: '$13–$17' }, { label: 'Large Container', priceNote: '$24–$30' }], flavors: [] },
+  { id: 'poppy-seed-rolls', emoji: '🍞', category: 'Preorder Homemade', name: 'Homemade Poppy Seed Rolls', sizes: [{ label: 'Small', priceNote: '$5–$6' }, { label: 'Medium', priceNote: '$7–$8' }, { label: 'Large', priceNote: '$10–$12' }], flavors: [] },
+  { id: 'cheese-rolls', emoji: '🧀', category: 'Preorder Homemade', name: 'Homemade Sweet Cheese Rolls', sizes: [{ label: 'Small', priceNote: '$6–$7' }, { label: 'Medium', priceNote: '$8–$9' }, { label: 'Large', priceNote: '$10–$12' }], flavors: ['With Raisins', 'Without Raisins'] },
   // ── British Meats ──────────────────────────────────────────────────────────
   { id: 'brit-chipolata', flag: '🇬🇧', emoji: '🌭', category: 'Preorder British Meats', name: 'Classic English Chipolata Sausages', sizes: [{ label: 'Per Pack', priceNote: 'Price TBD' }], flavors: [] },
   { id: 'brit-classic-sausages', flag: '🇬🇧', emoji: '🌭', category: 'Preorder British Meats', name: "Classic Sausages - Parker's Finest", sizes: [{ label: 'Per Pack', priceNote: 'Price TBD' }], flavors: [] },
@@ -215,11 +92,61 @@ export const DEFAULT_MENU: MenuItem[] = [
   { id: 'germ-wieners', flag: '🇩🇪', emoji: '🌭', category: 'Preorder German Meats', name: 'Wieners', sizes: [{ label: '1 lb', priceNote: '$10' }], flavors: [] },
   { id: 'germ-nuss-schinken', flag: '🇩🇪', emoji: '🍖', category: 'Preorder German Meats', name: 'Nuss Schinken', sizes: [{ label: '1.5-2 lbs', priceNote: '$27' }], flavors: [] },
   // ── Andy's Deli — Polish Meats ─────────────────────────────────────────────
-  { id: 'pol-forest-sausage', flag: '🇵🇱', emoji: '🌭', category: "Andys Deli", name: 'Forest Sausage', sizes: [{ label: 'Per Ring', priceNote: '$10' }], flavors: [] },
-  { id: 'pol-wedding-kielbasa', flag: '🇵🇱', emoji: '🌭', category: "Andys Deli", name: 'Wedding Kielbasa', sizes: [{ label: 'Per Ring', priceNote: '$10' }], flavors: [] },
-  { id: 'pol-polish-kielbasa', flag: '🇵🇱', emoji: '🌭', category: "Andys Deli", name: 'Polish Kielbasa', sizes: [{ label: 'Per Ring', priceNote: '$8' }], flavors: [] },
-  { id: 'pol-royal-kabanosi', flag: '🇵🇱', emoji: '🌭', category: "Andys Deli", name: 'Royal Kabanosi', sizes: [{ label: 'Per Ring', priceNote: '$6' }], flavors: [] },
-  { id: 'pol-kabanosi-sticks', flag: '🇵🇱', emoji: '🌭', category: "Andys Deli", name: 'Polish Kabanosi Sticks', sizes: [{ label: 'Each', priceNote: '$6' }], flavors: [] },
-  { id: 'pol-tarczynski-kabanosi', flag: '🇵🇱', emoji: '🌭', category: "Andys Deli", name: 'Tarczynski Brand Kabanosi', sizes: [{ label: 'Each', priceNote: '$6' }], flavors: ['Original', 'With Bacon', 'With Chili'] },
-  { id: 'pol-sokolow-kabanosi', flag: '🇵🇱', emoji: '🌭', category: "Andys Deli", name: 'Sokolow Brand Kabanosi', sizes: [{ label: 'Each', priceNote: '$6' }], flavors: ['Polish', 'Fresh', 'Italian', 'With Pepper', 'With Bacon & Pepper'] },
+  { id: 'pol-forest-sausage', flag: '🇵🇱', emoji: '🌭', category: 'Andys Deli', name: 'Forest Sausage', sizes: [{ label: 'Per Ring', priceNote: '$10' }], flavors: [] },
+  { id: 'pol-wedding-kielbasa', flag: '🇵🇱', emoji: '🌭', category: 'Andys Deli', name: 'Wedding Kielbasa', sizes: [{ label: 'Per Ring', priceNote: '$10' }], flavors: [] },
+  { id: 'pol-polish-kielbasa', flag: '🇵🇱', emoji: '🌭', category: 'Andys Deli', name: 'Polish Kielbasa', sizes: [{ label: 'Per Ring', priceNote: '$8' }], flavors: [] },
+  { id: 'pol-royal-kabanosi', flag: '🇵🇱', emoji: '🌭', category: 'Andys Deli', name: 'Royal Kabanosi', sizes: [{ label: 'Per Ring', priceNote: '$6' }], flavors: [] },
+  { id: 'pol-kabanosi-sticks', flag: '🇵🇱', emoji: '🌭', category: 'Andys Deli', name: 'Polish Kabanosi Sticks', sizes: [{ label: 'Each', priceNote: '$6' }], flavors: [] },
+  { id: 'pol-tarczynski-kabanosi', flag: '🇵🇱', emoji: '🌭', category: 'Andys Deli', name: 'Tarczynski Brand Kabanosi', sizes: [{ label: 'Each', priceNote: '$6' }], flavors: ['Original', 'With Bacon', 'With Chili'] },
+  { id: 'pol-sokolow-kabanosi', flag: '🇵🇱', emoji: '🌭', category: 'Andys Deli', name: 'Sokolow Brand Kabanosi', sizes: [{ label: 'Each', priceNote: '$6' }], flavors: ['Polish', 'Fresh', 'Italian', 'With Pepper', 'With Bacon & Pepper'] },
 ];
+
+async function supabaseRequest(method, path, body) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1${path}`, {
+    method,
+    headers: {
+      'apikey': SERVICE_KEY,
+      'Authorization': `Bearer ${SERVICE_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation',
+    },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  const text = await res.text();
+  if (!res.ok) throw new Error(`Supabase ${method} ${path} → ${res.status}: ${text}`);
+  return text ? JSON.parse(text) : null;
+}
+
+async function run() {
+  const rows = await supabaseRequest('GET', '/preorder_settings?select=id,menu&limit=1');
+  if (!rows || rows.length === 0) {
+    console.error('No preorder_settings row found. Create one in the admin first.');
+    process.exit(1);
+  }
+
+  const { id, menu: existing } = rows[0];
+  console.log(`Found settings row id=${id}`);
+  console.log(`Current menu: ${existing ? existing.length + ' items' : 'empty'}`);
+
+  if (existing && existing.length > 0) {
+    const force = process.argv.includes('--force');
+    if (!force) {
+      console.log(`\nDB already has ${existing.length} menu items.`);
+      console.log('Run with --force to overwrite: node scripts/seed-menu.mjs --force');
+      process.exit(0);
+    }
+    console.log('--force flag set, overwriting...');
+  }
+
+  await supabaseRequest('PATCH', `/preorder_settings?id=eq.${id}`, { menu: MENU });
+  console.log(`\nSeeded ${MENU.length} menu items across 4 categories:`);
+
+  const cats = [...new Set(MENU.map(m => m.category))];
+  for (const cat of cats) {
+    const count = MENU.filter(m => m.category === cat).length;
+    console.log(`  ${cat}: ${count} items`);
+  }
+  console.log('\nDone! Customers will now see the full menu from the database.');
+}
+
+run().catch(err => { console.error(err); process.exit(1); });

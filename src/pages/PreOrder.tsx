@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { CheckCircle, Phone, MapPin, Clock, AlertCircle, ChevronLeft, Calendar } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { DEFAULT_MENU } from './admin/preorders/types';
 
 interface DeliveryDate {
   date: string;
@@ -18,156 +19,7 @@ interface PreorderSettings {
   served_cities: string[];
 }
 
-interface MenuItem {
-  id: string;
-  flag?: string;
-  emoji: string;
-  name: string;
-  category?: string;
-  sizes: { label: string; priceNote: string }[];
-  flavors: string[];
-}
-
-const MENU: MenuItem[] = [
-  {
-    id: 'paczki',
-    flag: '🇵🇱',
-    emoji: '🍩',
-    category: 'Preorder Homemade',
-    name: 'Homemade Paczki — Polish Donuts',
-    sizes: [
-      { label: 'Medium', priceNote: '$5 each  ·  4 for $16' },
-      { label: 'Large', priceNote: '$6 each  ·  4 for $20' },
-    ],
-    flavors: ['Custard', 'Lemon', 'Cranberry', 'Strawberry', 'Blueberry', 'Lingonberry', 'Plum', 'Nutella', 'Dulce De Leche'],
-  },
-  {
-    id: 'pierogies',
-    emoji: '🥟',
-    category: 'Preorder Homemade',
-    name: 'Homemade Pierogies',
-    sizes: [
-      { label: '6 pieces', priceNote: '$10' },
-      { label: '12 pieces', priceNote: '$20' },
-    ],
-    flavors: ['Potato & Onion', 'Potato & Cheese', 'Potato & Cheddar Cheese', 'Sauerkraut', 'Sauerkraut & Mushroom', 'Spinach', 'Pork & Beef'],
-  },
-  {
-    id: 'sweet-pierogies',
-    emoji: '🍓',
-    category: 'Preorder Homemade',
-    name: 'Sweet Pierogies with Sour Cream Topping',
-    sizes: [
-      { label: '6 pieces', priceNote: '$12' },
-    ],
-    flavors: ['Strawberry', 'Cherry'],
-  },
-  {
-    id: 'pirozhki',
-    emoji: '🥟',
-    category: 'Preorder Homemade',
-    name: 'Ukrainian Pirozhki',
-    sizes: [
-      { label: 'Each', priceNote: '$3 each  ·  4 for $10' },
-    ],
-    flavors: ['Potato Filling', 'Cabbage'],
-  },
-  {
-    id: 'cabbage-rolls',
-    emoji: '🥬',
-    category: 'Preorder Homemade',
-    name: 'Homemade Cabbage Rolls',
-    sizes: [
-      { label: 'Small Container', priceNote: '$8–$10' },
-      { label: 'Medium Container', priceNote: '$13–$17' },
-      { label: 'Large Container', priceNote: '$24–$30' },
-    ],
-    flavors: [],
-  },
-  {
-    id: 'poppy-seed-rolls',
-    emoji: '🍞',
-    category: 'Preorder Homemade',
-    name: 'Homemade Poppy Seed Rolls',
-    sizes: [
-      { label: 'Small', priceNote: '$5–$6' },
-      { label: 'Medium', priceNote: '$7–$8' },
-      { label: 'Large', priceNote: '$10–$12' },
-    ],
-    flavors: [],
-  },
-  {
-    id: 'cheese-rolls',
-    emoji: '🧀',
-    category: 'Preorder Homemade',
-    name: 'Homemade Sweet Cheese Rolls',
-    sizes: [
-      { label: 'Small', priceNote: '$6–$7' },
-      { label: 'Medium', priceNote: '$8–$9' },
-      { label: 'Large', priceNote: '$10–$12' },
-    ],
-    flavors: ['With Raisins', 'Without Raisins'],
-  },
-  // ── British Meats ──────────────────────────────────────────────────────────
-  { id: 'brit-chipolata', flag: '🇬🇧', emoji: '🌭', category: 'Preorder British Meats', name: 'Classic English Chipolata Sausages', sizes: [{ label: 'Per Pack', priceNote: 'Price TBD' }], flavors: [] },
-  { id: 'brit-classic-sausages', flag: '🇬🇧', emoji: '🌭', category: 'Preorder British Meats', name: "Classic Sausages - Parker's Finest", sizes: [{ label: 'Per Pack', priceNote: 'Price TBD' }], flavors: [] },
-  { id: 'brit-white-pudding', flag: '🇬🇧', emoji: '🍖', category: 'Preorder British Meats', name: 'White Pudding', sizes: [{ label: '9-10 oz', priceNote: 'Price TBD' }], flavors: [] },
-  { id: 'brit-bacon-smoked', flag: '🇬🇧', emoji: '🥓', category: 'Preorder British Meats', name: 'English Bacon - Smoked', sizes: [{ label: '16 oz', priceNote: 'Price TBD' }], flavors: [] },
-  { id: 'brit-black-pudding', flag: '🇬🇧', emoji: '🍖', category: 'Preorder British Meats', name: 'Black Pudding', sizes: [{ label: '9-10 oz', priceNote: 'Price TBD' }], flavors: [] },
-  { id: 'brit-cocktail-sausages', flag: '🇬🇧', emoji: '🌭', category: 'Preorder British Meats', name: 'British Cocktail Sausages', sizes: [{ label: 'Per Pack', priceNote: 'Price TBD' }], flavors: [] },
-  { id: 'brit-welsh-dragon', flag: '🏴󠁧󠁢󠁷󠁬󠁳󠁿', emoji: '🌭', category: 'Preorder British Meats', name: 'Welsh Dragon Sausages', sizes: [{ label: 'Per Pack', priceNote: 'Price TBD' }], flavors: [] },
-  { id: 'brit-jumbo-roll', flag: '🇬🇧', emoji: '🥐', category: 'Preorder British Meats', name: "Jumbo Sausage Roll - Parker's Finest", sizes: [{ label: 'Each', priceNote: 'Price TBD' }], flavors: [] },
-  { id: 'brit-bacon-wet', flag: '🇬🇧', emoji: '🥓', category: 'Preorder British Meats', name: 'English Bacon - Wet Cured', sizes: [{ label: '16 oz', priceNote: 'Price TBD' }], flavors: [] },
-  { id: 'brit-pork-pie', flag: '🇬🇧', emoji: '🥧', category: 'Preorder British Meats', name: "Classic Pork Pie - Parker's Finest", sizes: [{ label: '7 oz', priceNote: 'Price TBD' }], flavors: [] },
-  { id: 'brit-lincolnshire', flag: '🇬🇧', emoji: '🌭', category: 'Preorder British Meats', name: 'Lincolnshire Chipolata Sausages', sizes: [{ label: 'Per Pack', priceNote: 'Price TBD' }], flavors: [] },
-  { id: 'brit-cornish-pasty', flag: '🇬🇧', emoji: '🥧', category: 'Preorder British Meats', name: "Cornish Pasty - Parker's Finest", sizes: [{ label: 'Each', priceNote: 'Price TBD' }], flavors: [] },
-  { id: 'brit-shepherds-pie', flag: '🇬🇧', emoji: '🥘', category: 'Preorder British Meats', name: "Shepherd's Pie", sizes: [{ label: 'Each', priceNote: 'Price TBD' }], flavors: [] },
-  { id: 'brit-bread-rolls', flag: '🇬🇧', emoji: '🍞', category: 'Preorder British Meats', name: 'Large White Bread Rolls', sizes: [{ label: 'Per Pack', priceNote: 'Price TBD' }], flavors: [] },
-  { id: 'brit-sticky-toffee', flag: '🇬🇧', emoji: '🍮', category: 'Preorder British Meats', name: 'Sticky Toffee Sponge Pudding', sizes: [{ label: 'Each', priceNote: 'Price TBD' }], flavors: [] },
-  { id: 'brit-syrup-sponge', flag: '🇬🇧', emoji: '🍮', category: 'Preorder British Meats', name: 'Syrup Sponge Pudding', sizes: [{ label: 'Each', priceNote: 'Price TBD' }], flavors: [] },
-  { id: 'brit-beef-onion-pie', flag: '🇬🇧', emoji: '🥧', category: 'Preorder British Meats', name: 'Beef & Onion Pie', sizes: [{ label: 'Each', priceNote: 'Price TBD' }], flavors: [] },
-  // ── German Meats ───────────────────────────────────────────────────────────
-  { id: 'germ-bavarian-liver', flag: '🇩🇪', emoji: '🌭', category: 'Preorder German Meats', name: 'Bavarian Liver Sausage', sizes: [{ label: '1 lb', priceNote: '$10' }], flavors: [] },
-  { id: 'germ-berliner-liver', flag: '🇩🇪', emoji: '🌭', category: 'Preorder German Meats', name: 'Berliner Liver Sausage', sizes: [{ label: '1 lb', priceNote: '$10' }], flavors: [] },
-  { id: 'germ-blood-sausage', flag: '🇩🇪', emoji: '🌭', category: 'Preorder German Meats', name: 'Blood Sausage', sizes: [{ label: '1 lb', priceNote: '$10' }], flavors: [] },
-  { id: 'germ-blood-tongue', flag: '🇩🇪', emoji: '🍖', category: 'Preorder German Meats', name: 'Blood Tongue', sizes: [{ label: '1 lb', priceNote: '$10' }], flavors: [] },
-  { id: 'germ-beer-sausage', flag: '🇩🇪', emoji: '🌭', category: 'Preorder German Meats', name: 'Beer Sausage', sizes: [{ label: '1 lb', priceNote: '$10' }], flavors: [] },
-  { id: 'germ-delicatess-spread', flag: '🇩🇪', emoji: '🫙', category: 'Preorder German Meats', name: 'Delicatess Spread', sizes: [{ label: '1 lb', priceNote: '$8' }], flavors: [] },
-  { id: 'germ-jaeger-sausage', flag: '🇩🇪', emoji: '🌭', category: 'Preorder German Meats', name: 'Jaeger Sausage', sizes: [{ label: '1 lb', priceNote: '$10' }], flavors: [] },
-  { id: 'germ-bologna', flag: '🇩🇪', emoji: '🌭', category: 'Preorder German Meats', name: 'German Bologna', sizes: [{ label: '1 lb', priceNote: '$10' }], flavors: [] },
-  { id: 'germ-gelbwurst', flag: '🇩🇪', emoji: '🌭', category: 'Preorder German Meats', name: 'Gelbwurst', sizes: [{ label: '1 lb', priceNote: '$10' }], flavors: [] },
-  { id: 'germ-gelbwurst-parsley', flag: '🇩🇪', emoji: '🌭', category: 'Preorder German Meats', name: 'Gelbwurst w/Parsley', sizes: [{ label: '1 lb', priceNote: '$10' }], flavors: [] },
-  { id: 'germ-gourmet-spread', flag: '🇩🇪', emoji: '🫙', category: 'Preorder German Meats', name: 'Gourmet Spread', sizes: [{ label: '1 lb', priceNote: '$10' }], flavors: [] },
-  { id: 'germ-headcheese', flag: '🇩🇪', emoji: '🍖', category: 'Preorder German Meats', name: 'Headcheese', sizes: [{ label: '1 lb', priceNote: '$10' }], flavors: [] },
-  { id: 'germ-liver-goose', flag: '🇩🇪', emoji: '🌭', category: 'Preorder German Meats', name: 'Liver Sausage w/Goose', sizes: [{ label: '1 lb', priceNote: '$10' }], flavors: [] },
-  { id: 'germ-mortadella', flag: '🇩🇪', emoji: '🌭', category: 'Preorder German Meats', name: 'Mortadella', sizes: [{ label: '1 lb', priceNote: '$10' }], flavors: [] },
-  { id: 'germ-ring-bologna', flag: '🇩🇪', emoji: '🌭', category: 'Preorder German Meats', name: 'Ring Bologna', sizes: [{ label: '1 lb', priceNote: '$10' }], flavors: [] },
-  { id: 'germ-schinkenwurst', flag: '🇩🇪', emoji: '🌭', category: 'Preorder German Meats', name: 'Schinkenwurst', sizes: [{ label: '1 lb', priceNote: '$10' }], flavors: [] },
-  { id: 'germ-tiroler', flag: '🇩🇪', emoji: '🌭', category: 'Preorder German Meats', name: 'Tiroler Jagdwurst', sizes: [{ label: '1 lb', priceNote: '$10' }], flavors: [] },
-  { id: 'germ-cooked-bratwurst', flag: '🇩🇪', emoji: '🌭', category: 'Preorder German Meats', name: 'Cooked Bratwurst', sizes: [{ label: '1 lb', priceNote: '$10' }], flavors: [] },
-  { id: 'germ-bavarian-bratwurst', flag: '🇩🇪', emoji: '🌭', category: 'Preorder German Meats', name: 'Bavarian Bratwurst', sizes: [{ label: '1 lb', priceNote: '$10' }], flavors: [] },
-  { id: 'germ-debreziner', flag: '🇩🇪', emoji: '🌭', category: 'Preorder German Meats', name: 'Debreziner', sizes: [{ label: '1 lb', priceNote: '$12' }], flavors: [] },
-  { id: 'germ-garlic-sausage', flag: '🇩🇪', emoji: '🌭', category: 'Preorder German Meats', name: 'Garlic Sausage', sizes: [{ label: '1 lb', priceNote: '$10' }], flavors: [] },
-  { id: 'germ-grill-bratwurst', flag: '🇩🇪', emoji: '🌭', category: 'Preorder German Meats', name: 'Grill Bratwurst', sizes: [{ label: '1 lb', priceNote: '$10' }], flavors: [] },
-  { id: 'germ-gyulai', flag: '🇩🇪', emoji: '🌭', category: 'Preorder German Meats', name: 'Gyulai', sizes: [{ label: '1 lb', priceNote: '$12' }], flavors: [] },
-  { id: 'germ-knackwurst', flag: '🇩🇪', emoji: '🌭', category: 'Preorder German Meats', name: 'Knackwurst', sizes: [{ label: '1 lb', priceNote: '$10' }], flavors: [] },
-  { id: 'germ-kilometer', flag: '🇩🇪', emoji: '🌭', category: 'Preorder German Meats', name: 'Kilometer', sizes: [{ label: '1 lb', priceNote: '$12' }], flavors: [] },
-  { id: 'germ-landjager', flag: '🇩🇪', emoji: '🌭', category: 'Preorder German Meats', name: 'Landjager', sizes: [{ label: '1 lb', priceNote: '$12' }], flavors: [] },
-  { id: 'germ-leberkase', flag: '🇩🇪', emoji: '🍖', category: 'Preorder German Meats', name: 'Leberkase', sizes: [{ label: '2 lbs', priceNote: '$19' }], flavors: [] },
-  { id: 'germ-nuernburger', flag: '🇩🇪', emoji: '🌭', category: 'Preorder German Meats', name: 'Nuernburger Bratwurst', sizes: [{ label: '1 lb', priceNote: '$10' }], flavors: [] },
-  { id: 'germ-weisswurst', flag: '🇩🇪', emoji: '🌭', category: 'Preorder German Meats', name: 'Weisswurst', sizes: [{ label: '1 lb', priceNote: '$10' }], flavors: [] },
-  { id: 'germ-veal-bratwurst', flag: '🇩🇪', emoji: '🌭', category: 'Preorder German Meats', name: 'Veal Bratwurst', sizes: [{ label: '1 lb', priceNote: '$10' }], flavors: [] },
-  { id: 'germ-wieners', flag: '🇩🇪', emoji: '🌭', category: 'Preorder German Meats', name: 'Wieners', sizes: [{ label: '1 lb', priceNote: '$10' }], flavors: [] },
-  { id: 'germ-nuss-schinken', flag: '🇩🇪', emoji: '🍖', category: 'Preorder German Meats', name: 'Nuss Schinken', sizes: [{ label: '1.5-2 lbs', priceNote: '$27' }], flavors: [] },
-  // ── Polish Meats (Andy's Deli) ─────────────────────────────────────────────
-  { id: 'pol-forest-sausage', flag: '🇵🇱', emoji: '🌭', category: "Preorder Polish Meats", name: 'Forest Sausage', sizes: [{ label: 'Per Ring', priceNote: '$10' }], flavors: [] },
-  { id: 'pol-wedding-kielbasa', flag: '🇵🇱', emoji: '🌭', category: "Preorder Polish Meats", name: 'Wedding Kielbasa', sizes: [{ label: 'Per Ring', priceNote: '$10' }], flavors: [] },
-  { id: 'pol-polish-kielbasa', flag: '🇵🇱', emoji: '🌭', category: "Preorder Polish Meats", name: 'Polish Kielbasa', sizes: [{ label: 'Per Ring', priceNote: '$8' }], flavors: [] },
-  { id: 'pol-royal-kabanosi', flag: '🇵🇱', emoji: '🌭', category: "Preorder Polish Meats", name: 'Royal Kabanosi', sizes: [{ label: 'Per Ring', priceNote: '$6' }], flavors: [] },
-  { id: 'pol-kabanosi-sticks', flag: '🇵🇱', emoji: '🌭', category: "Preorder Polish Meats", name: 'Polish Kabanosi Sticks', sizes: [{ label: 'Each', priceNote: '$6' }], flavors: [] },
-  { id: 'pol-tarczynski-kabanosi', flag: '🇵🇱', emoji: '🌭', category: "Preorder Polish Meats", name: 'Tarczynski Brand Kabanosi', sizes: [{ label: 'Each', priceNote: '$6' }], flavors: ['Original', 'With Bacon', 'With Chili'] },
-  { id: 'pol-sokolow-kabanosi', flag: '🇵🇱', emoji: '🌭', category: "Preorder Polish Meats", name: 'Sokolow Brand Kabanosi', sizes: [{ label: 'Each', priceNote: '$6' }], flavors: ['Polish', 'Fresh', 'Italian', 'With Pepper', 'With Bacon & Pepper'] },
-];
+type MenuItem = import('./admin/preorders/types').MenuItem;
 
 const tnr: React.CSSProperties = { fontFamily: '"Times New Roman", Times, Georgia, serif' };
 
@@ -261,7 +113,7 @@ export default function PreOrder() {
     .filter(([, qty]) => qty > 0)
     .map(([k, qty]) => {
       const [id, size, flavor] = k.split('||');
-      const item = (settings?.menu && settings.menu.length > 0 ? settings.menu : MENU).find(m => m.id === id);
+      const item = (settings?.menu && settings.menu.length > 0 ? settings.menu : DEFAULT_MENU).find(m => m.id === id);
       return { product: item?.name ?? id, size, flavor: flavor ?? '', qty };
     });
 
@@ -283,7 +135,7 @@ export default function PreOrder() {
   const pickedDate = selectedIdx >= 0 ? availableDates[selectedIdx] : undefined;
   const deliveryDate = pickedDate?.date ?? '';
 
-  const activeMenu = (settings?.menu && settings.menu.length > 0) ? settings.menu : MENU;
+  const activeMenu = (settings?.menu && settings.menu.length > 0) ? settings.menu : DEFAULT_MENU;
 
   // Read cities directly from served_cities (first-class admin concept)
   const availableCities: string[] = settings?.served_cities ?? [];
