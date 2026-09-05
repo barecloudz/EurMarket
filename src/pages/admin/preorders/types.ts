@@ -11,6 +11,7 @@ export interface MenuItem {
   flag?: string;
   emoji: string;
   name: string;
+  category?: string;
   sizes: MenuSize[];
   flavors: string[];
 }

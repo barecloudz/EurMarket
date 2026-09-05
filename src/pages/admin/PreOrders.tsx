@@ -230,7 +230,12 @@ export default function AdminPreOrders() {
         ? { ...o, status: 'confirmed', confirmed_items: items, confirmed_total: confirmTotal }
         : o
       ));
-      addToast(data.emailSent ? '✅ Order confirmed & email sent!' : '✅ Order confirmed (no email on file)', 'success');
+      const toastMsg = data.emailSent
+        ? '✅ Order confirmed & email sent!'
+        : data.emailError
+          ? '✅ Order confirmed — email failed to send (check Resend config)'
+          : '✅ Order confirmed (customer has no email on file)';
+      addToast(toastMsg, data.emailError ? 'error' : 'success');
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Failed to send confirmation';
       addToast(msg, 'error');

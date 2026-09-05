@@ -338,6 +338,17 @@ function AddDateFlow({ servedCities, pastTimes, pastAddresses, usedCombos, savin
 
 // ── DateForm sub-component ─────────────────────────────────────────────────
 
+function generateWeeklyDates(startDate: string, endDate: string): string[] {
+  const dates: string[] = [];
+  const current = new Date(startDate + 'T12:00:00');
+  const end = new Date(endDate + 'T12:00:00');
+  while (current <= end) {
+    dates.push(current.toISOString().slice(0, 10));
+    current.setDate(current.getDate() + 7);
+  }
+  return dates;
+}
+
 interface DateFormProps {
   initial: DeliveryDate;
   servedCities: string[];
@@ -355,6 +366,8 @@ function DateForm({ initial, servedCities, pastTimes, pastAddresses, saving, onS
   const [address, setAddress] = useState(initial.location_address ?? '');
   const [cities, setCities] = useState<string[]>(initial.cities ?? []);
   const [cityInput, setCityInput] = useState('');
+  const [recurring, setRecurring] = useState(false);
+  const [repeatUntil, setRepeatUntil] = useState('');
 
   const toggleCity = (city: string) => {
     if (city === 'all') {
@@ -376,16 +389,31 @@ function DateForm({ initial, servedCities, pastTimes, pastAddresses, saving, onS
 
   const handleSave = async () => {
     if (!date || cities.length === 0) return;
-    const computedLabel = label || new Date(date + 'T12:00:00').toLocaleDateString('en-US', {
+    const baseLabel = label || new Date(date + 'T12:00:00').toLocaleDateString('en-US', {
       weekday: 'long', month: 'long', day: 'numeric', year: 'numeric',
     });
-    await onSave({
-      date,
-      label: computedLabel,
-      cities,
-      time: time.trim() || undefined,
-      location_address: address.trim() || undefined,
-    });
+    if (recurring && repeatUntil) {
+      for (const d of generateWeeklyDates(date, repeatUntil)) {
+        const computedLabel = new Date(d + 'T12:00:00').toLocaleDateString('en-US', {
+          weekday: 'long', month: 'long', day: 'numeric', year: 'numeric',
+        });
+        await onSave({
+          date: d,
+          label: computedLabel,
+          cities,
+          time: time.trim() || undefined,
+          location_address: address.trim() || undefined,
+        });
+      }
+    } else {
+      await onSave({
+        date,
+        label: baseLabel,
+        cities,
+        time: time.trim() || undefined,
+        location_address: address.trim() || undefined,
+      });
+    }
   };
 
   const allSelected = cities.includes('all');
@@ -404,6 +432,35 @@ function DateForm({ initial, servedCities, pastTimes, pastAddresses, saving, onS
           className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-gray-900 focus:outline-none focus:border-[#CC0000] transition-colors" />
         {label && <p className="text-sm text-gray-500 mt-1.5">Customers will see: <strong>{label}</strong></p>}
       </div>
+
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={() => { setRecurring(r => !r); setRepeatUntil(''); }}
+          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${recurring ? 'bg-[#CC0000]' : 'bg-gray-200'}`}
+        >
+          <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${recurring ? 'translate-x-6' : 'translate-x-1'}`} />
+        </button>
+        <span className="text-sm text-gray-700 font-medium">Repeat weekly</span>
+      </div>
+
+      {recurring && (
+        <div>
+          <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1.5">Repeat until</label>
+          <input
+            type="date"
+            value={repeatUntil}
+            onChange={e => setRepeatUntil(e.target.value)}
+            min={date}
+            className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-gray-900 focus:outline-none focus:border-[#CC0000] transition-colors"
+          />
+          {date && repeatUntil && (
+            <p className="text-xs text-gray-400 mt-1">
+              Will create {generateWeeklyDates(date, repeatUntil).length} date entries
+            </p>
+          )}
+        </div>
+      )}
 
       <div>
         <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1.5">🕐 Time</label>
@@ -485,9 +542,9 @@ function DateForm({ initial, servedCities, pastTimes, pastAddresses, saving, onS
       <div className="flex gap-2 pt-1">
         <button
           onClick={handleSave}
-          disabled={!date || cities.length === 0 || saving}
+          disabled={!date || cities.length === 0 || saving || (recurring && !repeatUntil)}
           className="flex-1 bg-[#CC0000] text-white font-black text-base px-4 py-3 rounded-xl hover:bg-[#AA0000] disabled:opacity-40 transition-colors shadow-sm active:scale-[0.99]">
-          {saving ? 'Saving...' : 'Add This Date'}
+          {saving ? 'Saving...' : recurring && date && repeatUntil ? `Save ${generateWeeklyDates(date, repeatUntil).length} Dates` : 'Add This Date'}
         </button>
         <button onClick={onCancel}
           className="px-4 py-3 border-2 border-gray-200 rounded-xl text-gray-600 font-bold hover:border-gray-300 transition-colors">

@@ -23,6 +23,7 @@ interface MenuItem {
   flag?: string;
   emoji: string;
   name: string;
+  category?: string;
   sizes: { label: string; priceNote: string }[];
   flavors: string[];
 }
@@ -32,6 +33,7 @@ const MENU: MenuItem[] = [
     id: 'paczki',
     flag: '🇵🇱',
     emoji: '🍩',
+    category: 'Preorder Homemade',
     name: 'Homemade Paczki — Polish Donuts',
     sizes: [
       { label: 'Medium', priceNote: '$5 each  ·  4 for $16' },
@@ -42,6 +44,7 @@ const MENU: MenuItem[] = [
   {
     id: 'pierogies',
     emoji: '🥟',
+    category: 'Preorder Homemade',
     name: 'Homemade Pierogies',
     sizes: [
       { label: '6 pieces', priceNote: '$10' },
@@ -52,6 +55,7 @@ const MENU: MenuItem[] = [
   {
     id: 'sweet-pierogies',
     emoji: '🍓',
+    category: 'Preorder Homemade',
     name: 'Sweet Pierogies with Sour Cream Topping',
     sizes: [
       { label: '6 pieces', priceNote: '$12' },
@@ -61,6 +65,7 @@ const MENU: MenuItem[] = [
   {
     id: 'pirozhki',
     emoji: '🥟',
+    category: 'Preorder Homemade',
     name: 'Ukrainian Pirozhki',
     sizes: [
       { label: 'Each', priceNote: '$3 each  ·  4 for $10' },
@@ -70,6 +75,7 @@ const MENU: MenuItem[] = [
   {
     id: 'cabbage-rolls',
     emoji: '🥬',
+    category: 'Preorder Homemade',
     name: 'Homemade Cabbage Rolls',
     sizes: [
       { label: 'Small Container', priceNote: '$8–$10' },
@@ -81,6 +87,7 @@ const MENU: MenuItem[] = [
   {
     id: 'poppy-seed-rolls',
     emoji: '🍞',
+    category: 'Preorder Homemade',
     name: 'Homemade Poppy Seed Rolls',
     sizes: [
       { label: 'Small', priceNote: '$5–$6' },
@@ -92,6 +99,7 @@ const MENU: MenuItem[] = [
   {
     id: 'cheese-rolls',
     emoji: '🧀',
+    category: 'Preorder Homemade',
     name: 'Homemade Sweet Cheese Rolls',
     sizes: [
       { label: 'Small', priceNote: '$6–$7' },
@@ -100,6 +108,24 @@ const MENU: MenuItem[] = [
     ],
     flavors: ['With Raisins', 'Without Raisins'],
   },
+  // ── British Meats ──────────────────────────────────────────────────────────
+  { id: 'brit-chipolata', flag: '🇬🇧', emoji: '🌭', category: 'Preorder British Meats', name: 'Classic English Chipolata Sausages', sizes: [{ label: 'Per Pack', priceNote: 'Price TBD' }], flavors: [] },
+  { id: 'brit-classic-sausages', flag: '🇬🇧', emoji: '🌭', category: 'Preorder British Meats', name: "Classic Sausages - Parker's Finest", sizes: [{ label: 'Per Pack', priceNote: 'Price TBD' }], flavors: [] },
+  { id: 'brit-white-pudding', flag: '🇬🇧', emoji: '🍖', category: 'Preorder British Meats', name: 'White Pudding', sizes: [{ label: '9-10 oz', priceNote: 'Price TBD' }], flavors: [] },
+  { id: 'brit-bacon-smoked', flag: '🇬🇧', emoji: '🥓', category: 'Preorder British Meats', name: 'English Bacon - Smoked', sizes: [{ label: '16 oz', priceNote: 'Price TBD' }], flavors: [] },
+  { id: 'brit-black-pudding', flag: '🇬🇧', emoji: '🍖', category: 'Preorder British Meats', name: 'Black Pudding', sizes: [{ label: '9-10 oz', priceNote: 'Price TBD' }], flavors: [] },
+  { id: 'brit-cocktail-sausages', flag: '🇬🇧', emoji: '🌭', category: 'Preorder British Meats', name: 'British Cocktail Sausages', sizes: [{ label: 'Per Pack', priceNote: 'Price TBD' }], flavors: [] },
+  { id: 'brit-welsh-dragon', flag: '🏴󠁧󠁢󠁷󠁬󠁳󠁿', emoji: '🌭', category: 'Preorder British Meats', name: 'Welsh Dragon Sausages', sizes: [{ label: 'Per Pack', priceNote: 'Price TBD' }], flavors: [] },
+  { id: 'brit-jumbo-roll', flag: '🇬🇧', emoji: '🥐', category: 'Preorder British Meats', name: "Jumbo Sausage Roll - Parker's Finest", sizes: [{ label: 'Each', priceNote: 'Price TBD' }], flavors: [] },
+  { id: 'brit-bacon-wet', flag: '🇬🇧', emoji: '🥓', category: 'Preorder British Meats', name: 'English Bacon - Wet Cured', sizes: [{ label: '16 oz', priceNote: 'Price TBD' }], flavors: [] },
+  { id: 'brit-pork-pie', flag: '🇬🇧', emoji: '🥧', category: 'Preorder British Meats', name: "Classic Pork Pie - Parker's Finest", sizes: [{ label: '7 oz', priceNote: 'Price TBD' }], flavors: [] },
+  { id: 'brit-lincolnshire', flag: '🇬🇧', emoji: '🌭', category: 'Preorder British Meats', name: 'Lincolnshire Chipolata Sausages', sizes: [{ label: 'Per Pack', priceNote: 'Price TBD' }], flavors: [] },
+  { id: 'brit-cornish-pasty', flag: '🇬🇧', emoji: '🥧', category: 'Preorder British Meats', name: "Cornish Pasty - Parker's Finest", sizes: [{ label: 'Each', priceNote: 'Price TBD' }], flavors: [] },
+  { id: 'brit-shepherds-pie', flag: '🇬🇧', emoji: '🥘', category: 'Preorder British Meats', name: "Shepherd's Pie", sizes: [{ label: 'Each', priceNote: 'Price TBD' }], flavors: [] },
+  { id: 'brit-bread-rolls', flag: '🇬🇧', emoji: '🍞', category: 'Preorder British Meats', name: 'Large White Bread Rolls', sizes: [{ label: 'Per Pack', priceNote: 'Price TBD' }], flavors: [] },
+  { id: 'brit-sticky-toffee', flag: '🇬🇧', emoji: '🍮', category: 'Preorder British Meats', name: 'Sticky Toffee Sponge Pudding', sizes: [{ label: 'Each', priceNote: 'Price TBD' }], flavors: [] },
+  { id: 'brit-syrup-sponge', flag: '🇬🇧', emoji: '🍮', category: 'Preorder British Meats', name: 'Syrup Sponge Pudding', sizes: [{ label: 'Each', priceNote: 'Price TBD' }], flavors: [] },
+  { id: 'brit-beef-onion-pie', flag: '🇬🇧', emoji: '🥧', category: 'Preorder British Meats', name: 'Beef & Onion Pie', sizes: [{ label: 'Each', priceNote: 'Price TBD' }], flavors: [] },
 ];
 
 const tnr: React.CSSProperties = { fontFamily: '"Times New Roman", Times, Georgia, serif' };
@@ -201,12 +227,16 @@ export default function PreOrder() {
   const hasItems = orderLines.length > 0;
   const totalQty = orderLines.reduce((sum, l) => sum + l.qty, 0);
 
-  const availableDates = useMemo(() =>
-    settings?.delivery_dates?.filter(d =>
-      d.cities.includes('all') || d.cities.includes(city)
-    ) ?? [],
-    [settings?.delivery_dates, city],
-  );
+  const availableDates = useMemo(() => {
+    const filtered = settings?.delivery_dates?.filter(d =>
+      d.cities.includes(city)
+    ) ?? [];
+    return filtered.slice().sort((a, b) => {
+      const dateCmp = a.date.localeCompare(b.date);
+      if (dateCmp !== 0) return dateCmp;
+      return (a.time ?? '').localeCompare(b.time ?? '');
+    });
+  }, [settings?.delivery_dates, city]);
 
   const selectedIdx = selectedDateIdx !== '' ? parseInt(selectedDateIdx) : -1;
   const pickedDate = selectedIdx >= 0 ? availableDates[selectedIdx] : undefined;
@@ -609,44 +639,49 @@ export default function PreOrder() {
               {pickedDate?.time && <span> · {pickedDate.time}</span>}
             </p>
 
-            {activeMenu.map(item => (
-              <div key={item.id} className="bg-white rounded-2xl border-2 border-gray-100 p-5 mb-4 shadow-sm">
-                <div className="border-b border-[#CC0000]/20 pb-3 mb-4">
-                  <h3 className="text-lg font-black text-gray-900 leading-tight">
-                    {item.flag && <span className="mr-1">{item.flag}</span>}{item.emoji} {item.name}
-                  </h3>
-                </div>
+            {Array.from(new Set(activeMenu.map(item => item.category ?? 'Menu'))).map(cat => (
+              <div key={cat}>
+                <h3 className="text-xl font-black text-gray-900 mt-6 mb-3 pb-2 border-b-2 border-gray-100" style={tnr}>{cat}</h3>
+                {activeMenu.filter(item => (item.category ?? 'Menu') === cat).map(item => (
+                  <div key={item.id} className="bg-white rounded-2xl border-2 border-gray-100 p-5 mb-4 shadow-sm">
+                    <div className="border-b border-[#CC0000]/20 pb-3 mb-4">
+                      <h3 className="text-lg font-black text-gray-900 leading-tight">
+                        {item.flag && <span className="mr-1">{item.flag}</span>}{item.emoji} {item.name}
+                      </h3>
+                    </div>
 
-                {item.flavors.length === 0 ? (
-                  <div className="divide-y divide-gray-100">
-                    {item.sizes.map(size => (
-                      <div key={size.label} className="flex items-center justify-between gap-4 py-3 first:pt-0 last:pb-0">
-                        <div>
-                          <p className="font-bold text-gray-900">{size.label}</p>
-                          <p className="text-[#CC0000] font-semibold text-sm">{size.priceNote}</p>
-                        </div>
-                        <QtyInput value={getQty(item.id, size.label, '')} onChange={v => setQty(item.id, size.label, '', v)} />
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  item.sizes.map(size => (
-                    <div key={size.label} className="mb-5 last:mb-0">
-                      <div className="flex items-baseline gap-3 mb-3">
-                        <span className="font-bold text-gray-900">{size.label}</span>
-                        <span className="text-[#CC0000] font-semibold text-sm">{size.priceNote}</span>
-                      </div>
-                      <div className="divide-y divide-gray-50 pl-2">
-                        {item.flavors.map(flavor => (
-                          <div key={flavor} className="flex items-center justify-between gap-4 py-2.5 first:pt-0 last:pb-0">
-                            <p className="text-gray-700 text-sm">{flavor}</p>
-                            <QtyInput value={getQty(item.id, size.label, flavor)} onChange={v => setQty(item.id, size.label, flavor, v)} />
+                    {item.flavors.length === 0 ? (
+                      <div className="divide-y divide-gray-100">
+                        {item.sizes.map(size => (
+                          <div key={size.label} className="flex items-center justify-between gap-4 py-3 first:pt-0 last:pb-0">
+                            <div>
+                              <p className="font-bold text-gray-900">{size.label}</p>
+                              <p className="text-[#CC0000] font-semibold text-sm">{size.priceNote}</p>
+                            </div>
+                            <QtyInput value={getQty(item.id, size.label, '')} onChange={v => setQty(item.id, size.label, '', v)} />
                           </div>
                         ))}
                       </div>
-                    </div>
-                  ))
-                )}
+                    ) : (
+                      item.sizes.map(size => (
+                        <div key={size.label} className="mb-5 last:mb-0">
+                          <div className="flex items-baseline gap-3 mb-3">
+                            <span className="font-bold text-gray-900">{size.label}</span>
+                            <span className="text-[#CC0000] font-semibold text-sm">{size.priceNote}</span>
+                          </div>
+                          <div className="divide-y divide-gray-50 pl-2">
+                            {item.flavors.map(flavor => (
+                              <div key={flavor} className="flex items-center justify-between gap-4 py-2.5 first:pt-0 last:pb-0">
+                                <p className="text-gray-700 text-sm">{flavor}</p>
+                                <QtyInput value={getQty(item.id, size.label, flavor)} onChange={v => setQty(item.id, size.label, flavor, v)} />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                ))}
               </div>
             ))}
 

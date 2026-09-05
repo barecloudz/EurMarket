@@ -50,6 +50,13 @@ export function MenuTab({ menu, savingMenu, onMenuChange, onSaveMenu }: Props) {
                 </div>
               </div>
 
+              <div>
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Category</label>
+                <input type="text" value={editItem.category ?? ''} onChange={e => setEditItem({ ...editItem, category: e.target.value || undefined })}
+                  placeholder="e.g. Preorder Homemade"
+                  className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-gray-900 focus:outline-none focus:border-[#CC0000]" />
+              </div>
+
               {/* Sizes */}
               <div>
                 <div className="flex items-center justify-between mb-2">
