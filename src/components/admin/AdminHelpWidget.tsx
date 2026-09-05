@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { X, HelpCircle, ChevronRight, ChevronLeft } from 'lucide-react';
 
 const SUPPORT_CONTACT = 'Blake';
-const HELP_SEEN_KEY = 'admin_help_seen_v1';
+const HELP_SEEN_KEY = 'admin_help_seen_v2';
 
 interface Guide {
   title: string;
@@ -27,11 +27,11 @@ const GUIDES: Guide[] = [
     emoji: '📅',
     steps: [
       'Go to Pre-Orders → Settings tab.',
-      'Scroll down to "Market dates" (Step 3).',
-      'Tap "Add a market date" to expand the form.',
-      'Pick the date, type the time (e.g. "8:00 AM – 12:00 PM"), and the pickup address.',
-      'Choose which cities can order for that date — or leave it as "All Cities".',
-      'Tap "Add This Date" — it saves right away.',
+      'Scroll down to "Market dates" and tap "Add a market date".',
+      'Pick the start date, type the time (e.g. "9:00 AM – 1:00 PM"), and the pickup address.',
+      'Choose which city can order for that date — pick the exact city name.',
+      'Want the same market every week? Toggle on "Repeat weekly", then pick an end date. It creates all the dates automatically — you only fill in the info once!',
+      'Tap "Add This Date" (or "Save X Dates" for repeating) — saves right away.',
       'To edit or delete a date later, tap the pencil ✏️ or trash 🗑️ icon next to it.',
     ],
   },
@@ -40,12 +40,24 @@ const GUIDES: Guide[] = [
     emoji: '✏️',
     steps: [
       'Go to Pre-Orders → Menu tab.',
-      'You\'ll see all your items listed. Tap the blue pencil ✏️ button on any item to edit it.',
+      'You\'ll see all your items listed by category. Tap the blue pencil ✏️ on any item to edit it.',
       'Change the name, emoji, sizes, prices, or flavors.',
-      'To add a new flavor: tap "+ Add flavor", type the name.',
-      'To remove a flavor: tap the X next to it.',
-      'Tap "Save Item" when done — it goes live on the order form immediately.',
-      'Need to start fresh? Use "↩ Reset to defaults" at the top to reload the standard menu.',
+      'The "Category" field controls which section the item appears in on the order form (like "Preorder Homemade" or "Preorder German Meats"). Tap an existing category button to pick it quickly, or type a brand new name.',
+      'To add a flavor: tap "+ Add flavor" and type the name. To remove one: tap the X next to it.',
+      'Tap "Save Item" when done — it goes live immediately.',
+      'Need to start fresh? Use "↩ Reset to defaults" to reload the original menu.',
+    ],
+  },
+  {
+    title: 'Adding a New Category',
+    emoji: '🗂️',
+    steps: [
+      'Go to Pre-Orders → Menu tab.',
+      'Tap "+ Add New Item" at the bottom.',
+      'Fill in the item name, emoji, size, and price.',
+      'In the "Category" field, type the name of your new section — for example "Preorder Polish Meats".',
+      'Tap "Save Item". That category now appears as a button when editing any future item — just tap it instead of typing it again.',
+      'Add as many items to that category as you like — they will all show up together as a group on the customer order form.',
     ],
   },
   {
@@ -55,9 +67,9 @@ const GUIDES: Guide[] = [
       'Go to Pre-Orders → Orders tab.',
       'New orders show up with an amber border and say "⏳ Pending".',
       'Tap "Pack & Set Prices" on a pending order to review what the customer wants.',
-      'Enter the price for each item. Mark anything you can\'t make as "unavailable".',
-      'Tap "Confirm & Send Email" — the customer gets an email with their total.',
-      'Use the dropdown to update the order status: Confirmed → Ready → Completed.',
+      'Enter the price for each item. Mark anything unavailable and it will show as crossed out in the customer\'s email.',
+      'Tap "Confirm & Send Email" — the customer gets an email with their total and payment options.',
+      'Use the dropdown to update status: Confirmed → Ready → Completed.',
       'The "Production Summary" at the top totals up everything you need to make.',
     ],
   },

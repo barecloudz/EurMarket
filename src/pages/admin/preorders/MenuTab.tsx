@@ -52,9 +52,20 @@ export function MenuTab({ menu, savingMenu, onMenuChange, onSaveMenu }: Props) {
 
               <div>
                 <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Category</label>
+                <div className="flex flex-wrap gap-1.5 mb-2">
+                  {Array.from(new Set(menu.map(m => m.category).filter(Boolean))).map(cat => (
+                    <button
+                      key={cat}
+                      type="button"
+                      onClick={() => setEditItem({ ...editItem, category: cat })}
+                      className={`px-3 py-1 rounded-full text-xs font-bold border transition-colors ${editItem.category === cat ? 'bg-[#CC0000] border-[#CC0000] text-white' : 'bg-gray-50 border-gray-200 text-gray-600 hover:border-[#CC0000]/50'}`}>
+                      {cat}
+                    </button>
+                  ))}
+                </div>
                 <input type="text" value={editItem.category ?? ''} onChange={e => setEditItem({ ...editItem, category: e.target.value || undefined })}
-                  placeholder="e.g. Preorder Homemade"
-                  className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-gray-900 focus:outline-none focus:border-[#CC0000]" />
+                  placeholder="Or type a new category name…"
+                  className="w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-gray-900 focus:outline-none focus:border-[#CC0000] text-sm" />
               </div>
 
               {/* Sizes */}
@@ -145,6 +156,7 @@ export function MenuTab({ menu, savingMenu, onMenuChange, onSaveMenu }: Props) {
             <div className="flex items-center gap-3 px-4 py-4">
               <span className="text-2xl flex-shrink-0">{item.emoji}</span>
               <div className="flex-1 min-w-0">
+                {item.category && <p className="text-xs font-bold text-[#CC0000] mb-0.5 uppercase tracking-wide">{item.category}</p>}
                 <p className="font-bold text-gray-900 text-sm leading-snug">{item.name}</p>
                 <p className="text-xs text-gray-500 mt-0.5">
                   {item.sizes.map(s => `${s.label}: ${s.priceNote}`).join(' · ')}
